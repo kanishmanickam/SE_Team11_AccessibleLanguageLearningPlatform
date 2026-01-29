@@ -503,6 +503,17 @@ body.simplified-layout .sidebar {
   box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
 }
 
+.btn-audio:active {
+  transform: scale(0.95);
+}
+
+.audio-info {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
+
 /* EPIC 2.3: Interactive engagement */
 .step-interaction {
   background-color: #f5f5f5;

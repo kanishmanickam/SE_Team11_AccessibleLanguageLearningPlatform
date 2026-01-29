@@ -6,7 +6,6 @@ import './AutismView.css';
 
 const AutismView = () => {
   const { user, logout } = useAuth();
-  const { preferences } = usePreferences();
   const [showSettings, setShowSettings] = useState(false);
   
   // Lesson navigation state
@@ -212,12 +211,37 @@ const AutismView = () => {
     }
   };
 
-  // EPIC 2.1: Audio playback
+  // EPIC 2.1: Audio playback with text-to-speech fallback
   const handlePlayAudio = () => {
     if (audioRef.current && currentStep?.audio) {
-      audioRef.current.play();
+      // Try to play the audio file
+      audioRef.current.play().catch((error) => {
+        console.log('Audio file not available, using text-to-speech fallback');
+        // Fallback to browser's text-to-speech if audio file not found
+        speakText(currentStep.content);
+      });
       setFeedback('🔊 Playing audio...');
       setTimeout(() => setFeedback(''), 2000);
+    } else if (currentStep?.content) {
+      // If no audio ref, use text-to-speech directly
+      speakText(currentStep.content);
+      setFeedback('🔊 Playing audio...');
+      setTimeout(() => setFeedback(''), 2000);
+    }
+  };
+
+  // Text-to-speech fallback function
+  const speakText = (text) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.8; // Slower speed for better comprehension
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -260,9 +284,10 @@ const AutismView = () => {
 
   // Cleanup audio on unmount
   useEffect(() => {
+    const audio = audioRef.current;
     return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+      if (audio) {
+        audio.pause();
       }
     };
   }, []);
@@ -323,7 +348,13 @@ const AutismView = () => {
                 <button onClick={handlePlayAudio} className="btn-audio">
                   🔊 Play Audio
                 </button>
-                <audio ref={audioRef} src={currentStep.audio} preload="metadata" />
+                <audio 
+                  ref={audioRef} 
+                  src={currentStep.audio} 
+                  preload="none"
+                  onError={() => console.log('Audio file not found, will use text-to-speech')}
+                />
+                <p className="audio-info">Click to hear the pronunciation</p>
               </div>
 
               {/* EPIC 2.3: Interactive engagement */}
