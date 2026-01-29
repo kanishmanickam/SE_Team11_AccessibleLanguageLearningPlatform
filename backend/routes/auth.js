@@ -1,0 +1,251 @@
+const express = require('express');
+const router = express.Router();
+const { body, validationResult } = require('express-validator');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const Preferences = require('../models/Preferences');
+const { protect } = require('../middleware/auth');
+
+// Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE,
+  });
+};
+
+// @route   POST /api/auth/register
+// @desc    Register a new user (1.1)
+// @access  Public
+router.post(
+  '/register',
+  [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Please provide a valid email'),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters'),
+    body('learningCondition')
+      .isIn(['dyslexia', 'adhd', 'autism', 'none'])
+      .withMessage('Invalid learning condition'),
+    body('age').optional().isInt({ min: 3, max: 100 }),
+  ],
+  async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+
+    const {
+      name,
+      email,
+      password,
+      learningCondition,
+      age,
+      parentEmail,
+      isMinor,
+    } = req.body;
+
+    try {
+      // Check if user already exists
+      let user = await User.findOne({ email });
+      if (user) {
+        return res.status(400).json({
+          success: false,
+          message: 'User already exists with this email',
+        });
+      }
+
+      // Determine if parental approval is required
+      const requiresParentalApproval = isMinor || (age && age < 13);
+
+      // Create user
+      user = await User.create({
+        name,
+        email,
+        password,
+        learningCondition,
+        age,
+        parentEmail,
+        isMinor: requiresParentalApproval,
+        requiresParentalApproval,
+      });
+
+      // Create default preferences based on learning condition
+      const defaultPreferences = await Preferences.create({
+        user: user._id,
+        // Set defaults based on condition
+        ...(learningCondition === 'dyslexia' && {
+          fontFamily: 'opendyslexic',
+          letterSpacing: 'wide',
+          lineHeight: 'relaxed',
+        }),
+        ...(learningCondition === 'adhd' && {
+          distractionFreeMode: true,
+          learningPace: 'normal',
+          breakReminders: true,
+        }),
+        ...(learningCondition === 'autism' && {
+          distractionFreeMode: true,
+          simplifiedLayout: true,
+          reduceAnimations: true,
+        }),
+      });
+
+      // Link preferences to user
+      user.preferences = defaultPreferences._id;
+      await user.save();
+
+      // Generate token
+      const token = generateToken(user._id);
+
+      res.status(201).json({
+        success: true,
+        message: 'Registration successful',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          learningCondition: user.learningCondition,
+          requiresParentalApproval: user.requiresParentalApproval,
+        },
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error during registration',
+        error: error.message,
+      });
+    }
+  }
+);
+
+// @route   POST /api/auth/login
+// @desc    Login user (1.2)
+// @access  Public
+router.post(
+  '/login',
+  [
+    body('email').isEmail().withMessage('Please provide a valid email'),
+    body('password').notEmpty().withMessage('Password is required'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+
+    const { email, password } = req.body;
+
+    try {
+      // Find user and include password
+      const user = await User.findOne({ email })
+        .select('+password')
+        .populate('preferences');
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password',
+        });
+      }
+
+      // Check password
+      const isMatch = await user.matchPassword(password);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid email or password',
+        });
+      }
+
+      // Check if account is active
+      if (!user.isActive) {
+        return res.status(403).json({
+          success: false,
+          message: 'Account has been deactivated',
+        });
+      }
+
+      // Update last login
+      user.lastLogin = Date.now();
+      await user.save();
+
+      // Generate token
+      const token = generateToken(user._id);
+
+      res.json({
+        success: true,
+        message: 'Login successful',
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          learningCondition: user.learningCondition,
+          requiresParentalApproval: user.requiresParentalApproval,
+          preferences: user.preferences,
+        },
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error during login',
+        error: error.message,
+      });
+    }
+  }
+);
+
+// @route   GET /api/auth/me
+// @desc    Get current logged in user
+// @access  Private
+router.get('/me', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate('preferences');
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        learningCondition: user.learningCondition,
+        age: user.age,
+        isMinor: user.isMinor,
+        requiresParentalApproval: user.requiresParentalApproval,
+        preferences: user.preferences,
+        lastLogin: user.lastLogin,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching user data',
+      error: error.message,
+    });
+  }
+});
+
+// @route   POST /api/auth/logout
+// @desc    Logout user (clear client-side token)
+// @access  Private
+router.post('/logout', protect, async (req, res) => {
+  // With JWT, logout is handled client-side by removing the token
+  // We can log this event if needed
+  res.json({
+    success: true,
+    message: 'Logged out successfully',
+  });
+});
+
+module.exports = router;

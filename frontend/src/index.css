@@ -1,0 +1,373 @@
+/* OpenDyslexic Font Import */
+@import url('https://fonts.cdnfonts.com/css/opendyslexic');
+
+/* Base CSS Reset and Variables */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Default Theme Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #e0e0e0;
+  --accent-color: #4CAF50;
+  --error-color: #f44336;
+  --success-color: #4CAF50;
+  --warning-color: #ff9800;
+  
+  /* Font Sizes */
+  --font-size-small: 14px;
+  --font-size-medium: 16px;
+  --font-size-large: 20px;
+  --font-size-extra-large: 24px;
+  
+  /* Spacing */
+  --letter-spacing-normal: normal;
+  --letter-spacing-wide: 0.05em;
+  --letter-spacing-extra-wide: 0.1em;
+  
+  --word-spacing-normal: normal;
+  --word-spacing-wide: 0.2em;
+  --word-spacing-extra-wide: 0.4em;
+  
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.8;
+  --line-height-loose: 2.2;
+}
+
+/* High Contrast Theme */
+body.theme-high-contrast {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #ffffff;
+  --accent-color: #00ff00;
+}
+
+/* Dark Theme */
+body.theme-dark {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+  --accent-color: #81c784;
+}
+
+/* Light Theme */
+body.theme-light {
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --border-color: #e0e0e0;
+  --accent-color: #66bb6a;
+}
+
+/* Yellow-Black High Contrast */
+body.theme-yellow-black {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a00;
+  --text-primary: #ffff00;
+  --text-secondary: #cccc00;
+  --border-color: #ffff00;
+  --accent-color: #ffff00;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-normal);
+  word-spacing: var(--word-spacing-normal);
+  transition: all 0.3s ease;
+}
+
+/* Font Family Classes */
+.font-opendyslexic {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+.font-arial {
+  font-family: Arial, sans-serif !important;
+}
+
+.font-comic-sans {
+  font-family: 'Comic Sans MS', cursive !important;
+}
+
+/* Font Size Classes */
+.font-small {
+  font-size: var(--font-size-small) !important;
+}
+
+.font-medium {
+  font-size: var(--font-size-medium) !important;
+}
+
+.font-large {
+  font-size: var(--font-size-large) !important;
+}
+
+.font-extra-large {
+  font-size: var(--font-size-extra-large) !important;
+}
+
+/* Letter Spacing Classes */
+.letter-spacing-normal {
+  letter-spacing: var(--letter-spacing-normal) !important;
+}
+
+.letter-spacing-wide {
+  letter-spacing: var(--letter-spacing-wide) !important;
+}
+
+.letter-spacing-extra-wide {
+  letter-spacing: var(--letter-spacing-extra-wide) !important;
+}
+
+/* Word Spacing Classes */
+.word-spacing-normal {
+  word-spacing: var(--word-spacing-normal) !important;
+}
+
+.word-spacing-wide {
+  word-spacing: var(--word-spacing-wide) !important;
+}
+
+.word-spacing-extra-wide {
+  word-spacing: var(--word-spacing-extra-wide) !important;
+}
+
+/* Line Height Classes */
+.line-height-normal {
+  line-height: var(--line-height-normal) !important;
+}
+
+.line-height-relaxed {
+  line-height: var(--line-height-relaxed) !important;
+}
+
+.line-height-loose {
+  line-height: var(--line-height-loose) !important;
+}
+
+/* Learning Container - Scoped Preferences */
+#learning-container {
+  /* Inherit from body but allow overrides */
+  color: inherit;
+  background-color: inherit;
+}
+
+#learning-container.theme-high-contrast {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --border-color: #ffffff;
+  --accent-color: #00ff00;
+}
+
+#learning-container.theme-dark {
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --border-color: #404040;
+  --accent-color: #81c784;
+}
+
+#learning-container.theme-light {
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --border-color: #e0e0e0;
+  --accent-color: #66bb6a;
+}
+
+#learning-container.theme-yellow-black {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a00;
+  --text-primary: #ffff00;
+  --text-secondary: #cccc00;
+  --border-color: #ffff00;
+  --accent-color: #ffff00;
+}
+
+#learning-container.font-opendyslexic {
+  font-family: 'OpenDyslexic', sans-serif !important;
+}
+
+#learning-container.font-arial {
+  font-family: Arial, sans-serif !important;
+}
+
+#learning-container.font-comic-sans {
+  font-family: 'Comic Sans MS', cursive !important;
+}
+
+#learning-container.font-small {
+  font-size: var(--font-size-small) !important;
+}
+
+#learning-container.font-medium {
+  font-size: var(--font-size-medium) !important;
+}
+
+#learning-container.font-large {
+  font-size: var(--font-size-large) !important;
+}
+
+#learning-container.font-extra-large {
+  font-size: var(--font-size-extra-large) !important;
+}
+
+#learning-container.letter-spacing-normal {
+  letter-spacing: var(--letter-spacing-normal) !important;
+}
+
+#learning-container.letter-spacing-wide {
+  letter-spacing: var(--letter-spacing-wide) !important;
+}
+
+#learning-container.letter-spacing-extra-wide {
+  letter-spacing: var(--letter-spacing-extra-wide) !important;
+}
+
+#learning-container.word-spacing-normal {
+  word-spacing: var(--word-spacing-normal) !important;
+}
+
+#learning-container.word-spacing-wide {
+  word-spacing: var(--word-spacing-wide) !important;
+}
+
+#learning-container.word-spacing-extra-wide {
+  word-spacing: var(--word-spacing-extra-wide) !important;
+}
+
+#learning-container.line-height-normal {
+  line-height: var(--line-height-normal) !important;
+}
+
+#learning-container.line-height-relaxed {
+  line-height: var(--line-height-relaxed) !important;
+}
+
+#learning-container.line-height-loose {
+  line-height: var(--line-height-loose) !important;
+}
+
+#learning-container.distraction-free {
+  background-color: var(--bg-secondary);
+}
+
+#learning-container.distraction-free * {
+  animation: none !important;
+  transition: none !important;
+}
+
+#learning-container.reduce-animations * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Simplified Layout */
+.simplified-layout {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Accessibility Helpers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Focus Styles */
+*:focus {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Button Base Styles */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Link Base Styles */
+a {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+/* Form Input Base Styles */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-color);
+}
+
+/* Loading Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
