@@ -68,6 +68,21 @@ const LessonSchema = new mongoose.Schema(
               type: mongoose.Schema.Types.Mixed,
               required: true,
             },
+            hint: {
+              type: String,
+              trim: true,
+              default: '',
+            },
+            explanation: {
+              type: String,
+              trim: true,
+              default: '',
+            },
+            maxAttempts: {
+              type: Number,
+              default: 3,
+              min: 1,
+            },
             feedback: {
               correct: {
                 type: String,

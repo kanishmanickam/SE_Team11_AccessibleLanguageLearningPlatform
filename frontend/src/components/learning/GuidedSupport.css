@@ -1,0 +1,45 @@
+.guided-support {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.btn-help {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 2px solid var(--theme-border, var(--border-color));
+  background: var(--theme-bg, var(--bg-secondary));
+  color: var(--theme-text, var(--text-primary));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-help:focus-visible {
+  outline: 3px solid var(--theme-focus, var(--accent-color));
+  outline-offset: 2px;
+}
+
+.guided-message {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--theme-border, var(--border-color));
+  background: var(--theme-surface, var(--bg-primary));
+  color: var(--theme-text, var(--text-primary));
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.guided-message.hint::before {
+  content: 'Hint: ';
+  font-weight: 600;
+}
+
+.guided-message.explanation::before {
+  content: 'Why it works: ';
+  font-weight: 600;
+}
+
+.guided-message.encouragement::before {
+  content: 'Keep going: ';
+  font-weight: 600;
+}

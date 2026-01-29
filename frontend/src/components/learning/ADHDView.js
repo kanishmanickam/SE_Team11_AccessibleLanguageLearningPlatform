@@ -69,6 +69,9 @@ const ADHDView = () => {
           type: 'true_false',
           question: 'Is “Hi” a greeting?',
           correctAnswer: 'True',
+          hint: 'Think about a short word you say when you meet someone.',
+          explanation: '“Hi” is a common greeting.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Yes! “Hi” is a greeting.',
             incorrect: 'Not quite. “Hi” is a greeting.',
@@ -93,6 +96,9 @@ const ADHDView = () => {
           question: 'Pick the word that names a fruit.',
           options: ['Apple', 'Chair', 'Cloud'],
           correctAnswer: 'Apple',
+          hint: 'Think of something you can eat.',
+          explanation: 'Apple is a fruit.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Correct! Apple is a fruit.',
             incorrect: 'Try again. Apple is the fruit.',
@@ -117,6 +123,9 @@ const ADHDView = () => {
           question: 'Click the number 4.',
           options: ['2', '4', '5'],
           correctAnswer: '4',
+          hint: 'Look for the number between 3 and 5.',
+          explanation: '4 is the number between 3 and 5.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Nice! 4 is correct.',
             incorrect: 'Almost. Look for 4.',

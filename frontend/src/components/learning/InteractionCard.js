@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { submitInteraction } from '../../services/interactionService';
+import React, { useEffect, useMemo, useState } from 'react';
+import { requestInteractionHelp, submitInteraction } from '../../services/interactionService';
+import GuidedSupport from './GuidedSupport';
 import './InteractionCard.css';
 
 const normalizeAnswer = (value) => {
@@ -8,17 +9,44 @@ const normalizeAnswer = (value) => {
   return String(value ?? '').trim().toLowerCase();
 };
 
-const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, useLocalSubmission }) => {
+const encouragementMessages = [
+  "You're getting closer!",
+  "Nice try — let's look at this together.",
+  'Learning takes practice. Keep going!',
+  'Good effort! Try once more.',
+  'You are making progress. Keep it up!',
+];
+
+const pickEncouragement = () => {
+  return encouragementMessages[
+    Math.floor(Math.random() * encouragementMessages.length)
+  ];
+};
+
+const InteractionCard = ({
+  lessonId,
+  interaction,
+  onContinue,
+  disableContinue = false,
+  useLocalSubmission = false,
+}) => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  const [guidance, setGuidance] = useState(null);
+  const [isHelping, setIsHelping] = useState(false);
+
+  const hintTriggerAttempts = useMemo(() => 2, []);
 
   useEffect(() => {
     setSelectedAnswer('');
     setResult(null);
     setError('');
     setIsSubmitting(false);
+    setAttempts(0);
+    setGuidance(null);
   }, [interaction?.id, lessonId]);
 
   const options =
@@ -34,13 +62,29 @@ const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, u
     setError('');
 
     try {
+      const nextAttempts = attempts + 1;
+      setAttempts(nextAttempts);
+
       if (useLocalSubmission) {
         const isCorrect =
           normalizeAnswer(selectedAnswer) === normalizeAnswer(interaction.correctAnswer);
-        setResult({
+        const payload = {
           isCorrect,
           feedback: isCorrect ? interaction.feedback.correct : interaction.feedback.incorrect,
-        });
+        };
+
+        if (!isCorrect) {
+          if (interaction.explanation) {
+            payload.explanation = interaction.explanation;
+          }
+          if (interaction.hint && nextAttempts >= hintTriggerAttempts) {
+            payload.hint = interaction.hint;
+          }
+          payload.encouragement = pickEncouragement();
+        }
+
+        setResult(payload);
+        setGuidance(resolveGuidance(payload));
       } else {
         const response = await submitInteraction({
           lessonId,
@@ -48,6 +92,7 @@ const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, u
           selectedAnswer,
         });
         setResult(response);
+        setGuidance(resolveGuidance(response));
       }
     } catch (submitError) {
       setError('Unable to submit your answer. Please try again.');
@@ -60,6 +105,7 @@ const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, u
     if (result && !result.isCorrect) {
       setResult(null);
       setError('');
+      setGuidance(null);
     }
     setSelectedAnswer(option);
   };
@@ -68,11 +114,44 @@ const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, u
     setResult(null);
     setSelectedAnswer('');
     setError('');
+    setGuidance(null);
+  };
+
+  const handleHelp = async () => {
+    setIsHelping(true);
+    setError('');
+    try {
+      if (useLocalSubmission) {
+        const payload = {};
+        if (interaction.hint && attempts >= hintTriggerAttempts) {
+          payload.hint = interaction.hint;
+        } else if (interaction.explanation) {
+          payload.explanation = interaction.explanation;
+        } else if (interaction.hint) {
+          payload.hint = interaction.hint;
+        }
+        payload.encouragement = pickEncouragement();
+        setGuidance(resolveGuidance(payload));
+      } else {
+        const response = await requestInteractionHelp({
+          lessonId,
+          interactionId: interaction.id,
+        });
+        setGuidance(resolveGuidance(response));
+      }
+    } catch (helpError) {
+      setError('Unable to load help right now.');
+    } finally {
+      setIsHelping(false);
+    }
   };
 
   const isAnswered = Boolean(result);
   const isCorrect = Boolean(result?.isCorrect);
   const isLocked = isSubmitting || isCorrect;
+
+  const guidanceMessage = guidance?.message || '';
+  const guidanceTone = guidance?.tone || '';
 
   return (
     <form className="interaction-card" onSubmit={handleSubmit} aria-live="polite">
@@ -111,12 +190,27 @@ const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, u
         )}
       </fieldset>
 
-      {error && <p className="interaction-feedback error">{error}</p>}
-      {isAnswered && (
-        <p className={`interaction-feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
-          {result.feedback}
+      {error && (
+        <p className="interaction-feedback error" role="status">
+          ⚠️ {error}
         </p>
       )}
+      {isAnswered && (
+        <p
+          className={`interaction-feedback ${isCorrect ? 'correct' : 'incorrect'}`}
+          role="status"
+        >
+          {isCorrect ? '✅ ' : '❌ '}
+          {result?.feedback}
+        </p>
+      )}
+
+      <GuidedSupport
+        message={guidanceMessage}
+        tone={guidanceTone}
+        onHelp={handleHelp}
+        isLoading={isHelping}
+      />
 
       <div className="interaction-actions">
         {!isAnswered ? (
@@ -145,6 +239,20 @@ const InteractionCard = ({ lessonId, interaction, onContinue, disableContinue, u
       </div>
     </form>
   );
+};
+
+const resolveGuidance = (payload) => {
+  if (!payload) return null;
+  if (payload.explanation) {
+    return { message: payload.explanation, tone: 'explanation' };
+  }
+  if (payload.hint) {
+    return { message: payload.hint, tone: 'hint' };
+  }
+  if (payload.encouragement) {
+    return { message: payload.encouragement, tone: 'encouragement' };
+  }
+  return null;
 };
 
 export default InteractionCard;

@@ -36,6 +36,9 @@ const DyslexiaView = () => {
           type: 'true_false',
           question: 'Is “Hello” a friendly greeting?',
           correctAnswer: 'True',
+          hint: 'Think about what you say when meeting someone new.',
+          explanation: '“Hello” is a common, friendly way to greet someone.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Correct! “Hello” is a friendly greeting.',
             incorrect: 'Not quite. “Hello” is commonly used as a friendly greeting.',
@@ -60,6 +63,9 @@ const DyslexiaView = () => {
           question: 'Which word matches something you can sit on?',
           options: ['Chair', 'Apple', 'Rain'],
           correctAnswer: 'Chair',
+          hint: 'Think of furniture you use every day.',
+          explanation: 'A chair is furniture you sit on.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Yes! A chair is something you can sit on.',
             incorrect: 'Try again. Think of something you can sit on.',
@@ -84,6 +90,9 @@ const DyslexiaView = () => {
           question: 'Click the number that comes after 2.',
           options: ['1', '3', '5'],
           correctAnswer: '3',
+          hint: 'Count upward: 1, 2, 3.',
+          explanation: 'The number after 2 is 3.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Great job! 3 comes after 2.',
             incorrect: 'Not quite. Count: 1, 2, 3.',

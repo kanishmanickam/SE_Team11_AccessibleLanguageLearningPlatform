@@ -8,3 +8,11 @@ export const submitInteraction = async ({ lessonId, interactionId, selectedAnswe
   });
   return response.data;
 };
+
+export const requestInteractionHelp = async ({ lessonId, interactionId }) => {
+  const response = await api.post('/interactions/help', {
+    lessonId,
+    interactionId,
+  });
+  return response.data;
+};

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import InteractionCard from './InteractionCard';
+import { useTheme } from '../../context/ThemeContext';
+import { themeToCssVars } from '../../utils/theme';
 import './LessonDisplay.css';
 import './InteractiveLesson.css';
 
@@ -11,6 +13,8 @@ const formatTime = (seconds) => {
 };
 
 const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
+  const { computed } = useTheme();
+  const themeVars = useMemo(() => themeToCssVars(computed), [computed]);
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -109,7 +113,7 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
   }
 
   return (
-    <section className="lesson-display" aria-live="polite">
+    <section className="lesson-display" aria-live="polite" style={themeVars}>
       <header className="lesson-header">
         <div>
           <p className="lesson-eyebrow">Lesson</p>

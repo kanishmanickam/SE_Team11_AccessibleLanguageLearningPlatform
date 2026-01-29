@@ -58,6 +58,9 @@ const AutismView = () => {
           type: 'true_false',
           question: 'Is “Hello” a greeting?',
           correctAnswer: 'True',
+          hint: 'Think about a word you say when you meet someone.',
+          explanation: '“Hello” is a greeting.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Correct! “Hello” is a greeting.',
             incorrect: 'Not quite. “Hello” is a greeting.',
@@ -82,6 +85,9 @@ const AutismView = () => {
           question: 'Which word names something you can drink?',
           options: ['Water', 'Book', 'Chair'],
           correctAnswer: 'Water',
+          hint: 'Think of something you drink every day.',
+          explanation: 'Water is something you can drink.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Yes! Water is something you can drink.',
             incorrect: 'Try again. Water is the drink.',
@@ -106,6 +112,9 @@ const AutismView = () => {
           question: 'Click the number 1.',
           options: ['1', '3', '5'],
           correctAnswer: '1',
+          hint: 'It is the first number in counting.',
+          explanation: '1 is the first number.',
+          maxAttempts: 3,
           feedback: {
             correct: 'Great! You selected 1.',
             incorrect: 'Not quite. Try clicking 1.',

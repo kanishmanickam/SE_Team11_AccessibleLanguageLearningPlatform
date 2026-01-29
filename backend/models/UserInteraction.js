@@ -17,17 +17,18 @@ const UserInteractionSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    selectedAnswer: {
+    attempts: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lastAnswer: {
       type: mongoose.Schema.Types.Mixed,
-      required: true,
+      default: null,
     },
     isCorrect: {
       type: Boolean,
-      required: true,
-    },
-    answeredAt: {
-      type: Date,
-      default: Date.now,
+      default: false,
     },
   },
   { timestamps: true }

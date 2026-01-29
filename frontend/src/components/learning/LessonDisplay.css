@@ -2,9 +2,10 @@
   margin-top: 32px;
   padding: 24px;
   border-radius: 16px;
-  border: 2px solid var(--border-color);
-  background: var(--bg-primary);
+  border: 2px solid var(--theme-border, var(--border-color));
+  background: var(--theme-surface, var(--bg-primary));
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+  color: var(--theme-text, var(--text-primary));
 }
 
 .lesson-header {
@@ -19,14 +20,14 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--theme-muted-text, var(--text-secondary));
   margin: 0 0 6px;
 }
 
 .lesson-title {
   margin: 0;
   font-size: 28px;
-  color: var(--text-primary);
+  color: var(--theme-text, var(--text-primary));
 }
 
 .lesson-close {
@@ -34,23 +35,28 @@
   background: transparent;
   font-size: 20px;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--theme-muted-text, var(--text-secondary));
   padding: 6px 10px;
   border-radius: 10px;
 }
 
 .lesson-close:hover {
-  color: var(--text-primary);
-  background: var(--bg-secondary);
+  color: var(--theme-text, var(--text-primary));
+  background: var(--theme-bg, var(--bg-secondary));
+}
+
+.lesson-close:focus-visible {
+  outline: 3px solid var(--theme-focus, var(--accent-color));
+  outline-offset: 2px;
 }
 
 .lesson-status {
   margin: 0 0 16px;
-  color: var(--text-secondary);
+  color: var(--theme-muted-text, var(--text-secondary));
 }
 
 .lesson-status.error {
-  color: var(--error-color);
+  color: var(--theme-feedback-incorrect, var(--error-color));
 }
 
 .lesson-body {
@@ -62,7 +68,7 @@
 .lesson-text {
   font-size: 18px;
   line-height: 1.8;
-  color: var(--text-primary);
+  color: var(--theme-text, var(--text-primary));
 }
 
 .lesson-text p {
@@ -79,8 +85,8 @@
 .lesson-visuals {
   border-radius: 12px;
   padding: 16px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
+  background: var(--theme-bg, var(--bg-secondary));
+  border: 1px solid var(--theme-border, var(--border-color));
 }
 
 .lesson-audio-header {
@@ -95,12 +101,12 @@
 .lesson-visuals h3 {
   margin: 0;
   font-size: 16px;
-  color: var(--text-primary);
+  color: var(--theme-text, var(--text-primary));
 }
 
 .lesson-audio-time {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--theme-muted-text, var(--text-secondary));
 }
 
 .lesson-audio-controls {
@@ -112,9 +118,9 @@
 .audio-toggle {
   padding: 10px 16px;
   border-radius: 10px;
-  border: 2px solid var(--accent-color);
-  background: var(--accent-color);
-  color: #fff;
+  border: 2px solid var(--theme-accent, var(--accent-color));
+  background: var(--theme-accent, var(--accent-color));
+  color: var(--theme-accent-text, var(--text-primary));
   font-size: 14px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -125,14 +131,19 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
+.audio-toggle:focus-visible {
+  outline: 3px solid var(--theme-focus, var(--accent-color));
+  outline-offset: 2px;
+}
+
 .audio-seek {
   width: 100%;
-  accent-color: var(--accent-color);
+  accent-color: var(--theme-accent, var(--accent-color));
 }
 
 .lesson-muted {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--theme-muted-text, var(--text-secondary));
   font-size: 14px;
 }
 
@@ -144,10 +155,10 @@
 
 .visuals-grid figure {
   margin: 0;
-  background: var(--bg-primary);
+  background: var(--theme-surface, var(--bg-primary));
   border-radius: 10px;
   padding: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--theme-border, var(--border-color));
   text-align: center;
 }
 
@@ -160,7 +171,7 @@
 
 .visuals-grid figcaption {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--theme-muted-text, var(--text-secondary));
 }
 
 .visual-placeholder {
