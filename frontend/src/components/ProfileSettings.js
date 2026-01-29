@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
 import './ProfileSettings.css';
@@ -19,7 +19,24 @@ const ProfileSettings = ({ onClose }) => {
     fontSize: preferences?.fontSize || 'medium',
     contrastTheme: preferences?.contrastTheme || 'default',
     learningPace: preferences?.learningPace || 'normal',
+    fontFamily: preferences?.fontFamily || 'default',
+    letterSpacing: preferences?.letterSpacing || 'normal',
+    distractionFreeMode: preferences?.distractionFreeMode || false,
   });
+
+  // Sync local state with preferences when they change
+  useEffect(() => {
+    if (preferences) {
+      setAccessibilitySettings({
+        fontSize: preferences.fontSize || 'medium',
+        contrastTheme: preferences.contrastTheme || 'default',
+        learningPace: preferences.learningPace || 'normal',
+        fontFamily: preferences.fontFamily || 'default',
+        letterSpacing: preferences.letterSpacing || 'normal',
+        distractionFreeMode: preferences.distractionFreeMode || false,
+      });
+    }
+  }, [preferences]);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -201,6 +218,64 @@ const ProfileSettings = ({ onClose }) => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {user?.learningCondition === 'dyslexia' && (
+              <>
+                <div className="setting-group">
+                  <label>Font Style</label>
+                  <div className="button-group">
+                    {[
+                      { value: 'opendyslexic', label: 'OpenDyslexic' },
+                      { value: 'arial', label: 'Arial' },
+                      { value: 'comic-sans', label: 'Comic Sans' },
+                    ].map((font) => (
+                      <button
+                        key={font.value}
+                        type="button"
+                        className={`option-btn ${accessibilitySettings.fontFamily === font.value ? 'active' : ''}`}
+                        onClick={() => handleAccessibilityChange('fontFamily', font.value)}
+                      >
+                        {font.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="setting-group">
+                  <label>Letter Spacing</label>
+                  <div className="button-group">
+                    {['normal', 'wide', 'extra-wide'].map((spacing) => (
+                      <button
+                        key={spacing}
+                        type="button"
+                        className={`option-btn ${accessibilitySettings.letterSpacing === spacing ? 'active' : ''}`}
+                        onClick={() => handleAccessibilityChange('letterSpacing', spacing)}
+                      >
+                        {spacing.charAt(0).toUpperCase() + spacing.slice(1).replace('-', ' ')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="setting-group">
+              <label>Distraction-Free Mode</label>
+              <button
+                type="button"
+                className={`toggle-btn ${accessibilitySettings.distractionFreeMode ? 'active' : ''}`}
+                onClick={() => handleAccessibilityChange('distractionFreeMode', !accessibilitySettings.distractionFreeMode)}
+              >
+                <span className="toggle-icon">
+                  {accessibilitySettings.distractionFreeMode ? '✓ ON' : '✕ OFF'}
+                </span>
+                <span className="toggle-label">
+                  {accessibilitySettings.distractionFreeMode 
+                    ? 'Minimal distractions enabled' 
+                    : 'Normal mode'}
+                </span>
+              </button>
             </div>
 
             <div className="form-actions">

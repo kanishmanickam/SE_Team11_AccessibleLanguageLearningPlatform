@@ -75,21 +75,39 @@ router.put('/', protect, async (req, res) => {
 // @desc    Update specific accessibility settings (1.3)
 // @access  Private
 router.patch('/accessibility', protect, async (req, res) => {
-  const { fontSize, contrastTheme, learningPace } = req.body;
+  const { 
+    fontSize, 
+    contrastTheme, 
+    learningPace, 
+    fontFamily, 
+    letterSpacing,
+    distractionFreeMode 
+  } = req.body;
 
   try {
+    const updateData = {};
+    if (fontSize !== undefined) updateData.fontSize = fontSize;
+    if (contrastTheme !== undefined) updateData.contrastTheme = contrastTheme;
+    if (learningPace !== undefined) updateData.learningPace = learningPace;
+    if (fontFamily !== undefined) updateData.fontFamily = fontFamily;
+    if (letterSpacing !== undefined) updateData.letterSpacing = letterSpacing;
+    if (distractionFreeMode !== undefined) updateData.distractionFreeMode = distractionFreeMode;
+
     const preferences = await Preferences.findOneAndUpdate(
       { user: req.user.id },
-      {
-        ...(fontSize && { fontSize }),
-        ...(contrastTheme && { contrastTheme }),
-        ...(learningPace && { learningPace }),
-      },
+      updateData,
       {
         new: true,
         runValidators: true,
       }
     );
+
+    if (!preferences) {
+      return res.status(404).json({
+        success: false,
+        message: 'Preferences not found',
+      });
+    }
 
     res.json({
       success: true,

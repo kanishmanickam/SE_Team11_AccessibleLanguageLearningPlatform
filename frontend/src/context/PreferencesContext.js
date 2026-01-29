@@ -48,7 +48,7 @@ export const PreferencesProvider = ({ children }) => {
     if (!container) return;
 
     // Reset classes
-    container.className = '';
+    container.className = 'motion-enabled';
 
     // Apply theme
     if (prefs.contrastTheme && prefs.contrastTheme !== 'default') {

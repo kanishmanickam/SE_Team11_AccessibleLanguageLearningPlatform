@@ -16,8 +16,8 @@ const Dashboard = () => {
 
     const container = containerRef.current;
 
-    // Reset classes
-    container.className = 'dashboard';
+    // Reset classes (default = motion enabled)
+    container.className = 'dashboard motion-enabled';
 
     // Apply theme
     if (preferences.contrastTheme && preferences.contrastTheme !== 'default') {

@@ -264,13 +264,13 @@ body.theme-yellow-black .tip-item {
 }
 
 /* Distraction-free mode enhancements */
-body.distraction-free .top-bar {
+#learning-container.distraction-free .top-bar {
   border-bottom: none;
 }
 
-body.distraction-free .focus-card,
-body.distraction-free .lesson-focus,
-body.distraction-free .stat-box {
+#learning-container.distraction-free .focus-card,
+#learning-container.distraction-free .lesson-focus,
+#learning-container.distraction-free .stat-box {
   box-shadow: none;
 }
 
