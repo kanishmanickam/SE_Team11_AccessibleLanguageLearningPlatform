@@ -445,7 +445,41 @@ body.simplified-layout .sidebar {
   margin-bottom: 30px;
 }
 
-.step-visual img {
+.visual-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+  border: 3px solid #4caf50;
+  border-radius: 20px;
+  padding: 40px;
+  margin: 0 auto;
+  max-width: 300px;
+  min-height: 200px;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+}
+
+.visual-icon-large {
+  font-size: 120px;
+  line-height: 1;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.visual-image-hidden {
+  display: none;
+  max-width: 300px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.step-visual img:not(.visual-image-hidden) {
   max-width: 300px;
   width: 100%;
   height: auto;
@@ -756,6 +790,15 @@ body.simplified-layout .sidebar {
   
   .step-content-card {
     padding: 24px 20px;
+  }
+  
+  .visual-icon-container {
+    padding: 30px;
+    min-height: 150px;
+  }
+  
+  .visual-icon-large {
+    font-size: 80px;
   }
   
   .step-visual img {

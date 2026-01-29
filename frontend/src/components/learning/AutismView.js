@@ -183,6 +183,28 @@ const AutismView = () => {
     },
   ];
 
+  // Helper function to get visual icon for each step
+  const getStepIcon = (lessonId, stepId) => {
+    const icons = {
+      1: { // Tamil
+        1: '👋',
+        2: '🙏',
+        3: '👋'
+      },
+      2: { // English
+        1: '🅰️',
+        2: '🅱️',
+        3: '©️'
+      },
+      3: { // Hindi
+        1: '1️⃣',
+        2: '2️⃣',
+        3: '3️⃣'
+      }
+    };
+    return icons[lessonId]?.[stepId] || '📚';
+  };
+
   // Get current step data
   const currentLesson = lessons.find(l => l.id === selectedLesson);
   const currentStep = currentLesson?.steps[currentStepIndex];
@@ -324,13 +346,24 @@ const AutismView = () => {
             <div className="step-content-card">
               <h3 className="step-title">{currentStep.title}</h3>
               
-              {/* EPIC 2.5: Visual learning aid with image */}
+              {/* EPIC 2.5: Visual learning aid with icon/image */}
               <div className="step-visual">
+                <div className="visual-icon-container">
+                  <span className="visual-icon-large">
+                    {getStepIcon(selectedLesson, currentStep.id)}
+                  </span>
+                </div>
+                {/* Fallback image - hidden by default, only shows if real images are added */}
                 <img 
                   src={currentStep.image} 
                   alt={currentStep.title}
+                  className="visual-image-hidden"
+                  onLoad={(e) => {
+                    e.target.style.display = 'block';
+                    e.target.previousSibling.style.display = 'none';
+                  }}
                   onError={(e) => {
-                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f0f0f0" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="20" fill="%23999"%3EImage%3C/text%3E%3C/svg%3E';
+                    e.target.style.display = 'none';
                   }}
                 />
               </div>
