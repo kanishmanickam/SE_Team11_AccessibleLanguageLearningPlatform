@@ -161,24 +161,26 @@ const AccessibilitySetup = () => {
             <div className="step-content">
               <h2>Learning Preferences</h2>
               <p className="step-description">
-                Set how you want to pace your learning sessions
+                Set your preferences for learning sessions
               </p>
 
-              <div className="setting-group">
-                <label>Learning Pace</label>
-                <div className="button-group">
-                  {['slow', 'normal', 'fast'].map((pace) => (
-                    <button
-                      key={pace}
-                      type="button"
-                      className={`option-btn ${settings.learningPace === pace ? 'active' : ''}`}
-                      onClick={() => handleChange('learningPace', pace)}
-                    >
-                      {pace.charAt(0).toUpperCase() + pace.slice(1)}
-                    </button>
-                  ))}
+              {user?.learningCondition !== 'dyslexia' && (
+                <div className="setting-group">
+                  <label>Learning Pace</label>
+                  <div className="button-group">
+                    {['slow', 'normal', 'fast'].map((pace) => (
+                      <button
+                        key={pace}
+                        type="button"
+                        className={`option-btn ${settings.learningPace === pace ? 'active' : ''}`}
+                        onClick={() => handleChange('learningPace', pace)}
+                      >
+                        {pace.charAt(0).toUpperCase() + pace.slice(1)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {user?.learningCondition === 'adhd' && (
                 <>
@@ -226,20 +228,22 @@ const AccessibilitySetup = () => {
             <div className="step-content">
               <h2>Focus & Environment</h2>
               <p className="step-description">
-                Optimize your learning environment to minimize distractions
+                Optimize your learning environment to your needs
               </p>
 
-              <div className="setting-group checkbox">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={settings.distractionFreeMode}
-                    onChange={(e) => handleChange('distractionFreeMode', e.target.checked)}
-                  />
-                  <span>Enable distraction-free mode</span>
-                </label>
-                <p className="help-text">Removes unnecessary UI elements</p>
-              </div>
+              {(user?.learningCondition === 'adhd' || user?.learningCondition === 'autism') && (
+                <div className="setting-group checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.distractionFreeMode}
+                      onChange={(e) => handleChange('distractionFreeMode', e.target.checked)}
+                    />
+                    <span>Enable distraction-free mode</span>
+                  </label>
+                  <p className="help-text">Removes unnecessary UI elements</p>
+                </div>
+              )}
 
               {(user?.learningCondition === 'autism') && (
                 <>

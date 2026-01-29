@@ -204,21 +204,23 @@ const ProfileSettings = ({ onClose }) => {
               </div>
             </div>
 
-            <div className="setting-group">
-              <label>Learning Pace</label>
-              <div className="button-group">
-                {['slow', 'normal', 'fast'].map((pace) => (
-                  <button
-                    key={pace}
-                    type="button"
-                    className={`option-btn ${accessibilitySettings.learningPace === pace ? 'active' : ''}`}
-                    onClick={() => handleAccessibilityChange('learningPace', pace)}
-                  >
-                    {pace.charAt(0).toUpperCase() + pace.slice(1)}
-                  </button>
-                ))}
+            {user?.learningCondition !== 'dyslexia' && (
+              <div className="setting-group">
+                <label>Learning Pace</label>
+                <div className="button-group">
+                  {['slow', 'normal', 'fast'].map((pace) => (
+                    <button
+                      key={pace}
+                      type="button"
+                      className={`option-btn ${accessibilitySettings.learningPace === pace ? 'active' : ''}`}
+                      onClick={() => handleAccessibilityChange('learningPace', pace)}
+                    >
+                      {pace.charAt(0).toUpperCase() + pace.slice(1)}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {user?.learningCondition === 'dyslexia' && (
               <>
@@ -260,23 +262,30 @@ const ProfileSettings = ({ onClose }) => {
               </>
             )}
 
-            <div className="setting-group">
-              <label>Distraction-Free Mode</label>
-              <button
-                type="button"
-                className={`toggle-btn ${accessibilitySettings.distractionFreeMode ? 'active' : ''}`}
-                onClick={() => handleAccessibilityChange('distractionFreeMode', !accessibilitySettings.distractionFreeMode)}
-              >
-                <span className="toggle-icon">
-                  {accessibilitySettings.distractionFreeMode ? '✓ ON' : '✕ OFF'}
-                </span>
-                <span className="toggle-label">
-                  {accessibilitySettings.distractionFreeMode 
-                    ? 'Minimal distractions enabled' 
-                    : 'Normal mode'}
-                </span>
-              </button>
-            </div>
+            {(user?.learningCondition === 'adhd' || user?.learningCondition === 'autism') && (
+              <div className="setting-group">
+                <label>Distraction-Free Mode</label>
+                <button
+                  type="button"
+                  className={`toggle-btn ${accessibilitySettings.distractionFreeMode ? 'active' : ''}`}
+                  onClick={() =>
+                    handleAccessibilityChange(
+                      'distractionFreeMode',
+                      !accessibilitySettings.distractionFreeMode
+                    )
+                  }
+                >
+                  <span className="toggle-icon">
+                    {accessibilitySettings.distractionFreeMode ? '✓ ON' : '✕ OFF'}
+                  </span>
+                  <span className="toggle-label">
+                    {accessibilitySettings.distractionFreeMode
+                      ? 'Minimal distractions enabled'
+                      : 'Normal mode'}
+                  </span>
+                </button>
+              </div>
+            )}
 
             <div className="form-actions">
               <button
