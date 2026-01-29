@@ -164,7 +164,7 @@ const AccessibilitySetup = () => {
                 Set your preferences for learning sessions
               </p>
 
-              {user?.learningCondition !== 'dyslexia' && (
+              {user?.learningCondition === 'adhd' && (
                 <div className="setting-group">
                   <label>Learning Pace</label>
                   <div className="button-group">

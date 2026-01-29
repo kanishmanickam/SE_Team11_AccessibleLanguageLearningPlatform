@@ -204,7 +204,7 @@ const ProfileSettings = ({ onClose }) => {
               </div>
             </div>
 
-            {user?.learningCondition !== 'dyslexia' && (
+            {user?.learningCondition === 'adhd' && (
               <div className="setting-group">
                 <label>Learning Pace</label>
                 <div className="button-group">
