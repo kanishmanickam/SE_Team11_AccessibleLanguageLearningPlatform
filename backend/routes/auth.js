@@ -28,6 +28,11 @@ router.post(
       .isIn(['dyslexia', 'adhd', 'autism', 'none'])
       .withMessage('Invalid learning condition'),
     body('age').optional().isInt({ min: 3, max: 100 }),
+    body('isMinor').optional().isBoolean().withMessage('isMinor must be a boolean'),
+    body('parentEmail')
+      .optional({ checkFalsy: true })
+      .isEmail()
+      .withMessage('Please provide a valid parent email'),
   ],
   async (req, res) => {
     // Check for validation errors
@@ -61,6 +66,21 @@ router.post(
 
       // Determine if parental approval is required
       const requiresParentalApproval = isMinor || (age && age < 13);
+
+      // Enforce consent checkbox when age indicates under 13
+      if (age && age < 13 && !isMinor) {
+        return res.status(400).json({
+          success: false,
+          message: 'Under 13 requires parental approval. Please check the under 13 box.',
+        });
+      }
+
+      if (requiresParentalApproval && !parentEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Parent email is required for minor accounts',
+        });
+      }
 
       // Create user
       user = await User.create({

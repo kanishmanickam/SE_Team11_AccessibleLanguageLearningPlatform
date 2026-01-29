@@ -51,6 +51,11 @@ const Register = () => {
       return false;
     }
 
+    if (age && age < 13 && !formData.isMinor) {
+      setError('If you are under 13, please check the under 13 box (parental approval required)');
+      return false;
+    }
+
     if (formData.isMinor && !formData.parentEmail) {
       setError('Parent email is required for minor accounts');
       return false;
@@ -71,6 +76,10 @@ const Register = () => {
 
     const { confirmPassword, ...registrationData } = formData;
     registrationData.age = parseInt(registrationData.age) || undefined;
+
+    if (!registrationData.isMinor) {
+      delete registrationData.parentEmail;
+    }
 
     const result = await register(registrationData);
 
@@ -127,38 +136,38 @@ const Register = () => {
             />
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="password">Password *</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                aria-required="true"
-                minLength={6}
-                autoComplete="new-password"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password *</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                aria-required="true"
-                minLength={6}
-                autoComplete="new-password"
-              />
-            </div>
+          <div className="form-group">
+            <label htmlFor="password">
+              Password * <span className="help-text">(Minimum 6 characters)</span>
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              aria-required="true"
+              minLength={6}
+              autoComplete="new-password"
+            />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm Password *</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              aria-required="true"
+              minLength={6}
+              autoComplete="new-password"
+            />
+          </div>
+          
           <div className="form-group">
             <label htmlFor="learningCondition">
               Learning Condition * <span className="help-text">(This helps us customize your experience)</span>

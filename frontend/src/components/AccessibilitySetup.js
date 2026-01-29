@@ -23,8 +23,6 @@ const AccessibilitySetup = () => {
     distractionFreeMode: user?.learningCondition === 'autism',
     reduceAnimations: user?.learningCondition === 'autism',
     simplifiedLayout: user?.learningCondition === 'autism',
-    soundEffects: true,
-    enableTextToSpeech: false,
   });
 
   const handleChange = (name, value) => {
@@ -181,17 +179,6 @@ const AccessibilitySetup = () => {
                   </div>
                 </div>
               )}
-
-              <div className="setting-group checkbox">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={settings.enableTextToSpeech}
-                    onChange={(e) => handleChange('enableTextToSpeech', e.target.checked)}
-                  />
-                  <span>Enable text-to-speech</span>
-                </label>
-              </div>
             </div>
           )}
 
@@ -243,17 +230,6 @@ const AccessibilitySetup = () => {
                   </div>
                 </>
               )}
-
-              <div className="setting-group checkbox">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={settings.soundEffects}
-                    onChange={(e) => handleChange('soundEffects', e.target.checked)}
-                  />
-                  <span>Enable sound effects</span>
-                </label>
-              </div>
             </div>
           )}
         </div>
