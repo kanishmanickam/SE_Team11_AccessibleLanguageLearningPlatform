@@ -87,7 +87,8 @@ export const PreferencesProvider = ({ children }) => {
     }
 
     // Apply reduced animations
-    if (prefs.reduceAnimations) {
+    // For Autism, treat reduced animations as part of distraction-free so normal mode stays animated.
+    if (prefs.reduceAnimations && prefs.distractionFreeMode && userCondition === 'autism') {
       container.classList.add('reduce-animations');
     }
   };

@@ -176,6 +176,11 @@ body {
   transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease, border-color 200ms ease, opacity 200ms ease;
 }
 
+/* Autism view components also get motion in normal mode */
+#learning-container.motion-enabled :where(.lesson-simple-card, .routine-item, .progress-circle, .welcome-card, .help-card, .btn-exit, .btn-lesson-start) {
+  transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, color 200ms ease, border-color 200ms ease, opacity 200ms ease;
+}
+
 #learning-container.motion-enabled .progress-bar-fill {
   transition: width 600ms ease;
 }
@@ -187,6 +192,14 @@ body {
 
 #learning-container.motion-enabled :where(.lesson-card, .tip-card, .progress-card, .focus-card, .routine-card) {
   animation: learning-fade-in 300ms ease;
+}
+
+#learning-container.motion-enabled :where(.lesson-simple-card, .routine-item, .progress-circle, .welcome-card, .help-card) {
+  animation: learning-fade-in 240ms ease;
+}
+
+#learning-container.motion-enabled :where(.lesson-simple-card:hover, .routine-item:hover, .btn-lesson-start:hover) {
+  transform: translateY(-2px);
 }
 
 #learning-container.theme-high-contrast {
@@ -304,6 +317,11 @@ body {
 }
 
 #learning-container.distraction-free :where(.lesson-card:hover, .tip-card:hover, button:hover) {
+  transform: none !important;
+}
+
+/* Distraction-Free Mode: also prevent lift on Autism view cards/buttons */
+#learning-container.distraction-free :where(.lesson-simple-card:hover, .routine-item:hover, .btn-lesson-start:hover, .btn-exit:hover) {
   transform: none !important;
 }
 

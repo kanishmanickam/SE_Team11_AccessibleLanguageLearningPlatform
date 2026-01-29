@@ -55,7 +55,8 @@ const Dashboard = () => {
     }
 
     // Apply reduced animations
-    if (preferences.reduceAnimations) {
+    // For Autism, treat reduced animations as part of distraction-free so normal mode stays animated.
+    if (preferences.reduceAnimations && preferences.distractionFreeMode && user?.learningCondition === 'autism') {
       container.classList.add('reduce-animations');
     }
   }, [preferences]);

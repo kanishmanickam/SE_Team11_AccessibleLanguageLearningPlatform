@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
@@ -8,6 +8,22 @@ const AccessibilitySetup = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { updatePreferences } = usePreferences();
+
+  const activeCondition = user?.learningCondition;
+
+  const steps = useMemo(() => {
+    const baseSteps = [{ key: 'visual', title: 'Visual Settings' }];
+
+    if (activeCondition === 'adhd') {
+      baseSteps.push({ key: 'learning', title: 'Learning Preferences' });
+    }
+
+    if (activeCondition === 'autism') {
+      baseSteps.push({ key: 'focus', title: 'Focus & Environment' });
+    }
+
+    return baseSteps;
+  }, [activeCondition]);
 
   const [step, setStep] = useState(1);
   const [settings, setSettings] = useState({
@@ -30,7 +46,7 @@ const AccessibilitySetup = () => {
   };
 
   const nextStep = () => {
-    if (step < 3) {
+    if (step < steps.length) {
       setStep(step + 1);
     }
   };
@@ -42,7 +58,31 @@ const AccessibilitySetup = () => {
   };
 
   const handleSubmit = async () => {
-    const result = await updatePreferences(settings);
+    const payload = {
+      fontSize: settings.fontSize,
+      contrastTheme: settings.contrastTheme,
+      wordSpacing: settings.wordSpacing,
+      lineHeight: settings.lineHeight,
+    };
+
+    if (activeCondition === 'dyslexia') {
+      payload.fontFamily = settings.fontFamily;
+      payload.letterSpacing = settings.letterSpacing;
+    }
+
+    if (activeCondition === 'adhd') {
+      payload.learningPace = settings.learningPace;
+      payload.sessionDuration = 20;
+      payload.breakReminders = true;
+    }
+
+    if (activeCondition === 'autism') {
+      payload.distractionFreeMode = settings.distractionFreeMode;
+      payload.reduceAnimations = settings.reduceAnimations;
+      payload.simplifiedLayout = settings.simplifiedLayout;
+    }
+
+    const result = await updatePreferences(payload);
     if (result.success) {
       navigate('/dashboard');
     }
@@ -61,15 +101,20 @@ const AccessibilitySetup = () => {
         </p>
 
         <div className="progress-bar">
-          <div className="progress-step" data-active={step >= 1}>1</div>
-          <div className="progress-line" data-active={step >= 2}></div>
-          <div className="progress-step" data-active={step >= 2}>2</div>
-          <div className="progress-line" data-active={step >= 3}></div>
-          <div className="progress-step" data-active={step >= 3}>3</div>
+          {steps.map((_, index) => (
+            <React.Fragment key={steps[index].key}>
+              <div className="progress-step" data-active={step >= index + 1}>
+                {index + 1}
+              </div>
+              {index < steps.length - 1 && (
+                <div className="progress-line" data-active={step >= index + 2}></div>
+              )}
+            </React.Fragment>
+          ))}
         </div>
 
         <div className="setup-content">
-          {step === 1 && (
+          {steps[step - 1]?.key === 'visual' && (
             <div className="step-content">
               <h2>Visual Settings</h2>
               <p className="step-description">
@@ -155,7 +200,7 @@ const AccessibilitySetup = () => {
             </div>
           )}
 
-          {step === 2 && (
+          {steps[step - 1]?.key === 'learning' && (
             <div className="step-content">
               <h2>Learning Preferences</h2>
               <p className="step-description">
@@ -182,7 +227,7 @@ const AccessibilitySetup = () => {
             </div>
           )}
 
-          {step === 3 && (
+          {steps[step - 1]?.key === 'focus' && (
             <div className="step-content">
               <h2>Focus & Environment</h2>
               <p className="step-description">
@@ -254,7 +299,7 @@ const AccessibilitySetup = () => {
               </button>
             )}
 
-            {step < 3 ? (
+            {step < steps.length ? (
               <button
                 type="button"
                 className="btn btn-primary"
