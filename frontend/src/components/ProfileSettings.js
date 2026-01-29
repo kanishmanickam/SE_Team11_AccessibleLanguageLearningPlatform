@@ -21,7 +21,7 @@ const ProfileSettings = ({ onClose }) => {
     learningPace: preferences?.learningPace || 'normal',
     fontFamily: preferences?.fontFamily || 'default',
     letterSpacing: preferences?.letterSpacing || 'normal',
-    distractionFreeMode: preferences?.distractionFreeMode || false,
+    distractionFreeMode: user?.learningCondition === 'autism' ? (preferences?.distractionFreeMode || false) : false,
   });
 
   // Sync local state with preferences when they change
@@ -33,10 +33,10 @@ const ProfileSettings = ({ onClose }) => {
         learningPace: preferences.learningPace || 'normal',
         fontFamily: preferences.fontFamily || 'default',
         letterSpacing: preferences.letterSpacing || 'normal',
-        distractionFreeMode: preferences.distractionFreeMode || false,
+        distractionFreeMode: user?.learningCondition === 'autism' ? (preferences.distractionFreeMode || false) : false,
       });
     }
-  }, [preferences]);
+  }, [preferences, user?.learningCondition]);
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
@@ -262,7 +262,7 @@ const ProfileSettings = ({ onClose }) => {
               </>
             )}
 
-            {(user?.learningCondition === 'adhd' || user?.learningCondition === 'autism') && (
+            {user?.learningCondition === 'autism' && (
               <div className="setting-group">
                 <label>Distraction-Free Mode</label>
                 <button

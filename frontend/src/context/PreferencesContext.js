@@ -81,7 +81,8 @@ export const PreferencesProvider = ({ children }) => {
     }
 
     // Apply distraction-free mode
-    if (prefs.distractionFreeMode) {
+    const userCondition = container.dataset.userCondition;
+    if (prefs.distractionFreeMode && userCondition === 'autism') {
       container.classList.add('distraction-free');
     }
 

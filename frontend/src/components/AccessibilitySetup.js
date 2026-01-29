@@ -19,8 +19,8 @@ const AccessibilitySetup = () => {
     lineHeight: user?.learningCondition === 'dyslexia' ? 'relaxed' : 'normal',
     learningPace: 'normal',
     sessionDuration: 20,
-    breakReminders: user?.learningCondition === 'adhd',
-    distractionFreeMode: user?.learningCondition === 'adhd' || user?.learningCondition === 'autism',
+    breakReminders: false,
+    distractionFreeMode: user?.learningCondition === 'autism',
     reduceAnimations: user?.learningCondition === 'autism',
     simplifiedLayout: user?.learningCondition === 'autism',
     soundEffects: true,
@@ -182,35 +182,6 @@ const AccessibilitySetup = () => {
                 </div>
               )}
 
-              {user?.learningCondition === 'adhd' && (
-                <>
-                  <div className="setting-group">
-                    <label>Session Duration (minutes)</label>
-                    <input
-                      type="range"
-                      min="5"
-                      max="60"
-                      step="5"
-                      value={settings.sessionDuration}
-                      onChange={(e) => handleChange('sessionDuration', parseInt(e.target.value))}
-                      className="slider"
-                    />
-                    <div className="slider-value">{settings.sessionDuration} minutes</div>
-                  </div>
-
-                  <div className="setting-group checkbox">
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={settings.breakReminders}
-                        onChange={(e) => handleChange('breakReminders', e.target.checked)}
-                      />
-                      <span>Enable break reminders</span>
-                    </label>
-                  </div>
-                </>
-              )}
-
               <div className="setting-group checkbox">
                 <label>
                   <input
@@ -231,7 +202,7 @@ const AccessibilitySetup = () => {
                 Optimize your learning environment to your needs
               </p>
 
-              {(user?.learningCondition === 'adhd' || user?.learningCondition === 'autism') && (
+              {user?.learningCondition === 'autism' && (
                 <div className="setting-group checkbox">
                   <label>
                     <input

@@ -49,8 +49,8 @@ const Dashboard = () => {
       container.classList.add(`line-height-${preferences.lineHeight}`);
     }
 
-    // Apply distraction-free mode
-    if (preferences.distractionFreeMode) {
+    // Apply distraction-free mode (Autism only)
+    if (preferences.distractionFreeMode && user?.learningCondition === 'autism') {
       container.classList.add('distraction-free');
     }
 
@@ -75,7 +75,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div ref={containerRef} className="dashboard" id="learning-container">
+    <div
+      ref={containerRef}
+      className="dashboard"
+      id="learning-container"
+      data-user-condition={user?.learningCondition || ''}
+    >
       {renderLearningView()}
     </div>
   );
