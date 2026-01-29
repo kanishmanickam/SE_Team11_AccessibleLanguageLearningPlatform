@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
+import api from '../../utils/api';
 import './AutismView.css';
 
 const AutismView = () => {
@@ -14,8 +15,29 @@ const AutismView = () => {
   const [showHint, setShowHint] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [completedLessons, setCompletedLessons] = useState([]);
+  const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   
   const audioRef = useRef(null);
+
+  // Load completed lessons from backend on mount
+  useEffect(() => {
+    const fetchCompletedLessons = async () => {
+      try {
+        const response = await api.get('/users/completed-lessons');
+        if (response.data.success) {
+          // Convert backend format (e.g., "autism-lesson-1") to lesson IDs
+          const lessonIds = response.data.completedLessons
+            .filter(key => key.startsWith('autism-lesson-'))
+            .map(key => parseInt(key.replace('autism-lesson-', '')));
+          setCompletedLessons(lessonIds);
+        }
+      } catch (error) {
+        console.error('Error fetching completed lessons:', error);
+      }
+    };
+    
+    fetchCompletedLessons();
+  }, []);
 
   // EPIC 2.1-2.7: Three complete lessons with multi-format content
   const lessons = [
@@ -30,9 +52,9 @@ const AutismView = () => {
           id: 1,
           title: 'Hello in Tamil',
           content: 'வணக்கம் (Vanakkam)',
-          translation: 'Vanakkam means "Hello" in Tamil',
+          translation: 'A common word used when meeting someone',
           highlight: 'வணக்கம்',
-          image: '/images/tamil-greeting.png',
+          image: '/images/tamil-greeting.svg',
           audio: '/audio/tamil-hello.mp3',
           hint: 'Say "வணக்கம்" when you meet someone. It shows respect and warmth.',
           interaction: {
@@ -45,9 +67,9 @@ const AutismView = () => {
           id: 2,
           title: 'Thank You in Tamil',
           content: 'நன்றி (Nandri)',
-          translation: 'Nandri means "Thank you" in Tamil',
+          translation: 'A polite word in Tamil',
           highlight: 'நன்றி',
-          image: '/images/tamil-thanks.png',
+          image: '/images/tamil-thanks.svg',
           audio: '/audio/tamil-thanks.mp3',
           hint: 'Say "நன்றி" to show gratitude. It\'s a polite way to thank someone.',
           interaction: {
@@ -60,15 +82,120 @@ const AutismView = () => {
           id: 3,
           title: 'Goodbye in Tamil',
           content: 'பிரியாவிடை (Piriyavidai)',
-          translation: 'Piriyavidai means "Goodbye" in Tamil',
+          translation: 'A respectful parting word in Tamil',
           highlight: 'பிரியாவிடை',
-          image: '/images/tamil-goodbye.png',
+          image: '/images/tamil-goodbye.svg',
           audio: '/audio/tamil-goodbye.mp3',
           hint: 'Say "பிரியாவிடை" when you leave. It\'s a respectful way to say goodbye.',
           interaction: {
             question: 'What is பிரியாவிடை used for?',
             options: ['Greeting', 'Thanking', 'Saying goodbye'],
             correct: 2
+          }
+        },
+        {
+          id: 4,
+          title: 'Good Morning in Tamil',
+          content: 'காலை வணக்கம் (Kaalai Vanakkam)',
+          translation: 'A time-specific greeting in Tamil',
+          highlight: 'காலை வணக்கம்',
+          image: '/images/tamil-good-morning.svg',
+          audio: '/audio/tamil-good-morning.mp3',
+          hint: 'காலை means morning. Use this greeting in the morning time.',
+          interaction: {
+            question: 'When do you say காலை வணக்கம்?',
+            options: ['In the morning', 'At night', 'In the evening'],
+            correct: 0
+          }
+        },
+        {
+          id: 5,
+          title: 'How Are You in Tamil',
+          content: 'எப்படி இருக்கிறீர்கள்? (Eppadi Irukkireergal?)',
+          translation: 'A question to ask someone in Tamil',
+          highlight: 'எப்படி இருக்கிறீர்கள்?',
+          image: '/images/tamil-how-are-you.svg',
+          audio: '/audio/tamil-how-are-you.mp3',
+          hint: 'Use this to ask someone how they are doing. It shows you care.',
+          interaction: {
+            question: 'What does எப்படி இருக்கிறீர்கள் mean?',
+            options: ['How are you?', 'Where are you?', 'What is your name?'],
+            correct: 0
+          }
+        },
+        {
+          id: 6,
+          title: 'I Am Fine in Tamil',
+          content: 'நான் நலமாக இருக்கிறேன் (Naan Nalamaaga Irukkiren)',
+          translation: 'A common response in conversation',
+          highlight: 'நான் நலமாக இருக்கிறேன்',
+          image: '/images/tamil-i-am-fine.svg',
+          audio: '/audio/tamil-i-am-fine.mp3',
+          hint: 'Say this when someone asks how you are and you feel good.',
+          interaction: {
+            question: 'When do you say நான் நலமாக இருக்கிறேன்?',
+            options: ['To say you are fine', 'To say goodbye', 'To say thank you'],
+            correct: 0
+          }
+        },
+        {
+          id: 7,
+          title: 'Please in Tamil',
+          content: 'தயவு செய்து (Thayavu Seidhu)',
+          translation: 'A word used when making requests',
+          highlight: 'தயவு செய்து',
+          image: '/images/tamil-please.svg',
+          audio: '/audio/tamil-please.mp3',
+          hint: 'Add this when making a request to be polite and respectful.',
+          interaction: {
+            question: 'Why do we use தயவு செய்து?',
+            options: ['To be polite', 'To greet', 'To say goodbye'],
+            correct: 0
+          }
+        },
+        {
+          id: 8,
+          title: 'Sorry in Tamil',
+          content: 'மன்னிக்கவும் (Mannikkavum)',
+          translation: 'A word used when you make a mistake',
+          highlight: 'மன்னிக்கவும்',
+          image: '/images/tamil-sorry.svg',
+          audio: '/audio/tamil-sorry.mp3',
+          hint: 'Say this when you make a mistake or need to apologize.',
+          interaction: {
+            question: 'What does மன்னிக்கவும் mean?',
+            options: ['Sorry', 'Thank you', 'Hello'],
+            correct: 0
+          }
+        },
+        {
+          id: 9,
+          title: 'Yes in Tamil',
+          content: 'ஆம் (Aam)',
+          translation: 'A response word in Tamil',
+          highlight: 'ஆம்',
+          image: '/images/tamil-yes.svg',
+          audio: '/audio/tamil-yes.mp3',
+          hint: 'Use ஆம் when you agree or want to say yes.',
+          interaction: {
+            question: 'When do you say ஆம்?',
+            options: ['To agree', 'To disagree', 'To ask a question'],
+            correct: 0
+          }
+        },
+        {
+          id: 10,
+          title: 'No in Tamil',
+          content: 'இல்லை (Illai)',
+          translation: 'Another response word in Tamil',
+          highlight: 'இல்லை',
+          image: '/images/tamil-no.svg',
+          audio: '/audio/tamil-no.mp3',
+          hint: 'Use இல்லை when you disagree or want to say no.',
+          interaction: {
+            question: 'What does இல்லை mean?',
+            options: ['No', 'Yes', 'Maybe'],
+            correct: 0
           }
         }
       ]
@@ -83,10 +210,10 @@ const AutismView = () => {
         {
           id: 1,
           title: 'Letter A',
-          content: 'A a',
-          translation: 'The letter A sounds like "ay"',
+          content: 'A',
+          translation: 'This is the first letter of the alphabet',
           highlight: 'A',
-          image: '/images/letter-a.png',
+          image: '/images/letter-a.svg',
           audio: '/audio/letter-a.mp3',
           hint: 'A is the first letter of the alphabet. Words like "Apple" start with A.',
           interaction: {
@@ -98,12 +225,12 @@ const AutismView = () => {
         {
           id: 2,
           title: 'Letter B',
-          content: 'B b',
-          translation: 'The letter B sounds like "bee"',
+          content: 'B',
+          translation: 'This is the second letter of the alphabet',
           highlight: 'B',
-          image: '/images/letter-b.png',
+          image: '/images/letter-b.svg',
           audio: '/audio/letter-b.mp3',
-          hint: 'B is the second letter. Words like "Ball" and "Butterfly" start with B.',
+          hint: 'B is the second letter. Words like "Ball" start with B.',
           interaction: {
             question: 'Which word starts with B?',
             options: ['Apple', 'Ball', 'Dog'],
@@ -113,16 +240,121 @@ const AutismView = () => {
         {
           id: 3,
           title: 'Letter C',
-          content: 'C c',
-          translation: 'The letter C sounds like "see"',
+          content: 'C',
+          translation: 'This is the third letter of the alphabet',
           highlight: 'C',
-          image: '/images/letter-c.png',
+          image: '/images/letter-c.svg',
           audio: '/audio/letter-c.mp3',
-          hint: 'C is the third letter. Words like "Cat" and "Car" start with C.',
+          hint: 'C is the third letter. Words like "Cat" start with C.',
           interaction: {
             question: 'Which word starts with C?',
             options: ['Cat', 'Ball', 'Apple'],
             correct: 0
+          }
+        },
+        {
+          id: 4,
+          title: 'Letter D',
+          content: 'D',
+          translation: 'This is the fourth letter of the alphabet',
+          highlight: 'D',
+          image: '/images/letter-d.svg',
+          audio: '/audio/letter-d.mp3',
+          hint: 'D is the fourth letter. Words like "Dog" start with D.',
+          interaction: {
+            question: 'Which word starts with D?',
+            options: ['Dog', 'Elephant', 'Cat'],
+            correct: 0
+          }
+        },
+        {
+          id: 5,
+          title: 'Letter E',
+          content: 'E',
+          translation: 'This is the fifth letter of the alphabet',
+          highlight: 'E',
+          image: '/images/letter-e.svg',
+          audio: '/audio/letter-e.mp3',
+          hint: 'E is the fifth letter. Words like "Elephant" start with E.',
+          interaction: {
+            question: 'Which word starts with E?',
+            options: ['Fish', 'Elephant', 'Apple'],
+            correct: 1
+          }
+        },
+        {
+          id: 6,
+          title: 'Letter F',
+          content: 'F',
+          translation: 'This is the sixth letter of the alphabet',
+          highlight: 'F',
+          image: '/images/letter-f.svg',
+          audio: '/audio/letter-f.mp3',
+          hint: 'F is the sixth letter. Words like "Fish" start with F.',
+          interaction: {
+            question: 'Which word starts with F?',
+            options: ['Fish', 'Goat', 'Dog'],
+            correct: 0
+          }
+        },
+        {
+          id: 7,
+          title: 'Letter G',
+          content: 'G',
+          translation: 'This is the seventh letter of the alphabet',
+          highlight: 'G',
+          image: '/images/letter-g.svg',
+          audio: '/audio/letter-g.mp3',
+          hint: 'G is the seventh letter. Words like "Goat" start with G.',
+          interaction: {
+            question: 'Which word starts with G?',
+            options: ['Hat', 'Goat', 'Fish'],
+            correct: 1
+          }
+        },
+        {
+          id: 8,
+          title: 'Letter H',
+          content: 'H',
+          translation: 'This is the eighth letter of the alphabet',
+          highlight: 'H',
+          image: '/images/letter-h.svg',
+          audio: '/audio/letter-h.mp3',
+          hint: 'H is the eighth letter. Words like "Hat" start with H.',
+          interaction: {
+            question: 'Which word starts with H?',
+            options: ['Ice', 'Hat', 'Goat'],
+            correct: 1
+          }
+        },
+        {
+          id: 9,
+          title: 'Letter I',
+          content: 'I',
+          translation: 'This is the ninth letter of the alphabet',
+          highlight: 'I',
+          image: '/images/letter-i.svg',
+          audio: '/audio/letter-i.mp3',
+          hint: 'I is the ninth letter. Words like "Ice" start with I.',
+          interaction: {
+            question: 'Which word starts with I?',
+            options: ['Ice', 'Jug', 'Hat'],
+            correct: 0
+          }
+        },
+        {
+          id: 10,
+          title: 'Letter J',
+          content: 'J',
+          translation: 'This is the tenth letter of the alphabet',
+          highlight: 'J',
+          image: '/images/letter-j.svg',
+          audio: '/audio/letter-j.mp3',
+          hint: 'J is the tenth letter. Words like "Jug" start with J.',
+          interaction: {
+            question: 'Which word starts with J?',
+            options: ['Kite', 'Jug', 'Ice'],
+            correct: 1
           }
         }
       ]
@@ -132,15 +364,15 @@ const AutismView = () => {
       title: 'Hindi – Learning Numbers',
       language: 'Hindi',
       icon: '🔢',
-      description: 'Learn Hindi numbers 1 to 3',
+      description: 'Learn Hindi numbers 1 to 10',
       steps: [
         {
           id: 1,
           title: 'Number One',
           content: 'एक (Ek)',
-          translation: 'Ek means "One" in Hindi',
+          translation: 'This is how we say a number in Hindi',
           highlight: 'एक',
-          image: '/images/hindi-one.png',
+          image: '/images/hindi-one.svg',
           audio: '/audio/hindi-one.mp3',
           hint: 'एक (Ek) is the number 1. Hold up one finger to show एक.',
           interaction: {
@@ -153,9 +385,9 @@ const AutismView = () => {
           id: 2,
           title: 'Number Two',
           content: 'दो (Do)',
-          translation: 'Do means "Two" in Hindi',
+          translation: 'This is another number in Hindi',
           highlight: 'दो',
-          image: '/images/hindi-two.png',
+          image: '/images/hindi-two.svg',
           audio: '/audio/hindi-two.mp3',
           hint: 'दो (Do) is the number 2. Hold up two fingers to show दो.',
           interaction: {
@@ -168,9 +400,9 @@ const AutismView = () => {
           id: 3,
           title: 'Number Three',
           content: 'तीन (Teen)',
-          translation: 'Teen means "Three" in Hindi',
+          translation: 'Learn this number in Hindi',
           highlight: 'तीन',
-          image: '/images/hindi-three.png',
+          image: '/images/hindi-three.svg',
           audio: '/audio/hindi-three.mp3',
           hint: 'तीन (Teen) is the number 3. Hold up three fingers to show तीन.',
           interaction: {
@@ -178,9 +410,114 @@ const AutismView = () => {
             options: ['One', 'Two', 'Three'],
             correct: 2
           }
+        },
+        {
+          id: 4,
+          title: 'Number Four',
+          content: 'चार (Chaar)',
+          translation: 'Continue learning Hindi numbers',
+          highlight: 'चार',
+          image: '/images/hindi-four.svg',
+          audio: '/audio/hindi-four.mp3',
+          hint: 'चार (Chaar) is the number 4. Hold up four fingers to show चार.',
+          interaction: {
+            question: 'What number is चार?',
+            options: ['Three', 'Four', 'Five'],
+            correct: 1
+          }
+        },
+        {
+          id: 5,
+          title: 'Number Five',
+          content: 'पाँच (Paanch)',
+          translation: 'Learn the number five in Hindi',
+          highlight: 'पाँच',
+          image: '/images/hindi-five.svg',
+          audio: '/audio/hindi-five.mp3',
+          hint: 'पाँच (Paanch) is the number 5. Show all five fingers on one hand.',
+          interaction: {
+            question: 'What number is पाँच?',
+            options: ['Four', 'Five', 'Six'],
+            correct: 1
+          }
+        },
+        {
+          id: 6,
+          title: 'Number Six',
+          content: 'छह (Chhah)',
+          translation: 'Learn the number six in Hindi',
+          highlight: 'छह',
+          image: '/images/hindi-six.svg',
+          audio: '/audio/hindi-six.mp3',
+          hint: 'छह (Chhah) is the number 6. Use both hands to show six fingers.',
+          interaction: {
+            question: 'What number is छह?',
+            options: ['Five', 'Six', 'Seven'],
+            correct: 1
+          }
+        },
+        {
+          id: 7,
+          title: 'Number Seven',
+          content: 'सात (Saat)',
+          translation: 'Learn the number seven in Hindi',
+          highlight: 'सात',
+          image: '/images/hindi-seven.svg',
+          audio: '/audio/hindi-seven.mp3',
+          hint: 'सात (Saat) is the number 7. There are seven days in a week.',
+          interaction: {
+            question: 'What number is सात?',
+            options: ['Six', 'Seven', 'Eight'],
+            correct: 1
+          }
+        },
+        {
+          id: 8,
+          title: 'Number Eight',
+          content: 'आठ (Aath)',
+          translation: 'Learn the number eight in Hindi',
+          highlight: 'आठ',
+          image: '/images/hindi-eight.svg',
+          audio: '/audio/hindi-eight.mp3',
+          hint: 'आठ (Aath) is the number 8. Show eight fingers using both hands.',
+          interaction: {
+            question: 'What number is आठ?',
+            options: ['Seven', 'Eight', 'Nine'],
+            correct: 1
+          }
+        },
+        {
+          id: 9,
+          title: 'Number Nine',
+          content: 'नौ (Nau)',
+          translation: 'Learn the number nine in Hindi',
+          highlight: 'नौ',
+          image: '/images/hindi-nine.svg',
+          audio: '/audio/hindi-nine.mp3',
+          hint: 'नौ (Nau) is the number 9. Show nine fingers using both hands.',
+          interaction: {
+            question: 'What number is नौ?',
+            options: ['Eight', 'Nine', 'Ten'],
+            correct: 1
+          }
+        },
+        {
+          id: 10,
+          title: 'Number Ten',
+          content: 'दस (Das)',
+          translation: 'Learn the number ten in Hindi',
+          highlight: 'दस',
+          image: '/images/hindi-ten.svg',
+          audio: '/audio/hindi-ten.mp3',
+          hint: 'दस (Das) is the number 10. Show all ten fingers on both hands.',
+          interaction: {
+            question: 'What number is दस?',
+            options: ['Nine', 'Ten', 'Eleven'],
+            correct: 1
+          }
         }
       ]
-    },
+    }
   ];
 
   // Helper function to get visual icon for each step
@@ -192,14 +529,14 @@ const AutismView = () => {
         3: '👋'
       },
       2: { // English
-        1: '🅰️',
-        2: '🅱️',
-        3: '©️'
+        1: '📖',
+        2: '📖',
+        3: '📖'
       },
       3: { // Hindi
-        1: '1️⃣',
-        2: '2️⃣',
-        3: '3️⃣'
+        1: '🔢',
+        2: '🔢',
+        3: '🔢'
       }
     };
     return icons[lessonId]?.[stepId] || '📚';
@@ -212,6 +549,14 @@ const AutismView = () => {
 
   // EPIC 2.6: Navigation handlers with replay support
   const handleNext = () => {
+    // Check if current step has been answered correctly
+    const stepKey = `${selectedLesson}-${currentStepIndex}`;
+    if (!stepAnsweredCorrectly[stepKey]) {
+      setFeedback('⚠️ Please answer the question correctly before moving to the next step.');
+      setTimeout(() => setFeedback(''), 3000);
+      return;
+    }
+    
     setFeedback('');
     setShowHint(false);
     if (currentStepIndex < totalSteps - 1) {
@@ -220,6 +565,8 @@ const AutismView = () => {
       // Mark lesson as completed
       if (!completedLessons.includes(selectedLesson)) {
         setCompletedLessons([...completedLessons, selectedLesson]);
+        // Save to backend
+        saveLessonCompletion(selectedLesson);
       }
       setFeedback('🎉 Great job! You completed this lesson!');
     }
@@ -230,6 +577,16 @@ const AutismView = () => {
     setShowHint(false);
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
+
+  // Save lesson completion to backend
+  const saveLessonCompletion = async (lessonId) => {
+    try {
+      const lessonKey = `autism-lesson-${lessonId}`;
+      await api.post('/users/complete-lesson', { lessonKey });
+    } catch (error) {
+      console.error('Error saving lesson completion:', error);
     }
   };
 
@@ -275,8 +632,14 @@ const AutismView = () => {
   // EPIC 2.3: Interactive engagement with feedback
   const handleInteraction = (optionIndex) => {
     if (currentStep?.interaction) {
+      const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
         setFeedback('✅ Good job! That\'s correct!');
+        // Mark this step as answered correctly
+        setStepAnsweredCorrectly(prev => ({
+          ...prev,
+          [stepKey]: true
+        }));
       } else {
         setFeedback('💡 Try again! Look at the hint if you need help.');
       }
@@ -294,6 +657,7 @@ const AutismView = () => {
     setCurrentStepIndex(0);
     setShowHint(false);
     setFeedback('');
+    setStepAnsweredCorrectly({});
   };
 
   // Return to lesson list
@@ -302,6 +666,7 @@ const AutismView = () => {
     setCurrentStepIndex(0);
     setShowHint(false);
     setFeedback('');
+    setStepAnsweredCorrectly({});
   };
 
   // Cleanup audio on unmount
@@ -344,27 +709,14 @@ const AutismView = () => {
 
             {/* EPIC 2.1: Multi-format lesson display */}
             <div className="step-content-card">
-              <h3 className="step-title">{currentStep.title}</h3>
+              {/* Title hidden to prevent revealing answers */}
               
               {/* EPIC 2.5: Visual learning aid with icon/image */}
               <div className="step-visual">
-                <div className="visual-icon-container">
-                  <span className="visual-icon-large">
-                    {getStepIcon(selectedLesson, currentStep.id)}
-                  </span>
-                </div>
-                {/* Fallback image - hidden by default, only shows if real images are added */}
                 <img 
                   src={currentStep.image} 
                   alt={currentStep.title}
                   className="visual-image-hidden"
-                  onLoad={(e) => {
-                    e.target.style.display = 'block';
-                    e.target.previousSibling.style.display = 'none';
-                  }}
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
                 />
               </div>
 
@@ -495,6 +847,9 @@ const AutismView = () => {
               <div key={lesson.id} className={`lesson-simple-card ${completedLessons.includes(lesson.id) ? 'completed' : ''}`}>
                 <div className="lesson-top">
                   <span className="lesson-large-icon">{lesson.icon}</span>
+                  {completedLessons.includes(lesson.id) && (
+                    <span className="completion-checkmark">✓</span>
+                  )}
                 </div>
                 <div className="lesson-body">
                   <h4>{lesson.title}</h4>

@@ -66,6 +66,11 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Completed lessons tracking
+    completedLessons: {
+      type: [String],
+      default: []
+    },
   },
   {
     timestamps: true,

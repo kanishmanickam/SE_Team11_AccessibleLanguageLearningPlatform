@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#E0F2F1"/>
+  <circle cx="100" cy="100" r="70" fill="#009688"/>
+  <text x="100" y="125" font-size="70" font-weight="bold" text-anchor="middle" fill="#fff">3</text>
+  <circle cx="140" cy="38" r="7" fill="#4CAF50"/>
+  <circle cx="155" cy="38" r="7" fill="#4CAF50"/>
+  <circle cx="170" cy="38" r="7" fill="#4CAF50"/>
+  <text x="100" y="180" font-size="24" font-weight="bold" text-anchor="middle" fill="#004D40">तीन</text>
+</svg>
