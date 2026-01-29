@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import InteractionCard from './InteractionCard';
+import VisualLesson from './VisualLesson';
 import { useTheme } from '../../context/ThemeContext';
 import { themeToCssVars } from '../../utils/theme';
 import './LessonDisplay.css';
@@ -23,10 +24,18 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
 
   const paragraphs = useMemo(() => {
     if (!lesson?.textContent) return [];
-    return lesson.textContent
-      .split(/\n+/)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean);
+    const results = [];
+    const regex = /[^\n]+/g;
+    let match;
+    while ((match = regex.exec(lesson.textContent)) !== null) {
+      const raw = match[0];
+      const trimmed = raw.trim();
+      if (!trimmed) continue;
+      const leadingWhitespace = raw.search(/\S/);
+      const startIndex = match.index + (leadingWhitespace >= 0 ? leadingWhitespace : 0);
+      results.push({ text: trimmed, startIndex });
+    }
+    return results;
   }, [lesson?.textContent]);
 
   const interactions = useMemo(() => {
@@ -42,6 +51,19 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
     const cutoff = Math.min(paragraphs.length, currentInteraction.position + 1);
     return paragraphs.slice(0, cutoff);
   }, [paragraphs, currentInteraction]);
+
+  const sideVisuals = useMemo(() => {
+    if (!lesson?.visualAids) return [];
+    return lesson.visualAids.filter((visual) => visual.placement === 'side');
+  }, [lesson?.visualAids]);
+
+  const keyIdeas = useMemo(() => {
+    const phrases = (lesson?.highlights || [])
+      .map((highlight) => (highlight?.phrase || '').trim())
+      .filter(Boolean);
+    const unique = Array.from(new Set(phrases));
+    return unique.slice(0, 6);
+  }, [lesson?.highlights]);
 
   useEffect(() => {
     setActiveInteractionIndex(0);
@@ -113,11 +135,15 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
   }
 
   return (
-    <section className="lesson-display" aria-live="polite" style={themeVars}>
+    <section className="lesson-display fx-card" aria-live="polite" style={themeVars}>
       <header className="lesson-header">
-        <div>
+        <div className="lesson-title-block">
           <p className="lesson-eyebrow">Lesson</p>
           <h2 className="lesson-title">{lesson?.title || 'Loading lesson...'}</h2>
+          <div className="lesson-meta">
+            <span className="lesson-pill">Focus mode</span>
+            {keyIdeas.length > 0 && <span className="lesson-pill accent">Visual cues on</span>}
+          </div>
         </div>
         {onClose && (
           <button type="button" className="lesson-close" onClick={onClose} aria-label="Close lesson">
@@ -133,9 +159,11 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
         <div className="lesson-body">
           <article className="lesson-text" aria-label="Lesson text content">
             {visibleParagraphs.length > 0 ? (
-              visibleParagraphs.map((paragraph, index) => (
-                <p key={`${lesson._id || lesson.title}-p-${index}`}>{paragraph}</p>
-              ))
+              <VisualLesson
+                paragraphs={visibleParagraphs}
+                highlights={lesson.highlights || []}
+                visualAids={lesson.visualAids || []}
+              />
             ) : (
               <p>No text content available for this lesson yet.</p>
             )}
@@ -154,7 +182,17 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
           </article>
 
           <aside className="lesson-side">
-            <div className="lesson-audio" aria-label="Lesson audio">
+            {keyIdeas.length > 0 && (
+              <div className="lesson-key-ideas fx-card" aria-label="Key ideas">
+                <h3>Key ideas</h3>
+                <div className="idea-chips">
+                  {keyIdeas.map((idea) => (
+                    <span key={idea} className="idea-chip">{idea}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="lesson-audio fx-card" aria-label="Lesson audio">
               <div className="lesson-audio-header">
                 <h3>Audio Narration</h3>
                 <span className="lesson-audio-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
@@ -166,7 +204,7 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
                   <div className="lesson-audio-controls">
                     <button
                       type="button"
-                      className="audio-toggle"
+                      className="audio-toggle fx-pressable fx-focus"
                       onClick={handleToggleAudio}
                       aria-pressed={isPlaying}
                       aria-label={isPlaying ? 'Pause audio narration' : 'Play audio narration'}
@@ -191,11 +229,17 @@ const InteractiveLesson = ({ lesson, isLoading, error, onClose }) => {
               )}
             </div>
 
-            <div className="lesson-visuals" aria-label="Lesson visuals">
+            <div className="lesson-visuals fx-card" aria-label="Lesson visuals">
               <h3>Visual Aids</h3>
-              {lesson.visuals && lesson.visuals.length > 0 ? (
+              {sideVisuals.length > 0 || (lesson.visuals && lesson.visuals.length > 0) ? (
                 <div className="visuals-grid">
-                  {lesson.visuals.map((visual, index) => (
+                  {sideVisuals.map((visual) => (
+                    <figure key={visual.id}>
+                      <img src={visual.imageUrl} alt={visual.altText} loading="lazy" />
+                      <figcaption>{visual.relatedPhrase}</figcaption>
+                    </figure>
+                  ))}
+                  {(lesson.visuals || []).map((visual, index) => (
                     <figure key={`${lesson._id || lesson.title}-v-${index}`}>
                       {visual.iconUrl ? (
                         <img src={visual.iconUrl} alt={visual.description} loading="lazy" />

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
-import InteractiveLesson from './InteractiveLesson';
-import { getLessonById } from '../../services/lessonService';
 import './ADHDView.css';
 
 const ADHDView = () => {
@@ -12,9 +11,7 @@ const ADHDView = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [activeLesson, setActiveLesson] = useState(null);
-  const [lessonLoading, setLessonLoading] = useState(false);
-  const [lessonError, setLessonError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     let timer;
@@ -53,101 +50,8 @@ const ADHDView = () => {
     { id: 3, title: 'Numbers', duration: '5 min', icon: '🔢', apiId: 'lesson-numbers' },
   ];
 
-  const lessonFallbacks = {
-    'lesson-greetings': {
-      title: 'Greetings',
-      textContent:
-        'Start with quick greetings.\\n\\nSay “Hello” and “Hi” clearly.\\n\\nRepeat each greeting twice.',
-      audioUrl: '',
-      visuals: [
-        { iconUrl: '/visuals/wave.svg', description: 'Wave to say hello.' },
-        { iconUrl: '/visuals/speech.svg', description: 'Speak with a friendly tone.' },
-      ],
-      interactions: [
-        {
-          id: 'greet-1',
-          type: 'true_false',
-          question: 'Is “Hi” a greeting?',
-          correctAnswer: 'True',
-          hint: 'Think about a short word you say when you meet someone.',
-          explanation: '“Hi” is a common greeting.',
-          maxAttempts: 3,
-          feedback: {
-            correct: 'Yes! “Hi” is a greeting.',
-            incorrect: 'Not quite. “Hi” is a greeting.',
-          },
-          position: 0,
-        },
-      ],
-    },
-    'lesson-vocabulary': {
-      title: 'Basic Words',
-      textContent:
-        'Choose five common objects around you.\\n\\nName each one out loud.\\n\\nRepeat after a short pause.',
-      audioUrl: '',
-      visuals: [
-        { iconUrl: '/visuals/speech.svg', description: 'Say each word slowly.' },
-        { iconUrl: '/visuals/sun.svg', description: 'Stay focused with bright cues.' },
-      ],
-      interactions: [
-        {
-          id: 'vocab-1',
-          type: 'multiple_choice',
-          question: 'Pick the word that names a fruit.',
-          options: ['Apple', 'Chair', 'Cloud'],
-          correctAnswer: 'Apple',
-          hint: 'Think of something you can eat.',
-          explanation: 'Apple is a fruit.',
-          maxAttempts: 3,
-          feedback: {
-            correct: 'Correct! Apple is a fruit.',
-            incorrect: 'Try again. Apple is the fruit.',
-          },
-          position: 1,
-        },
-      ],
-    },
-    'lesson-numbers': {
-      title: 'Numbers',
-      textContent:
-        'Count from one to five.\\n\\nClap once per number.\\n\\nTry saying the numbers faster.',
-      audioUrl: '',
-      visuals: [
-        { iconUrl: '/visuals/sun.svg', description: 'Use visual patterns to count.' },
-        { iconUrl: '/visuals/wave.svg', description: 'Move your fingers as you count.' },
-      ],
-      interactions: [
-        {
-          id: 'numbers-1',
-          type: 'click',
-          question: 'Click the number 4.',
-          options: ['2', '4', '5'],
-          correctAnswer: '4',
-          hint: 'Look for the number between 3 and 5.',
-          explanation: '4 is the number between 3 and 5.',
-          maxAttempts: 3,
-          feedback: {
-            correct: 'Nice! 4 is correct.',
-            incorrect: 'Almost. Look for 4.',
-          },
-          position: 0,
-        },
-      ],
-    },
-  };
-
-  const handleStartLesson = async (lesson) => {
-    setLessonLoading(true);
-    setLessonError('');
-    try {
-      const data = await getLessonById(lesson.apiId);
-      setActiveLesson(data);
-    } catch (error) {
-      setActiveLesson({ ...lessonFallbacks[lesson.apiId], _id: lesson.apiId });
-      setLessonError('Live lesson data is unavailable. Showing a sample lesson instead.');
-    } finally {
-      setLessonLoading(false);
-    }
+  const handleStartLesson = (lesson) => {
+    navigate(`/lessons/${lesson.apiId}`);
   };
 
   return (
@@ -228,15 +132,6 @@ const ADHDView = () => {
                 </div>
               </div>
 
-              <InteractiveLesson
-                lesson={activeLesson}
-                isLoading={lessonLoading}
-                error={lessonError}
-                onClose={() => {
-                  setActiveLesson(null);
-                  setLessonError('');
-                }}
-              />
             </>
           )}
 

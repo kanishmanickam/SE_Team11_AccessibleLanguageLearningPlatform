@@ -154,7 +154,7 @@ const InteractionCard = ({
   const guidanceTone = guidance?.tone || '';
 
   return (
-    <form className="interaction-card" onSubmit={handleSubmit} aria-live="polite">
+    <form className="interaction-card fx-card" onSubmit={handleSubmit} aria-live="polite">
       <fieldset disabled={isLocked}>
         <legend className="interaction-question">{interaction.question}</legend>
 
@@ -164,7 +164,7 @@ const InteractionCard = ({
               <button
                 key={option}
                 type="button"
-                className={`interaction-click ${selectedAnswer === option ? 'selected' : ''}`}
+                className={`interaction-click fx-pressable fx-focus ${selectedAnswer === option ? 'selected' : ''}`}
                 onClick={() => handleSelect(option)}
                 aria-pressed={selectedAnswer === option}
               >
@@ -214,20 +214,20 @@ const InteractionCard = ({
 
       <div className="interaction-actions">
         {!isAnswered ? (
-          <button type="submit" className="btn-submit" disabled={!selectedAnswer || isSubmitting}>
+          <button type="submit" className="btn-submit fx-pressable fx-focus" disabled={!selectedAnswer || isSubmitting}>
             {isSubmitting ? 'Checking…' : 'Submit Answer'}
           </button>
         ) : (
           <>
             {!isCorrect && (
-              <button type="button" className="btn-retry" onClick={handleRetry}>
+              <button type="button" className="btn-retry fx-pressable fx-focus" onClick={handleRetry}>
                 Try Again
               </button>
             )}
             {isCorrect && onContinue && (
               <button
                 type="button"
-                className="btn-continue"
+                className="btn-continue fx-pressable fx-focus"
                 onClick={onContinue}
                 disabled={disableContinue}
               >

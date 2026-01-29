@@ -6,7 +6,7 @@ const GuidedSupport = ({ message, tone, onHelp, isLoading }) => {
     <div className="guided-support" aria-live="polite">
       <button
         type="button"
-        className="btn-help"
+        className="btn-help fx-pressable fx-focus"
         onClick={onHelp}
         disabled={isLoading}
       >

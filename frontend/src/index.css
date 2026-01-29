@@ -38,6 +38,14 @@
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.8;
   --line-height-loose: 2.2;
+
+  /* Motion + effect tokens */
+  --fx-radius: 16px;
+  --fx-transition-fast: 150ms ease-in-out;
+  --fx-transition: 200ms ease-in-out;
+  --fx-shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.12);
+  --fx-shadow-hover: 0 16px 28px rgba(0, 0, 0, 0.16);
+  --fx-shadow-press: 0 6px 12px rgba(0, 0, 0, 0.16);
 }
 
 /* High Contrast Theme */
@@ -93,6 +101,63 @@ body {
   letter-spacing: var(--letter-spacing-normal);
   word-spacing: var(--word-spacing-normal);
   transition: all 0.3s ease;
+}
+
+/* Reusable visual effect utilities */
+.fx-card {
+  border-radius: var(--fx-radius);
+  box-shadow: var(--fx-shadow-soft);
+  transition: transform var(--fx-transition), box-shadow var(--fx-transition);
+}
+
+.fx-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--fx-shadow-hover);
+}
+
+.fx-pressable {
+  transition: transform var(--fx-transition-fast), box-shadow var(--fx-transition-fast), filter var(--fx-transition-fast);
+}
+
+.fx-pressable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--fx-shadow-soft);
+  filter: brightness(1.04);
+}
+
+.fx-pressable:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--fx-shadow-press);
+}
+
+.fx-pressable:disabled,
+.fx-pressable[disabled] {
+  opacity: 0.6;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.fx-focus:focus-visible {
+  outline: 3px solid var(--theme-focus, var(--accent-color));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .fx-card:hover,
+  .fx-pressable:hover,
+  .fx-pressable:active {
+    transform: none !important;
+    box-shadow: var(--fx-shadow-soft);
+  }
 }
 
 /* Font Family Classes */

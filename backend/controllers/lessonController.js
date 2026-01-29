@@ -104,9 +104,39 @@ const getLessonById = async (req, res) => {
       });
     }
 
+    const lessonObj = lesson.toObject();
+    const textContent = lessonObj.textContent || '';
+    const textLower = textContent.toLowerCase();
+
+    const highlights = (lessonObj.highlights || [])
+      .map((item) => {
+        if (!item.phrase) return null;
+        const phraseLower = item.phrase.toLowerCase();
+        const position =
+          typeof item.position === 'number'
+            ? item.position
+            : textLower.indexOf(phraseLower);
+        if (position < 0) return null;
+        if (position + item.phrase.length > textContent.length) return null;
+        return { ...item, position };
+      })
+      .filter(Boolean)
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+
+    const visualAids = (lessonObj.visualAids || [])
+      .filter((item) => {
+        if (!item.relatedPhrase) return false;
+        return textLower.includes(item.relatedPhrase.toLowerCase());
+      })
+      .sort((a, b) => a.relatedPhrase.localeCompare(b.relatedPhrase));
+
     return res.json({
       success: true,
-      lesson,
+      lesson: {
+        ...lessonObj,
+        highlights,
+        visualAids,
+      },
     });
   } catch (error) {
     return res.status(500).json({

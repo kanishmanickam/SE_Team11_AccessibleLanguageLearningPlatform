@@ -1,0 +1,77 @@
+.visual-lesson {
+  display: grid;
+  gap: 16px;
+}
+
+.visual-paragraph p {
+  margin-bottom: 8px;
+}
+
+.highlight {
+  padding: 0 2px;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.highlight-bold {
+  font-weight: 700;
+}
+
+.highlight-underline {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--highlight-underline, var(--theme-accent, var(--accent-color)));
+}
+
+.highlight-background {
+  background: var(--highlight-bg, var(--theme-option-selected-bg, var(--bg-secondary)));
+  color: var(--highlight-text, var(--theme-option-selected-text, var(--text-primary)));
+  border-bottom: 2px solid var(--theme-accent, var(--accent-color));
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--theme-accent, var(--accent-color));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.visual-aids {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 16px;
+}
+
+.visual-aid {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--theme-border, var(--border-color));
+  background: linear-gradient(135deg, var(--theme-surface, var(--bg-primary)) 0%, var(--theme-bg, var(--bg-secondary)) 100%);
+  max-width: 320px;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.visual-aid img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.12));
+}
+
+.visual-aid:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.14);
+}
+
+.visual-aid figcaption {
+  font-size: 13px;
+  color: var(--theme-muted-text, var(--text-secondary));
+}
+
+.visual-inline {
+  justify-self: start;
+}
+
+.visual-below {
+  justify-self: start;
+}

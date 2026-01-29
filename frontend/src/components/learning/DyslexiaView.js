@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
-import InteractiveLesson from './InteractiveLesson';
-import { getLessonById } from '../../services/lessonService';
 import './DyslexiaView.css';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
   const { preferences } = usePreferences();
-  const [activeLesson, setActiveLesson] = useState(null);
-  const [lessonLoading, setLessonLoading] = useState(false);
-  const [lessonError, setLessonError] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const navigate = useNavigate();
 
   const lessons = [
     { id: 1, title: 'Greetings & Introductions', level: 'Beginner', progress: 0, apiId: 'lesson-greetings' },
@@ -20,101 +17,8 @@ const DyslexiaView = () => {
     { id: 3, title: 'Numbers & Colors', level: 'Beginner', progress: 0, apiId: 'lesson-numbers' },
   ];
 
-  const lessonFallbacks = {
-    'lesson-greetings': {
-      title: 'Greetings & Introductions',
-      textContent:
-        'Hello! This lesson helps you greet someone politely.\\n\\nSay “Hello” or “Hi” with a smile.\\n\\nAsk “How are you?” and respond with “I am good, thank you.”',
-      audioUrl: '',
-      visuals: [
-        { iconUrl: '/visuals/wave.svg', description: 'Wave hello with a friendly smile.' },
-        { iconUrl: '/visuals/speech.svg', description: 'Use simple greeting phrases.' },
-      ],
-      interactions: [
-        {
-          id: 'greet-1',
-          type: 'true_false',
-          question: 'Is “Hello” a friendly greeting?',
-          correctAnswer: 'True',
-          hint: 'Think about what you say when meeting someone new.',
-          explanation: '“Hello” is a common, friendly way to greet someone.',
-          maxAttempts: 3,
-          feedback: {
-            correct: 'Correct! “Hello” is a friendly greeting.',
-            incorrect: 'Not quite. “Hello” is commonly used as a friendly greeting.',
-          },
-          position: 0,
-        },
-      ],
-    },
-    'lesson-vocabulary': {
-      title: 'Basic Vocabulary',
-      textContent:
-        'Let’s learn simple words for everyday items.\\n\\nSay the word and point to the item.\\n\\nRepeat each word slowly to build confidence.',
-      audioUrl: '',
-      visuals: [
-        { iconUrl: '/visuals/speech.svg', description: 'Speak each word clearly.' },
-        { iconUrl: '/visuals/sun.svg', description: 'Practice with objects around you.' },
-      ],
-      interactions: [
-        {
-          id: 'vocab-1',
-          type: 'multiple_choice',
-          question: 'Which word matches something you can sit on?',
-          options: ['Chair', 'Apple', 'Rain'],
-          correctAnswer: 'Chair',
-          hint: 'Think of furniture you use every day.',
-          explanation: 'A chair is furniture you sit on.',
-          maxAttempts: 3,
-          feedback: {
-            correct: 'Yes! A chair is something you can sit on.',
-            incorrect: 'Try again. Think of something you can sit on.',
-          },
-          position: 1,
-        },
-      ],
-    },
-    'lesson-numbers': {
-      title: 'Numbers & Colors',
-      textContent:
-        'Count from one to five.\\n\\nName a color for each number.\\n\\nMix numbers and colors to make learning fun.',
-      audioUrl: '',
-      visuals: [
-        { iconUrl: '/visuals/sun.svg', description: 'Use bright colors to remember.' },
-        { iconUrl: '/visuals/wave.svg', description: 'Count on your fingers as you learn.' },
-      ],
-      interactions: [
-        {
-          id: 'numbers-1',
-          type: 'click',
-          question: 'Click the number that comes after 2.',
-          options: ['1', '3', '5'],
-          correctAnswer: '3',
-          hint: 'Count upward: 1, 2, 3.',
-          explanation: 'The number after 2 is 3.',
-          maxAttempts: 3,
-          feedback: {
-            correct: 'Great job! 3 comes after 2.',
-            incorrect: 'Not quite. Count: 1, 2, 3.',
-          },
-          position: 0,
-        },
-      ],
-    },
-  };
-
-  const handleStartLesson = async (lesson) => {
-    setLessonLoading(true);
-    setLessonError('');
-    try {
-      const data = await getLessonById(lesson.apiId);
-      setActiveLesson(data);
-    } catch (error) {
-      setActiveLesson({ ...lessonFallbacks[lesson.apiId], _id: lesson.apiId });
-      setLessonError('Live lesson data is unavailable. Showing a sample lesson instead.');
-    } finally {
-      setLessonLoading(false);
-    }
+  const handleStartLesson = (lesson) => {
+    navigate(`/lessons/${lesson.apiId}`);
   };
 
   return (
@@ -202,16 +106,6 @@ const DyslexiaView = () => {
             ))}
           </div>
         </div>
-
-        <InteractiveLesson
-          lesson={activeLesson}
-          isLoading={lessonLoading}
-          error={lessonError}
-          onClose={() => {
-            setActiveLesson(null);
-            setLessonError('');
-          }}
-        />
 
         {/* Tips Section */}
         <div className="tips-section">

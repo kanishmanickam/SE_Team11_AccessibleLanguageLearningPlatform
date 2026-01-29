@@ -41,6 +41,75 @@ const LessonSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    highlights: {
+      type: [
+        new mongoose.Schema(
+          {
+            id: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            phrase: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            emphasisType: {
+              type: String,
+              required: true,
+              enum: ['bold', 'underline', 'background'],
+            },
+            color: {
+              type: String,
+              trim: true,
+              default: '',
+            },
+            position: {
+              type: Number,
+              min: 0,
+            },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
+    visualAids: {
+      type: [
+        new mongoose.Schema(
+          {
+            id: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            imageUrl: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            altText: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            relatedPhrase: {
+              type: String,
+              required: true,
+              trim: true,
+            },
+            placement: {
+              type: String,
+              required: true,
+              enum: ['inline', 'below', 'side'],
+            },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
     interactions: {
       type: [
         new mongoose.Schema(
