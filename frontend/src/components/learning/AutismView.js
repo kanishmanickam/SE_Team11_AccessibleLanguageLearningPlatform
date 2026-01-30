@@ -16,6 +16,7 @@ const AutismView = () => {
   const [feedback, setFeedback] = useState('');
   const [completedLessons, setCompletedLessons] = useState([]);
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
+  const [wrongAnswerCount, setWrongAnswerCount] = useState({});
   
   const audioRef = useRef(null);
 
@@ -43,7 +44,7 @@ const AutismView = () => {
   const lessons = [
     { 
       id: 1, 
-      title: 'Tamil – Greetings and Introduction',
+      title: 'Greetings',
       language: 'Tamil',
       icon: '🙏',
       description: 'Learn basic Tamil greetings',
@@ -202,7 +203,7 @@ const AutismView = () => {
     },
     { 
       id: 2, 
-      title: 'English – Learning Alphabets',
+      title: 'Basic Words',
       language: 'English',
       icon: '🔤',
       description: 'Learn English alphabet letters',
@@ -361,7 +362,7 @@ const AutismView = () => {
     },
     { 
       id: 3, 
-      title: 'Hindi – Learning Numbers',
+      title: 'Numbers',
       language: 'Hindi',
       icon: '🔢',
       description: 'Learn Hindi numbers 1 to 10',
@@ -551,6 +552,7 @@ const AutismView = () => {
   const handleNext = () => {
     // Check if current step has been answered correctly
     const stepKey = `${selectedLesson}-${currentStepIndex}`;
+    
     if (!stepAnsweredCorrectly[stepKey]) {
       setFeedback('⚠️ Please answer the question correctly before moving to the next step.');
       setTimeout(() => setFeedback(''), 3000);
@@ -640,8 +642,41 @@ const AutismView = () => {
           ...prev,
           [stepKey]: true
         }));
+        // Reset wrong answer count on correct answer
+        setWrongAnswerCount(prev => ({
+          ...prev,
+          [stepKey]: 0
+        }));
       } else {
-        setFeedback('💡 Try again! Look at the hint if you need help.');
+        // Increment wrong answer count
+        const currentWrongCount = wrongAnswerCount[stepKey] || 0;
+        const newWrongCount = currentWrongCount + 1;
+        
+        setWrongAnswerCount(prev => ({
+          ...prev,
+          [stepKey]: newWrongCount
+        }));
+        
+        if (newWrongCount >= 2) {
+          // Auto-advance to next step after 2 wrong answers
+          setFeedback('💡 Moving to the next step. Try to review this later!');
+          setTimeout(() => {
+            setFeedback('');
+            setShowHint(false);
+            if (currentStepIndex < totalSteps - 1) {
+              setCurrentStepIndex(currentStepIndex + 1);
+            } else {
+              // Mark lesson as completed even with wrong answers
+              if (!completedLessons.includes(selectedLesson)) {
+                setCompletedLessons([...completedLessons, selectedLesson]);
+                saveLessonCompletion(selectedLesson);
+              }
+              setFeedback('🎉 You completed this lesson! Review the steps you found difficult.');
+            }
+          }, 2000);
+        } else {
+          setFeedback('💡 Try again! Look at the hint if you need help.');
+        }
       }
       setTimeout(() => {
         if (optionIndex === currentStep.interaction.correct) {
@@ -658,6 +693,7 @@ const AutismView = () => {
     setShowHint(false);
     setFeedback('');
     setStepAnsweredCorrectly({});
+    setWrongAnswerCount({});
   };
 
   // Return to lesson list
@@ -667,6 +703,7 @@ const AutismView = () => {
     setShowHint(false);
     setFeedback('');
     setStepAnsweredCorrectly({});
+    setWrongAnswerCount({});
   };
 
   // Cleanup audio on unmount
