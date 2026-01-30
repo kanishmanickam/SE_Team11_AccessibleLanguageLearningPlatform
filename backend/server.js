@@ -26,6 +26,8 @@ mongoose
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/preferences', require('./routes/preferences'));
 app.use('/api/users', require('./routes/users'));
+app.use('/api/ai', require('./routes/ai'));
+app.use('/api/tts', require('./routes/tts'));
 
 // Health check
 app.get('/health', (req, res) => {
