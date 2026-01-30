@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
 import './DyslexiaView.css';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
-  const { preferences } = usePreferences();
-  const [activeLesson, setActiveLesson] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
 
   const lessons = [

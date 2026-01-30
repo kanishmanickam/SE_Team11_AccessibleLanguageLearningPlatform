@@ -59,7 +59,7 @@ const Dashboard = () => {
     if (preferences.reduceAnimations && preferences.distractionFreeMode && user?.learningCondition === 'autism') {
       container.classList.add('reduce-animations');
     }
-  }, [preferences]);
+  }, [preferences, user?.learningCondition]);
 
   // Render the appropriate learning view based on user's condition
   const renderLearningView = () => {

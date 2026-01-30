@@ -34,6 +34,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
 });
 
+// Health check (API namespace)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'API is running' });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

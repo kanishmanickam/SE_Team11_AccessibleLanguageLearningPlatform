@@ -7,6 +7,11 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const apiKey = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey || 'mock-key');
 
+// Allow selecting a specific Gemini model via env.
+// Note: we do not attempt to list available models at runtime.
+// Set GEMINI_MODEL in backend/.env to a model your key can access.
+const configuredModel = process.env.GEMINI_MODEL;
+
 // Helper to generate mock data to ensure app functionality when AI fails
 const getMockData = (type, topic) => {
     // 1. Story Quizzes (fallback if AI fails)
@@ -127,6 +132,17 @@ const isKeyValid = (key) => {
     return key && key !== 'your_gemini_api_key_here' && key !== 'mock-key' && !key.startsWith('your_');
 };
 
+const normalizeModelName = (name) => {
+    if (!name) return '';
+    // Accept either "models/gemini-2.0-flash" or "gemini-2.0-flash"
+    return name.startsWith('models/') ? name.slice('models/'.length) : name;
+};
+
+const resolveModelName = () => {
+    // Default to a modern Flash model; override via GEMINI_MODEL in backend/.env
+    return normalizeModelName(configuredModel) || 'gemini-2.5-flash';
+};
+
 router.post('/generate-questions', async (req, res) => {
     const { topic, context } = req.body;
 
@@ -137,7 +153,8 @@ router.post('/generate-questions', async (req, res) => {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const modelName = resolveModelName();
+        const model = genAI.getGenerativeModel({ model: modelName });
 
         const prompt = `
       Create 3 multiple-choice quiz questions for an ADHD-friendly language learning app.
@@ -185,7 +202,8 @@ router.post('/story-quiz', async (req, res) => {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const modelName = resolveModelName();
+                const model = genAI.getGenerativeModel({ model: modelName });
         const prompt = `
           Based on the following short story: "${storyText}"
           

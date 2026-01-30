@@ -39,7 +39,7 @@ SE_Team11_AccessibleLanguageLearningPlatform/
 │   │   └── auth.js              # JWT verification & parental controls
 │   ├── server.js                # Express server setup
 │   ├── package.json
-│   └── .env.example
+│   └── .env
 │
 └── frontend/
     ├── src/
@@ -84,7 +84,7 @@ npm install
 
 3. Create `.env` file:
 ```bash
-cp .env.example .env
+touch .env
 ```
 
 4. Update `.env` with your values:
@@ -94,6 +94,26 @@ MONGODB_URI=mongodb://localhost:27017/accessible-learning
 JWT_SECRET=your_secure_secret_key
 JWT_EXPIRE=7d
 NODE_ENV=development
+
+# Optional: enable Gemini AI endpoints (/api/ai/*)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Optional: pin the Gemini model used by backend/routes/ai.js
+# If unset or invalid, the backend auto-selects an available model (prefers Flash).
+GEMINI_MODEL=gemini-2.5-flash
+
+# Optional: use a specific Python interpreter for TTS (/api/tts/speak)
+# PYTHON_EXECUTABLE=../.venv/bin/python
+```
+
+### Optional: Enable Python TTS (gTTS)
+
+The `/api/tts/speak` endpoint runs a Python script in `backend/python_services/tts_gen.py`.
+
+If you see `ModuleNotFoundError: No module named 'gtts'`, install the Python dependency:
+
+```bash
+python3 -m pip install -r backend/python_services/requirements.txt
 ```
 
 5. Start MongoDB (if running locally):
