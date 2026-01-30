@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
 import api from '../../utils/api';
 import './AutismView.css';
@@ -520,28 +519,6 @@ const AutismView = () => {
       ]
     }
   ];
-
-  // Helper function to get visual icon for each step
-  const getStepIcon = (lessonId, stepId) => {
-    const icons = {
-      1: { // Tamil
-        1: '👋',
-        2: '🙏',
-        3: '👋'
-      },
-      2: { // English
-        1: '📖',
-        2: '📖',
-        3: '📖'
-      },
-      3: { // Hindi
-        1: '🔢',
-        2: '🔢',
-        3: '🔢'
-      }
-    };
-    return icons[lessonId]?.[stepId] || '📚';
-  };
 
   // Get current step data
   const currentLesson = lessons.find(l => l.id === selectedLesson);
