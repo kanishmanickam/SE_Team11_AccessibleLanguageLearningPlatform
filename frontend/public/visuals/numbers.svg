@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Numbers one two three">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff7e6" />
+      <stop offset="100%" stop-color="#ffe2b8" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bg)" />
+  <circle cx="36" cy="70" r="18" fill="#ffffff" stroke="#fb8c00" stroke-width="3" />
+  <circle cx="64" cy="52" r="18" fill="#ffffff" stroke="#fb8c00" stroke-width="3" />
+  <circle cx="92" cy="70" r="18" fill="#ffffff" stroke="#fb8c00" stroke-width="3" />
+  <text x="30" y="76" font-family="'Arial', sans-serif" font-size="18" fill="#fb8c00">1</text>
+  <text x="58" y="58" font-family="'Arial', sans-serif" font-size="18" fill="#fb8c00">2</text>
+  <text x="86" y="76" font-family="'Arial', sans-serif" font-size="18" fill="#fb8c00">3</text>
+</svg>

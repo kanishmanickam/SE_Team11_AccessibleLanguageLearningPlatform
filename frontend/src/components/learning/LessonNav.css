@@ -1,0 +1,55 @@
+.lesson-nav {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.lesson-nav__button {
+  min-width: 120px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--theme-border, var(--border-color));
+  background: var(--theme-bg, var(--bg-secondary));
+  color: var(--theme-text, var(--text-primary));
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lesson-nav__button--back {
+  justify-self: start;
+}
+
+.lesson-nav__button--replay {
+  justify-self: center;
+}
+
+.lesson-nav__button--next {
+  justify-self: end;
+}
+
+.lesson-nav__button.is-active {
+  border-color: var(--theme-accent, var(--accent-color));
+  color: var(--theme-accent, var(--accent-color));
+  background: var(--theme-surface, var(--bg-primary));
+}
+
+.lesson-nav__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 720px) {
+  .lesson-nav {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .lesson-nav__button,
+  .lesson-nav__button--back,
+  .lesson-nav__button--replay,
+  .lesson-nav__button--next {
+    justify-self: stretch;
+    width: 100%;
+  }
+}

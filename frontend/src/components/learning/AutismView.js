@@ -15,7 +15,7 @@ const AutismView = () => {
   const lessons = [
     { 
       id: 1, 
-      title: 'Lesson 1: Greetings', 
+      title: 'Greetings', 
       icon: '👋',
       steps: 3,
       description: 'Learn basic greetings',
@@ -23,7 +23,7 @@ const AutismView = () => {
     },
     { 
       id: 2, 
-      title: 'Lesson 2: Basic Words', 
+      title: 'Basic Words', 
       icon: '📝',
       steps: 3,
       description: 'Learn common words',
@@ -31,7 +31,7 @@ const AutismView = () => {
     },
     { 
       id: 3, 
-      title: 'Lesson 3: Numbers', 
+      title: 'Numbers', 
       icon: '🔢',
       steps: 3,
       description: 'Learn to count',

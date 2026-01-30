@@ -29,6 +29,7 @@ const InteractionCard = ({
   onContinue,
   disableContinue = false,
   useLocalSubmission = false,
+  readOnly = false,
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,7 +57,7 @@ const InteractionCard = ({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!selectedAnswer || isSubmitting) return;
+    if (readOnly || !selectedAnswer || isSubmitting) return;
 
     setIsSubmitting(true);
     setError('');
@@ -155,7 +156,7 @@ const InteractionCard = ({
 
   return (
     <form className="interaction-card fx-card" onSubmit={handleSubmit} aria-live="polite">
-      <fieldset disabled={isLocked}>
+      <fieldset disabled={isLocked || readOnly}>
         <legend className="interaction-question">{interaction.question}</legend>
 
         {interaction.type === 'click' ? (
@@ -205,6 +206,12 @@ const InteractionCard = ({
         </p>
       )}
 
+      {readOnly && (
+        <p className="interaction-feedback" role="status">
+          🔒 Replay mode: interactions are read-only.
+        </p>
+      )}
+
       <GuidedSupport
         message={guidanceMessage}
         tone={guidanceTone}
@@ -214,7 +221,7 @@ const InteractionCard = ({
 
       <div className="interaction-actions">
         {!isAnswered ? (
-          <button type="submit" className="btn-submit fx-pressable fx-focus" disabled={!selectedAnswer || isSubmitting}>
+          <button type="submit" className="btn-submit fx-pressable fx-focus" disabled={readOnly || !selectedAnswer || isSubmitting}>
             {isSubmitting ? 'Checking…' : 'Submit Answer'}
           </button>
         ) : (

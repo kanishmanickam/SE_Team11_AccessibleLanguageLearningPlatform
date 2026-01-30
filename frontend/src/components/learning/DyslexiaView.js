@@ -12,9 +12,9 @@ const DyslexiaView = () => {
   const navigate = useNavigate();
 
   const lessons = [
-    { id: 1, title: 'Greetings & Introductions', level: 'Beginner', progress: 0, apiId: 'lesson-greetings' },
-    { id: 2, title: 'Basic Vocabulary', level: 'Beginner', progress: 0, apiId: 'lesson-vocabulary' },
-    { id: 3, title: 'Numbers & Colors', level: 'Beginner', progress: 0, apiId: 'lesson-numbers' },
+    { id: 1, title: 'Greetings', level: 'Beginner', progress: 0, apiId: 'lesson-greetings' },
+    { id: 2, title: 'Basic Words', level: 'Beginner', progress: 0, apiId: 'lesson-vocabulary' },
+    { id: 3, title: 'Numbers', level: 'Beginner', progress: 0, apiId: 'lesson-numbers' },
   ];
 
   const handleStartLesson = (lesson) => {

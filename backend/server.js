@@ -28,6 +28,7 @@ app.use('/api/preferences', require('./routes/preferences'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/lessons', require('./routes/lessons'));
 app.use('/api/interactions', require('./routes/interactions'));
+app.use('/api/progress', require('./routes/progress'));
 
 // Health check
 app.get('/health', (req, res) => {

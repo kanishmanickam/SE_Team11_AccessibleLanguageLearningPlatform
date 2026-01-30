@@ -1,7 +1,7 @@
 const lessonSamples = {
   'lesson-greetings': {
     _id: 'lesson-greetings',
-    title: 'Greetings & Introductions',
+    title: 'Greetings',
     textContent:
       'Hello! This lesson helps you greet someone politely.\n\nSay “Hello” or “Hi” with a smile.\n\nAsk “How are you?” and respond with “I am good, thank you.”',
     audioUrl: '',
@@ -48,7 +48,7 @@ const lessonSamples = {
   },
   'lesson-vocabulary': {
     _id: 'lesson-vocabulary',
-    title: 'Basic Vocabulary',
+    title: 'Basic Words',
     textContent:
       'Let’s learn simple words for everyday items.\n\nSay the word and point to the item.\n\nRepeat each word slowly to build confidence.',
     audioUrl: '',
@@ -89,7 +89,7 @@ const lessonSamples = {
   },
   'lesson-numbers': {
     _id: 'lesson-numbers',
-    title: 'Numbers & Colors',
+    title: 'Numbers',
     textContent:
       'Count from one to five.\n\nName a color for each number.\n\nMix numbers and colors to make learning fun.',
     audioUrl: '',

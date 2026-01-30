@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Lesson = require('../models/Lesson');
 const { searchLessonIdsByEmbedding } = require('../services/vectorSearch');
 
@@ -88,13 +87,6 @@ const searchLessons = async (req, res) => {
 
 const getLessonById = async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid lesson ID',
-      });
-    }
-
     const lesson = await Lesson.findById(req.params.id);
 
     if (!lesson) {
