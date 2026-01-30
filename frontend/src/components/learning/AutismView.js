@@ -55,8 +55,8 @@ const AutismView = () => {
           content: 'வணக்கம் (Vanakkam)',
           translation: 'A common word used when meeting someone',
           highlight: 'வணக்கம்',
-          image: '/images/tamil-greeting.svg',
-          audio: '/audio/tamil-hello.mp3',
+          image: '/images/autism-tamil-greeting.svg',
+          audio: '/audio/autism-tamil-hello.mp3',
           hint: 'Say "வணக்கம்" when you meet someone. It shows respect and warmth.',
           interaction: {
             question: 'What does வணக்கம் mean?',
@@ -70,8 +70,8 @@ const AutismView = () => {
           content: 'நன்றி (Nandri)',
           translation: 'A polite word in Tamil',
           highlight: 'நன்றி',
-          image: '/images/tamil-thanks.svg',
-          audio: '/audio/tamil-thanks.mp3',
+          image: '/images/autism-tamil-thanks.svg',
+          audio: '/audio/autism-tamil-thanks.mp3',
           hint: 'Say "நன்றி" to show gratitude. It\'s a polite way to thank someone.',
           interaction: {
             question: 'When do you say நன்றி?',
@@ -85,8 +85,8 @@ const AutismView = () => {
           content: 'பிரியாவிடை (Piriyavidai)',
           translation: 'A respectful parting word in Tamil',
           highlight: 'பிரியாவிடை',
-          image: '/images/tamil-goodbye.svg',
-          audio: '/audio/tamil-goodbye.mp3',
+          image: '/images/autism-tamil-goodbye.svg',
+          audio: '/audio/autism-tamil-goodbye.mp3',
           hint: 'Say "பிரியாவிடை" when you leave. It\'s a respectful way to say goodbye.',
           interaction: {
             question: 'What is பிரியாவிடை used for?',
@@ -100,8 +100,8 @@ const AutismView = () => {
           content: 'காலை வணக்கம் (Kaalai Vanakkam)',
           translation: 'A time-specific greeting in Tamil',
           highlight: 'காலை வணக்கம்',
-          image: '/images/tamil-good-morning.svg',
-          audio: '/audio/tamil-good-morning.mp3',
+          image: '/images/autism-tamil-good-morning.svg',
+          audio: '/audio/autism-tamil-good-morning.mp3',
           hint: 'காலை means morning. Use this greeting in the morning time.',
           interaction: {
             question: 'When do you say காலை வணக்கம்?',
@@ -115,8 +115,8 @@ const AutismView = () => {
           content: 'எப்படி இருக்கிறீர்கள்? (Eppadi Irukkireergal?)',
           translation: 'A question to ask someone in Tamil',
           highlight: 'எப்படி இருக்கிறீர்கள்?',
-          image: '/images/tamil-how-are-you.svg',
-          audio: '/audio/tamil-how-are-you.mp3',
+          image: '/images/autism-tamil-how-are-you.svg',
+          audio: '/audio/autism-tamil-how-are-you.mp3',
           hint: 'Use this to ask someone how they are doing. It shows you care.',
           interaction: {
             question: 'What does எப்படி இருக்கிறீர்கள் mean?',
@@ -130,8 +130,8 @@ const AutismView = () => {
           content: 'நான் நலமாக இருக்கிறேன் (Naan Nalamaaga Irukkiren)',
           translation: 'A common response in conversation',
           highlight: 'நான் நலமாக இருக்கிறேன்',
-          image: '/images/tamil-i-am-fine.svg',
-          audio: '/audio/tamil-i-am-fine.mp3',
+          image: '/images/autism-tamil-i-am-fine.svg',
+          audio: '/audio/autism-tamil-i-am-fine.mp3',
           hint: 'Say this when someone asks how you are and you feel good.',
           interaction: {
             question: 'When do you say நான் நலமாக இருக்கிறேன்?',
@@ -145,8 +145,8 @@ const AutismView = () => {
           content: 'தயவு செய்து (Thayavu Seidhu)',
           translation: 'A word used when making requests',
           highlight: 'தயவு செய்து',
-          image: '/images/tamil-please.svg',
-          audio: '/audio/tamil-please.mp3',
+          image: '/images/autism-tamil-please.svg',
+          audio: '/audio/autism-tamil-please.mp3',
           hint: 'Add this when making a request to be polite and respectful.',
           interaction: {
             question: 'Why do we use தயவு செய்து?',
@@ -160,8 +160,8 @@ const AutismView = () => {
           content: 'மன்னிக்கவும் (Mannikkavum)',
           translation: 'A word used when you make a mistake',
           highlight: 'மன்னிக்கவும்',
-          image: '/images/tamil-sorry.svg',
-          audio: '/audio/tamil-sorry.mp3',
+          image: '/images/autism-tamil-sorry.svg',
+          audio: '/audio/autism-tamil-sorry.mp3',
           hint: 'Say this when you make a mistake or need to apologize.',
           interaction: {
             question: 'What does மன்னிக்கவும் mean?',
@@ -175,8 +175,8 @@ const AutismView = () => {
           content: 'ஆம் (Aam)',
           translation: 'A response word in Tamil',
           highlight: 'ஆம்',
-          image: '/images/tamil-yes.svg',
-          audio: '/audio/tamil-yes.mp3',
+          image: '/images/autism-tamil-yes.svg',
+          audio: '/audio/autism-tamil-yes.mp3',
           hint: 'Use ஆம் when you agree or want to say yes.',
           interaction: {
             question: 'When do you say ஆம்?',
@@ -190,8 +190,8 @@ const AutismView = () => {
           content: 'இல்லை (Illai)',
           translation: 'Another response word in Tamil',
           highlight: 'இல்லை',
-          image: '/images/tamil-no.svg',
-          audio: '/audio/tamil-no.mp3',
+          image: '/images/autism-tamil-no.svg',
+          audio: '/audio/autism-tamil-no.mp3',
           hint: 'Use இல்லை when you disagree or want to say no.',
           interaction: {
             question: 'What does இல்லை mean?',
@@ -214,7 +214,7 @@ const AutismView = () => {
           content: 'A',
           translation: 'This is the first letter of the alphabet',
           highlight: 'A',
-          image: '/images/letter-a.svg',
+          image: '/images/autism-letter-a.svg',
           audio: '/audio/letter-a.mp3',
           hint: 'A is the first letter of the alphabet. Words like "Apple" start with A.',
           interaction: {
@@ -229,7 +229,7 @@ const AutismView = () => {
           content: 'B',
           translation: 'This is the second letter of the alphabet',
           highlight: 'B',
-          image: '/images/letter-b.svg',
+          image: '/images/autism-letter-b.svg',
           audio: '/audio/letter-b.mp3',
           hint: 'B is the second letter. Words like "Ball" start with B.',
           interaction: {
@@ -244,7 +244,7 @@ const AutismView = () => {
           content: 'C',
           translation: 'This is the third letter of the alphabet',
           highlight: 'C',
-          image: '/images/letter-c.svg',
+          image: '/images/autism-letter-c.svg',
           audio: '/audio/letter-c.mp3',
           hint: 'C is the third letter. Words like "Cat" start with C.',
           interaction: {
@@ -259,7 +259,7 @@ const AutismView = () => {
           content: 'D',
           translation: 'This is the fourth letter of the alphabet',
           highlight: 'D',
-          image: '/images/letter-d.svg',
+          image: '/images/autism-letter-d.svg',
           audio: '/audio/letter-d.mp3',
           hint: 'D is the fourth letter. Words like "Dog" start with D.',
           interaction: {
@@ -274,7 +274,7 @@ const AutismView = () => {
           content: 'E',
           translation: 'This is the fifth letter of the alphabet',
           highlight: 'E',
-          image: '/images/letter-e.svg',
+          image: '/images/autism-letter-e.svg',
           audio: '/audio/letter-e.mp3',
           hint: 'E is the fifth letter. Words like "Elephant" start with E.',
           interaction: {
@@ -289,7 +289,7 @@ const AutismView = () => {
           content: 'F',
           translation: 'This is the sixth letter of the alphabet',
           highlight: 'F',
-          image: '/images/letter-f.svg',
+          image: '/images/autism-letter-f.svg',
           audio: '/audio/letter-f.mp3',
           hint: 'F is the sixth letter. Words like "Fish" start with F.',
           interaction: {
@@ -304,7 +304,7 @@ const AutismView = () => {
           content: 'G',
           translation: 'This is the seventh letter of the alphabet',
           highlight: 'G',
-          image: '/images/letter-g.svg',
+          image: '/images/autism-letter-g.svg',
           audio: '/audio/letter-g.mp3',
           hint: 'G is the seventh letter. Words like "Goat" start with G.',
           interaction: {
@@ -319,7 +319,7 @@ const AutismView = () => {
           content: 'H',
           translation: 'This is the eighth letter of the alphabet',
           highlight: 'H',
-          image: '/images/letter-h.svg',
+          image: '/images/autism-letter-h.svg',
           audio: '/audio/letter-h.mp3',
           hint: 'H is the eighth letter. Words like "Hat" start with H.',
           interaction: {
@@ -334,7 +334,7 @@ const AutismView = () => {
           content: 'I',
           translation: 'This is the ninth letter of the alphabet',
           highlight: 'I',
-          image: '/images/letter-i.svg',
+          image: '/images/autism-letter-i.svg',
           audio: '/audio/letter-i.mp3',
           hint: 'I is the ninth letter. Words like "Ice" start with I.',
           interaction: {
@@ -349,7 +349,7 @@ const AutismView = () => {
           content: 'J',
           translation: 'This is the tenth letter of the alphabet',
           highlight: 'J',
-          image: '/images/letter-j.svg',
+          image: '/images/autism-letter-j.svg',
           audio: '/audio/letter-j.mp3',
           hint: 'J is the tenth letter. Words like "Jug" start with J.',
           interaction: {
@@ -373,7 +373,7 @@ const AutismView = () => {
           content: 'एक (Ek)',
           translation: 'This is how we say a number in Hindi',
           highlight: 'एक',
-          image: '/images/hindi-one.svg',
+          image: '/images/autism-hindi-one.svg',
           audio: '/audio/hindi-one.mp3',
           hint: 'एक (Ek) is the number 1. Hold up one finger to show एक.',
           interaction: {
@@ -388,7 +388,7 @@ const AutismView = () => {
           content: 'दो (Do)',
           translation: 'This is another number in Hindi',
           highlight: 'दो',
-          image: '/images/hindi-two.svg',
+          image: '/images/autism-hindi-two.svg',
           audio: '/audio/hindi-two.mp3',
           hint: 'दो (Do) is the number 2. Hold up two fingers to show दो.',
           interaction: {
@@ -403,7 +403,7 @@ const AutismView = () => {
           content: 'तीन (Teen)',
           translation: 'Learn this number in Hindi',
           highlight: 'तीन',
-          image: '/images/hindi-three.svg',
+          image: '/images/autism-hindi-three.svg',
           audio: '/audio/hindi-three.mp3',
           hint: 'तीन (Teen) is the number 3. Hold up three fingers to show तीन.',
           interaction: {
@@ -418,7 +418,7 @@ const AutismView = () => {
           content: 'चार (Chaar)',
           translation: 'Continue learning Hindi numbers',
           highlight: 'चार',
-          image: '/images/hindi-four.svg',
+          image: '/images/autism-hindi-four.svg',
           audio: '/audio/hindi-four.mp3',
           hint: 'चार (Chaar) is the number 4. Hold up four fingers to show चार.',
           interaction: {
@@ -433,7 +433,7 @@ const AutismView = () => {
           content: 'पाँच (Paanch)',
           translation: 'Learn the number five in Hindi',
           highlight: 'पाँच',
-          image: '/images/hindi-five.svg',
+          image: '/images/autism-hindi-five.svg',
           audio: '/audio/hindi-five.mp3',
           hint: 'पाँच (Paanch) is the number 5. Show all five fingers on one hand.',
           interaction: {
@@ -448,7 +448,7 @@ const AutismView = () => {
           content: 'छह (Chhah)',
           translation: 'Learn the number six in Hindi',
           highlight: 'छह',
-          image: '/images/hindi-six.svg',
+          image: '/images/autism-hindi-six.svg',
           audio: '/audio/hindi-six.mp3',
           hint: 'छह (Chhah) is the number 6. Use both hands to show six fingers.',
           interaction: {
@@ -463,7 +463,7 @@ const AutismView = () => {
           content: 'सात (Saat)',
           translation: 'Learn the number seven in Hindi',
           highlight: 'सात',
-          image: '/images/hindi-seven.svg',
+          image: '/images/autism-hindi-seven.svg',
           audio: '/audio/hindi-seven.mp3',
           hint: 'सात (Saat) is the number 7. There are seven days in a week.',
           interaction: {
@@ -478,7 +478,7 @@ const AutismView = () => {
           content: 'आठ (Aath)',
           translation: 'Learn the number eight in Hindi',
           highlight: 'आठ',
-          image: '/images/hindi-eight.svg',
+          image: '/images/autism-hindi-eight.svg',
           audio: '/audio/hindi-eight.mp3',
           hint: 'आठ (Aath) is the number 8. Show eight fingers using both hands.',
           interaction: {
@@ -493,7 +493,7 @@ const AutismView = () => {
           content: 'नौ (Nau)',
           translation: 'Learn the number nine in Hindi',
           highlight: 'नौ',
-          image: '/images/hindi-nine.svg',
+          image: '/images/autism-hindi-nine.svg',
           audio: '/audio/hindi-nine.mp3',
           hint: 'नौ (Nau) is the number 9. Show nine fingers using both hands.',
           interaction: {
@@ -508,7 +508,7 @@ const AutismView = () => {
           content: 'दस (Das)',
           translation: 'Learn the number ten in Hindi',
           highlight: 'दस',
-          image: '/images/hindi-ten.svg',
+          image: '/images/autism-hindi-ten.svg',
           audio: '/audio/hindi-ten.mp3',
           hint: 'दस (Das) is the number 10. Show all ten fingers on both hands.',
           interaction: {
