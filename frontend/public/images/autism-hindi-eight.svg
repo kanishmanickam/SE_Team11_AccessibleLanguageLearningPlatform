@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#E1F5FE"/>
+  <circle cx="100" cy="100" r="70" fill="#03A9F4"/>
+  <text x="100" y="125" font-size="70" font-weight="bold" text-anchor="middle" fill="#fff">8</text>
+  <circle cx="118" cy="26" r="4" fill="#FF5722"/>
+  <circle cx="130" cy="26" r="4" fill="#FF5722"/>
+  <circle cx="142" cy="26" r="4" fill="#FF5722"/>
+  <circle cx="154" cy="26" r="4" fill="#FF5722"/>
+  <circle cx="124" cy="36" r="4" fill="#FF5722"/>
+  <circle cx="136" cy="36" r="4" fill="#FF5722"/>
+  <circle cx="148" cy="36" r="4" fill="#FF5722"/>
+  <circle cx="160" cy="36" r="4" fill="#FF5722"/>
+  <text x="100" y="180" font-size="24" font-weight="bold" text-anchor="middle" fill="#01579B">आठ</text>
+</svg>

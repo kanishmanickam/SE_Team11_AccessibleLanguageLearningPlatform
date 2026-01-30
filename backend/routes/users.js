@@ -59,4 +59,52 @@ router.put('/profile', protect, async (req, res) => {
   }
 });
 
+// @route   POST /api/users/complete-lesson
+// @desc    Mark a lesson as completed
+// @access  Private
+router.post('/complete-lesson', protect, async (req, res) => {
+  const { lessonKey } = req.body;
+
+  try {
+    const user = await User.findById(req.user.id);
+    
+    if (!user.completedLessons.includes(lessonKey)) {
+      user.completedLessons.push(lessonKey);
+      await user.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Lesson marked as completed',
+      completedLessons: user.completedLessons,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error marking lesson as completed',
+      error: error.message,
+    });
+  }
+});
+
+// @route   GET /api/users/completed-lessons
+// @desc    Get user's completed lessons
+// @access  Private
+router.get('/completed-lessons', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('completedLessons');
+
+    res.json({
+      success: true,
+      completedLessons: user.completedLessons || [],
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching completed lessons',
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;
