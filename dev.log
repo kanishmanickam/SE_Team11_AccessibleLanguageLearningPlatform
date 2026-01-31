@@ -1,0 +1,42 @@
+
+> accessible-language-learning-platform@1.0.0 dev
+> concurrently "npm --prefix backend run dev" "npm --prefix frontend start"
+
+[0] 
+[0] > accessible-language-learning-backend@1.0.0 dev
+[0] > nodemon server.js
+[0] 
+[1] 
+[1] > accessible-language-learning-frontend@0.1.0 start
+[1] > react-scripts start
+[1] 
+[0] [33m[nodemon] 3.1.11[39m
+[0] [33m[nodemon] to restart at any time, enter `rs`[39m
+[0] [33m[nodemon] watching path(s): *.*[39m
+[0] [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[0] [32m[nodemon] starting `node server.js`[39m
+[0] (node:51601) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+[0] (Use `node --trace-warnings ...` to show where the warning was created)
+[0] (node:51601) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+[0] 🚀 Server running on port 5002
+[1] (node:51599) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+[1] (Use `node --trace-deprecation ...` to show where the warning was created)
+[1] (node:51599) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+[1] (node:51599) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+[1] Starting the development server...
+[1] 
+[1] Compiled successfully!
+[1] 
+[1] You can now view accessible-language-learning-frontend in the browser.
+[1] 
+[1]   Local:            http://localhost:3000
+[1]   On Your Network:  http://10.12.234.100:3000
+[1] 
+[1] Note that the development build is not optimized.
+[1] To create a production build, use npm run build.
+[1] 
+[1] webpack compiled successfully
+[1] Files successfully emitted, waiting for typecheck results...
+[1] Issues checking in progress...
+[1] No issues found.
+[0] ✅ MongoDB Connected

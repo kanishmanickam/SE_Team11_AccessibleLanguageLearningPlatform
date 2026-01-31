@@ -7,6 +7,7 @@ import Register from './components/Register';
 import AccessibilitySetup from './components/AccessibilitySetup';
 import Dashboard from './components/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import LessonPage from './components/learning/LessonPage';
 
 function App() {
   return (
@@ -32,6 +33,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/lessons/:lessonId"
+              element={
+                <ProtectedRoute>
+                  <LessonPage />
                 </ProtectedRoute>
               }
             />

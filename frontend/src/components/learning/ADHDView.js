@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
@@ -13,6 +14,7 @@ const ADHDView = () => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const navigate = useNavigate();
 
   // Lesson Logic State
   const [activeLesson, setActiveLesson] = useState(null);

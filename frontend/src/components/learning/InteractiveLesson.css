@@ -1,0 +1,5 @@
+.interaction-empty {
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--theme-muted-text, var(--text-secondary));
+}

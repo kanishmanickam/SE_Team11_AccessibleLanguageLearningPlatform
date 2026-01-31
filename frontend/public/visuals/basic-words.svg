@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Simple everyday words">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e9f7ef" />
+      <stop offset="100%" stop-color="#d4f0df" />
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="url(#bg)" />
+  <rect x="26" y="44" width="36" height="44" rx="6" fill="#ffffff" stroke="#4caf50" stroke-width="3" />
+  <rect x="66" y="44" width="36" height="44" rx="6" fill="#ffffff" stroke="#4caf50" stroke-width="3" />
+  <path d="M34 56h20M34 66h20M74 56h20M74 66h20" stroke="#4caf50" stroke-width="3" stroke-linecap="round" />
+  <circle cx="44" cy="90" r="8" fill="#ff7043" />
+  <rect x="80" y="86" width="16" height="10" rx="2" fill="#29b6f6" />
+</svg>

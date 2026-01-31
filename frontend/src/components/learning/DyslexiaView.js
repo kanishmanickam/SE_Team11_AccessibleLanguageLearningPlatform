@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
 import './DyslexiaView.css';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
+  const { preferences } = usePreferences();
   const [showSettings, setShowSettings] = useState(false);
+  const navigate = useNavigate();
 
   const lessons = [
-    { id: 1, title: 'Greetings & Introductions', level: 'Beginner', progress: 0 },
-    { id: 2, title: 'Basic Vocabulary', level: 'Beginner', progress: 0 },
-    { id: 3, title: 'Numbers & Colors', level: 'Beginner', progress: 0 },
+    { id: 1, title: 'Greetings', level: 'Beginner', progress: 0, apiId: 'lesson-greetings' },
+    { id: 2, title: 'Basic Words', level: 'Beginner', progress: 0, apiId: 'lesson-vocabulary' },
+    { id: 3, title: 'Numbers', level: 'Beginner', progress: 0, apiId: 'lesson-numbers' },
   ];
+
+  const handleStartLesson = (lesson) => {
+    navigate(`/lessons/${lesson.apiId}`);
+  };
 
   return (
     <div className="dyslexia-view">
@@ -88,7 +95,12 @@ const DyslexiaView = () => {
                   </div>
                   <span className="progress-text">{lesson.progress}% Complete</span>
                 </div>
-                <button className="btn btn-primary btn-block">Start Learning</button>
+                <button
+                  className="btn btn-primary btn-block"
+                  onClick={() => handleStartLesson(lesson)}
+                >
+                  Start Learning
+                </button>
               </div>
             ))}
           </div>

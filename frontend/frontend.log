@@ -1,0 +1,278 @@
+
+> accessible-language-learning-frontend@0.1.0 start
+> react-scripts start
+
+(node:7504) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:7504) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:7504) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled with warnings.
+
+[eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/DyslexiaView.js
+  Line 10:11:  'preferences' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/DyslexiaView.js
+  Line 10:11:  'preferences' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+(node:7504) [DEP0060] DeprecationWarning: The `util._extend` API is deprecated. Please use Object.assign() instead.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/DyslexiaView.js
+  Line 10:11:  'preferences' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/DyslexiaView.js
+  Line 10:11:  'preferences' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/DyslexiaView.js
+  Line 10:11:  'preferences' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/DyslexiaView.js
+  Line 10:11:  'preferences' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 26:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 30:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 30:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:11:  'preferences' is assigned a value but never used     no-unused-vars
+  Line 11:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 30:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/Dashboard.js
+  Line 62:6:  React Hook useEffect has a missing dependency: 'user?.learningCondition'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/ADHDView.js
+  Line 30:6:  React Hook useEffect has a missing dependency: 'handleSessionEnd'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/components/learning/AutismView.js
+  Line 10:23:  'setCurrentStep' is assigned a value but never used  no-unused-vars
+
+src/components/learning/LessonSectionView.js
+  Line 47:7:  React Hook useEffect has a complex expression in the dependency array. Extract it to a separate variable so it can be statically checked  react-hooks/exhaustive-deps
+
+src/context/PreferencesContext.js
+  Line 16:11:  'user' is assigned a value but never used  no-unused-vars
+
+webpack compiled with 1 warning
+No issues found.

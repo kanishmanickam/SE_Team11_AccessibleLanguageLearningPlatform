@@ -1,0 +1,38 @@
+const express = require('express');
+const { body, validationResult } = require('express-validator');
+const { protect } = require('../middleware/auth');
+const { getProgress, updateProgress } = require('../controllers/progressController');
+
+const router = express.Router();
+
+const validateUpdate = [
+  body('lessonId').isMongoId().withMessage('Valid lessonId is required'),
+  body('currentSectionId').optional().isString(),
+  body('completedSections').optional().isArray(),
+  body('interactionStates').optional(),
+  body('isReplay').optional().isBoolean(),
+];
+
+const handleValidation = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array(),
+    });
+  }
+  return next();
+};
+
+// @route   GET /api/progress/:lessonId
+// @desc    Get progress for lesson
+// @access  Private
+router.get('/:lessonId', protect, getProgress);
+
+// @route   POST /api/progress/update
+// @desc    Update progress when moving forward
+// @access  Private
+router.post('/update', protect, validateUpdate, handleValidation, updateProgress);
+
+module.exports = router;
