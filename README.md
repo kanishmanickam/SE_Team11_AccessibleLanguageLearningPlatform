@@ -15,6 +15,7 @@ This MERN stack application provides a personalized learning experience with:
 
 ### Backend (Node.js + Express + MongoDB)
 - JWT authentication with parental controls
+- Salting and Hashing (using sha-256) for secure passwords
 - User profiles with accessibility preferences
 - RESTful API for preferences management
 - Secure password hashing with bcrypt
