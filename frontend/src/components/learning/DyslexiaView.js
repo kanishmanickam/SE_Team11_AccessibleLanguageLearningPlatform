@@ -6,7 +6,6 @@ import './DyslexiaView.css';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
-  const { preferences } = usePreferences();
   const [showSettings, setShowSettings] = useState(false);
   const navigate = useNavigate();
 

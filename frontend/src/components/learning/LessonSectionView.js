@@ -16,6 +16,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
   const [duration, setDuration] = useState(0);
   const [activeInteractionIndex, setActiveInteractionIndex] = useState(0);
 
+  const sectionKey = useMemo(() => section?._id ?? section?.id ?? null, [section?._id, section?.id]);
+
   const paragraphs = useMemo(() => {
     if (!section?.textContent) return [];
     const results = [];
@@ -44,7 +46,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
-  }, [section?._id || section?.id]);
+  }, [sectionKey]);
 
   useEffect(() => {
     const audio = audioRef.current;
