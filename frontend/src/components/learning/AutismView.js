@@ -1,65 +1,832 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
+import api from '../../utils/api';
 import './AutismView.css';
 
 const AutismView = () => {
   const { user, logout } = useAuth();
-  const { preferences } = usePreferences();
-  const [currentStep, setCurrentStep] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
-  const navigate = useNavigate();
+  
+  // Lesson navigation state
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [feedback, setFeedback] = useState('');
+  const [completedLessons, setCompletedLessons] = useState([]);
+  const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
+  const [wrongAnswerCount, setWrongAnswerCount] = useState({});
+  
+  const audioRef = useRef(null);
 
+  // Load completed lessons from backend on mount
+  useEffect(() => {
+    const fetchCompletedLessons = async () => {
+      try {
+        const response = await api.get('/users/completed-lessons');
+        if (response.data.success) {
+          // Convert backend format (e.g., "autism-lesson-1") to lesson IDs
+          const lessonIds = response.data.completedLessons
+            .filter(key => key.startsWith('autism-lesson-'))
+            .map(key => parseInt(key.replace('autism-lesson-', '')));
+          setCompletedLessons(lessonIds);
+        }
+      } catch (error) {
+        console.error('Error fetching completed lessons:', error);
+      }
+    };
+    
+    fetchCompletedLessons();
+  }, []);
+
+  // EPIC 2.1-2.7: Three complete lessons with multi-format content
   const lessons = [
     { 
       id: 1, 
-      title: 'Greetings', 
-      icon: '👋',
-      steps: 3,
-      description: 'Learn basic greetings',
-      apiId: 'lesson-greetings',
+      title: 'Greetings',
+      language: 'Tamil',
+      icon: '🙏',
+      description: 'Learn basic Tamil greetings',
+      steps: [
+        {
+          id: 1,
+          title: 'Hello in Tamil',
+          content: 'வணக்கம் (Vanakkam)',
+          translation: 'A common word used when meeting someone',
+          highlight: 'வணக்கம்',
+          image: '/images/autism-tamil-greeting.svg',
+          audio: '/audio/autism-tamil-hello.mp3',
+          hint: 'Say "வணக்கம்" when you meet someone. It shows respect and warmth.',
+          interaction: {
+            question: 'What does வணக்கம் mean?',
+            options: ['Hello', 'Goodbye', 'Thank you'],
+            correct: 0
+          }
+        },
+        {
+          id: 2,
+          title: 'Thank You in Tamil',
+          content: 'நன்றி (Nandri)',
+          translation: 'A polite word in Tamil',
+          highlight: 'நன்றி',
+          image: '/images/autism-tamil-thanks.svg',
+          audio: '/audio/autism-tamil-thanks.mp3',
+          hint: 'Say "நன்றி" to show gratitude. It\'s a polite way to thank someone.',
+          interaction: {
+            question: 'When do you say நன்றி?',
+            options: ['To greet', 'To thank', 'To say goodbye'],
+            correct: 1
+          }
+        },
+        {
+          id: 3,
+          title: 'Goodbye in Tamil',
+          content: 'பிரியாவிடை (Piriyavidai)',
+          translation: 'A respectful parting word in Tamil',
+          highlight: 'பிரியாவிடை',
+          image: '/images/autism-tamil-goodbye.svg',
+          audio: '/audio/autism-tamil-goodbye.mp3',
+          hint: 'Say "பிரியாவிடை" when you leave. It\'s a respectful way to say goodbye.',
+          interaction: {
+            question: 'What is பிரியாவிடை used for?',
+            options: ['Greeting', 'Thanking', 'Saying goodbye'],
+            correct: 2
+          }
+        },
+        {
+          id: 4,
+          title: 'Good Morning in Tamil',
+          content: 'காலை வணக்கம் (Kaalai Vanakkam)',
+          translation: 'A time-specific greeting in Tamil',
+          highlight: 'காலை வணக்கம்',
+          image: '/images/autism-tamil-good-morning.svg',
+          audio: '/audio/autism-tamil-good-morning.mp3',
+          hint: 'காலை means morning. Use this greeting in the morning time.',
+          interaction: {
+            question: 'When do you say காலை வணக்கம்?',
+            options: ['In the morning', 'At night', 'In the evening'],
+            correct: 0
+          }
+        },
+        {
+          id: 5,
+          title: 'How Are You in Tamil',
+          content: 'எப்படி இருக்கிறீர்கள்? (Eppadi Irukkireergal?)',
+          translation: 'A question to ask someone in Tamil',
+          highlight: 'எப்படி இருக்கிறீர்கள்?',
+          image: '/images/autism-tamil-how-are-you.svg',
+          audio: '/audio/autism-tamil-how-are-you.mp3',
+          hint: 'Use this to ask someone how they are doing. It shows you care.',
+          interaction: {
+            question: 'What does எப்படி இருக்கிறீர்கள் mean?',
+            options: ['How are you?', 'Where are you?', 'What is your name?'],
+            correct: 0
+          }
+        },
+        {
+          id: 6,
+          title: 'I Am Fine in Tamil',
+          content: 'நான் நலமாக இருக்கிறேன் (Naan Nalamaaga Irukkiren)',
+          translation: 'A common response in conversation',
+          highlight: 'நான் நலமாக இருக்கிறேன்',
+          image: '/images/autism-tamil-i-am-fine.svg',
+          audio: '/audio/autism-tamil-i-am-fine.mp3',
+          hint: 'Say this when someone asks how you are and you feel good.',
+          interaction: {
+            question: 'When do you say நான் நலமாக இருக்கிறேன்?',
+            options: ['To say you are fine', 'To say goodbye', 'To say thank you'],
+            correct: 0
+          }
+        },
+        {
+          id: 7,
+          title: 'Please in Tamil',
+          content: 'தயவு செய்து (Thayavu Seidhu)',
+          translation: 'A word used when making requests',
+          highlight: 'தயவு செய்து',
+          image: '/images/autism-tamil-please.svg',
+          audio: '/audio/autism-tamil-please.mp3',
+          hint: 'Add this when making a request to be polite and respectful.',
+          interaction: {
+            question: 'Why do we use தயவு செய்து?',
+            options: ['To be polite', 'To greet', 'To say goodbye'],
+            correct: 0
+          }
+        },
+        {
+          id: 8,
+          title: 'Sorry in Tamil',
+          content: 'மன்னிக்கவும் (Mannikkavum)',
+          translation: 'A word used when you make a mistake',
+          highlight: 'மன்னிக்கவும்',
+          image: '/images/autism-tamil-sorry.svg',
+          audio: '/audio/autism-tamil-sorry.mp3',
+          hint: 'Say this when you make a mistake or need to apologize.',
+          interaction: {
+            question: 'What does மன்னிக்கவும் mean?',
+            options: ['Sorry', 'Thank you', 'Hello'],
+            correct: 0
+          }
+        },
+        {
+          id: 9,
+          title: 'Yes in Tamil',
+          content: 'ஆம் (Aam)',
+          translation: 'A response word in Tamil',
+          highlight: 'ஆம்',
+          image: '/images/autism-tamil-yes.svg',
+          audio: '/audio/autism-tamil-yes.mp3',
+          hint: 'Use ஆம் when you agree or want to say yes.',
+          interaction: {
+            question: 'When do you say ஆம்?',
+            options: ['To agree', 'To disagree', 'To ask a question'],
+            correct: 0
+          }
+        },
+        {
+          id: 10,
+          title: 'No in Tamil',
+          content: 'இல்லை (Illai)',
+          translation: 'Another response word in Tamil',
+          highlight: 'இல்லை',
+          image: '/images/autism-tamil-no.svg',
+          audio: '/audio/autism-tamil-no.mp3',
+          hint: 'Use இல்லை when you disagree or want to say no.',
+          interaction: {
+            question: 'What does இல்லை mean?',
+            options: ['No', 'Yes', 'Maybe'],
+            correct: 0
+          }
+        }
+      ]
     },
     { 
       id: 2, 
-      title: 'Basic Words', 
-      icon: '📝',
-      steps: 3,
-      description: 'Learn common words',
-      apiId: 'lesson-vocabulary',
+      title: 'Basic Words',
+      language: 'English',
+      icon: '🔤',
+      description: 'Learn English alphabet letters',
+      steps: [
+        {
+          id: 1,
+          title: 'Letter A',
+          content: 'A',
+          translation: 'This is the first letter of the alphabet',
+          highlight: 'A',
+          image: '/images/autism-letter-a.svg',
+          audio: '/audio/letter-a.mp3',
+          hint: 'A is the first letter of the alphabet. Words like "Apple" start with A.',
+          interaction: {
+            question: 'Which word starts with A?',
+            options: ['Ball', 'Apple', 'Cat'],
+            correct: 1
+          }
+        },
+        {
+          id: 2,
+          title: 'Letter B',
+          content: 'B',
+          translation: 'This is the second letter of the alphabet',
+          highlight: 'B',
+          image: '/images/autism-letter-b.svg',
+          audio: '/audio/letter-b.mp3',
+          hint: 'B is the second letter. Words like "Ball" start with B.',
+          interaction: {
+            question: 'Which word starts with B?',
+            options: ['Apple', 'Ball', 'Dog'],
+            correct: 1
+          }
+        },
+        {
+          id: 3,
+          title: 'Letter C',
+          content: 'C',
+          translation: 'This is the third letter of the alphabet',
+          highlight: 'C',
+          image: '/images/autism-letter-c.svg',
+          audio: '/audio/letter-c.mp3',
+          hint: 'C is the third letter. Words like "Cat" start with C.',
+          interaction: {
+            question: 'Which word starts with C?',
+            options: ['Cat', 'Ball', 'Apple'],
+            correct: 0
+          }
+        },
+        {
+          id: 4,
+          title: 'Letter D',
+          content: 'D',
+          translation: 'This is the fourth letter of the alphabet',
+          highlight: 'D',
+          image: '/images/autism-letter-d.svg',
+          audio: '/audio/letter-d.mp3',
+          hint: 'D is the fourth letter. Words like "Dog" start with D.',
+          interaction: {
+            question: 'Which word starts with D?',
+            options: ['Dog', 'Elephant', 'Cat'],
+            correct: 0
+          }
+        },
+        {
+          id: 5,
+          title: 'Letter E',
+          content: 'E',
+          translation: 'This is the fifth letter of the alphabet',
+          highlight: 'E',
+          image: '/images/autism-letter-e.svg',
+          audio: '/audio/letter-e.mp3',
+          hint: 'E is the fifth letter. Words like "Elephant" start with E.',
+          interaction: {
+            question: 'Which word starts with E?',
+            options: ['Fish', 'Elephant', 'Apple'],
+            correct: 1
+          }
+        },
+        {
+          id: 6,
+          title: 'Letter F',
+          content: 'F',
+          translation: 'This is the sixth letter of the alphabet',
+          highlight: 'F',
+          image: '/images/autism-letter-f.svg',
+          audio: '/audio/letter-f.mp3',
+          hint: 'F is the sixth letter. Words like "Fish" start with F.',
+          interaction: {
+            question: 'Which word starts with F?',
+            options: ['Fish', 'Goat', 'Dog'],
+            correct: 0
+          }
+        },
+        {
+          id: 7,
+          title: 'Letter G',
+          content: 'G',
+          translation: 'This is the seventh letter of the alphabet',
+          highlight: 'G',
+          image: '/images/autism-letter-g.svg',
+          audio: '/audio/letter-g.mp3',
+          hint: 'G is the seventh letter. Words like "Goat" start with G.',
+          interaction: {
+            question: 'Which word starts with G?',
+            options: ['Hat', 'Goat', 'Fish'],
+            correct: 1
+          }
+        },
+        {
+          id: 8,
+          title: 'Letter H',
+          content: 'H',
+          translation: 'This is the eighth letter of the alphabet',
+          highlight: 'H',
+          image: '/images/autism-letter-h.svg',
+          audio: '/audio/letter-h.mp3',
+          hint: 'H is the eighth letter. Words like "Hat" start with H.',
+          interaction: {
+            question: 'Which word starts with H?',
+            options: ['Ice', 'Hat', 'Goat'],
+            correct: 1
+          }
+        },
+        {
+          id: 9,
+          title: 'Letter I',
+          content: 'I',
+          translation: 'This is the ninth letter of the alphabet',
+          highlight: 'I',
+          image: '/images/autism-letter-i.svg',
+          audio: '/audio/letter-i.mp3',
+          hint: 'I is the ninth letter. Words like "Ice" start with I.',
+          interaction: {
+            question: 'Which word starts with I?',
+            options: ['Ice', 'Jug', 'Hat'],
+            correct: 0
+          }
+        },
+        {
+          id: 10,
+          title: 'Letter J',
+          content: 'J',
+          translation: 'This is the tenth letter of the alphabet',
+          highlight: 'J',
+          image: '/images/autism-letter-j.svg',
+          audio: '/audio/letter-j.mp3',
+          hint: 'J is the tenth letter. Words like "Jug" start with J.',
+          interaction: {
+            question: 'Which word starts with J?',
+            options: ['Kite', 'Jug', 'Ice'],
+            correct: 1
+          }
+        }
+      ]
     },
     { 
       id: 3, 
-      title: 'Numbers', 
+      title: 'Numbers',
+      language: 'Hindi',
       icon: '🔢',
-      steps: 3,
-      description: 'Learn to count',
-      apiId: 'lesson-numbers',
-    },
+      description: 'Learn Hindi numbers 1 to 10',
+      steps: [
+        {
+          id: 1,
+          title: 'Number One',
+          content: 'एक (Ek)',
+          translation: 'This is how we say a number in Hindi',
+          highlight: 'एक',
+          image: '/images/autism-hindi-one.svg',
+          audio: '/audio/hindi-one.mp3',
+          hint: 'एक (Ek) is the number 1. Hold up one finger to show एक.',
+          interaction: {
+            question: 'What number is एक?',
+            options: ['One', 'Two', 'Three'],
+            correct: 0
+          }
+        },
+        {
+          id: 2,
+          title: 'Number Two',
+          content: 'दो (Do)',
+          translation: 'This is another number in Hindi',
+          highlight: 'दो',
+          image: '/images/autism-hindi-two.svg',
+          audio: '/audio/hindi-two.mp3',
+          hint: 'दो (Do) is the number 2. Hold up two fingers to show दो.',
+          interaction: {
+            question: 'What number is दो?',
+            options: ['One', 'Two', 'Three'],
+            correct: 1
+          }
+        },
+        {
+          id: 3,
+          title: 'Number Three',
+          content: 'तीन (Teen)',
+          translation: 'Learn this number in Hindi',
+          highlight: 'तीन',
+          image: '/images/autism-hindi-three.svg',
+          audio: '/audio/hindi-three.mp3',
+          hint: 'तीन (Teen) is the number 3. Hold up three fingers to show तीन.',
+          interaction: {
+            question: 'What number is तीन?',
+            options: ['One', 'Two', 'Three'],
+            correct: 2
+          }
+        },
+        {
+          id: 4,
+          title: 'Number Four',
+          content: 'चार (Chaar)',
+          translation: 'Continue learning Hindi numbers',
+          highlight: 'चार',
+          image: '/images/autism-hindi-four.svg',
+          audio: '/audio/hindi-four.mp3',
+          hint: 'चार (Chaar) is the number 4. Hold up four fingers to show चार.',
+          interaction: {
+            question: 'What number is चार?',
+            options: ['Three', 'Four', 'Five'],
+            correct: 1
+          }
+        },
+        {
+          id: 5,
+          title: 'Number Five',
+          content: 'पाँच (Paanch)',
+          translation: 'Learn the number five in Hindi',
+          highlight: 'पाँच',
+          image: '/images/autism-hindi-five.svg',
+          audio: '/audio/hindi-five.mp3',
+          hint: 'पाँच (Paanch) is the number 5. Show all five fingers on one hand.',
+          interaction: {
+            question: 'What number is पाँच?',
+            options: ['Four', 'Five', 'Six'],
+            correct: 1
+          }
+        },
+        {
+          id: 6,
+          title: 'Number Six',
+          content: 'छह (Chhah)',
+          translation: 'Learn the number six in Hindi',
+          highlight: 'छह',
+          image: '/images/autism-hindi-six.svg',
+          audio: '/audio/hindi-six.mp3',
+          hint: 'छह (Chhah) is the number 6. Use both hands to show six fingers.',
+          interaction: {
+            question: 'What number is छह?',
+            options: ['Five', 'Six', 'Seven'],
+            correct: 1
+          }
+        },
+        {
+          id: 7,
+          title: 'Number Seven',
+          content: 'सात (Saat)',
+          translation: 'Learn the number seven in Hindi',
+          highlight: 'सात',
+          image: '/images/autism-hindi-seven.svg',
+          audio: '/audio/hindi-seven.mp3',
+          hint: 'सात (Saat) is the number 7. There are seven days in a week.',
+          interaction: {
+            question: 'What number is सात?',
+            options: ['Six', 'Seven', 'Eight'],
+            correct: 1
+          }
+        },
+        {
+          id: 8,
+          title: 'Number Eight',
+          content: 'आठ (Aath)',
+          translation: 'Learn the number eight in Hindi',
+          highlight: 'आठ',
+          image: '/images/autism-hindi-eight.svg',
+          audio: '/audio/hindi-eight.mp3',
+          hint: 'आठ (Aath) is the number 8. Show eight fingers using both hands.',
+          interaction: {
+            question: 'What number is आठ?',
+            options: ['Seven', 'Eight', 'Nine'],
+            correct: 1
+          }
+        },
+        {
+          id: 9,
+          title: 'Number Nine',
+          content: 'नौ (Nau)',
+          translation: 'Learn the number nine in Hindi',
+          highlight: 'नौ',
+          image: '/images/autism-hindi-nine.svg',
+          audio: '/audio/hindi-nine.mp3',
+          hint: 'नौ (Nau) is the number 9. Show nine fingers using both hands.',
+          interaction: {
+            question: 'What number is नौ?',
+            options: ['Eight', 'Nine', 'Ten'],
+            correct: 1
+          }
+        },
+        {
+          id: 10,
+          title: 'Number Ten',
+          content: 'दस (Das)',
+          translation: 'Learn the number ten in Hindi',
+          highlight: 'दस',
+          image: '/images/autism-hindi-ten.svg',
+          audio: '/audio/hindi-ten.mp3',
+          hint: 'दस (Das) is the number 10. Show all ten fingers on both hands.',
+          interaction: {
+            question: 'What number is दस?',
+            options: ['Nine', 'Ten', 'Eleven'],
+            correct: 1
+          }
+        }
+      ]
+    }
   ];
 
-  const handleStartLesson = (lesson) => {
-    navigate(`/lessons/${lesson.apiId}`);
+  // Get current step data
+  const currentLesson = lessons.find(l => l.id === selectedLesson);
+  const currentStep = currentLesson?.steps[currentStepIndex];
+  const totalSteps = currentLesson?.steps.length || 0;
+
+  // EPIC 2.6: Navigation handlers with replay support
+  const handleNext = () => {
+    // Check if current step has been answered correctly
+    const stepKey = `${selectedLesson}-${currentStepIndex}`;
+    
+    if (!stepAnsweredCorrectly[stepKey]) {
+      setFeedback('⚠️ Please answer the question correctly before moving to the next step.');
+      setTimeout(() => setFeedback(''), 3000);
+      return;
+    }
+    
+    setFeedback('');
+    setShowHint(false);
+    if (currentStepIndex < totalSteps - 1) {
+      setCurrentStepIndex(currentStepIndex + 1);
+    } else {
+      // Mark lesson as completed
+      if (!completedLessons.includes(selectedLesson)) {
+        setCompletedLessons([...completedLessons, selectedLesson]);
+        // Save to backend
+        saveLessonCompletion(selectedLesson);
+      }
+      setFeedback('🎉 Great job! You completed this lesson!');
+    }
   };
 
-  const dailyRoutine = [
-    { id: 1, task: 'Start Learning', done: false, icon: '📚' },
-    { id: 2, task: 'Complete 1 Lesson', done: false, icon: '✓' },
-    { id: 3, task: 'Review Words', done: false, icon: '🔄' },
-    { id: 4, task: 'Finish Session', done: false, icon: '🎉' },
-  ];
+  const handlePrevious = () => {
+    setFeedback('');
+    setShowHint(false);
+    if (currentStepIndex > 0) {
+      setCurrentStepIndex(currentStepIndex - 1);
+    }
+  };
 
+  // Save lesson completion to backend
+  const saveLessonCompletion = async (lessonId) => {
+    try {
+      const lessonKey = `autism-lesson-${lessonId}`;
+      await api.post('/users/complete-lesson', { lessonKey });
+    } catch (error) {
+      console.error('Error saving lesson completion:', error);
+    }
+  };
+
+  // EPIC 2.1: Audio playback with text-to-speech fallback
+  const handlePlayAudio = () => {
+    if (audioRef.current && currentStep?.audio) {
+      // Try to play the audio file
+      audioRef.current.play().catch((error) => {
+        console.log('Audio file not available, using text-to-speech fallback');
+        // Fallback to browser's text-to-speech if audio file not found
+        speakText(currentStep.content);
+      });
+      setFeedback('🔊 Playing audio...');
+      setTimeout(() => setFeedback(''), 2000);
+    } else if (currentStep?.content) {
+      // If no audio ref, use text-to-speech directly
+      speakText(currentStep.content);
+      setFeedback('🔊 Playing audio...');
+      setTimeout(() => setFeedback(''), 2000);
+    }
+  };
+
+  // Text-to-speech fallback function
+  const speakText = (text) => {
+    if ('speechSynthesis' in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.8; // Slower speed for better comprehension
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  // EPIC 2.4: Hint toggle
+  const handleShowHint = () => {
+    setShowHint(!showHint);
+  };
+
+  // EPIC 2.3: Interactive engagement with feedback
+  const handleInteraction = (optionIndex) => {
+    if (currentStep?.interaction) {
+      const stepKey = `${selectedLesson}-${currentStepIndex}`;
+      if (optionIndex === currentStep.interaction.correct) {
+        setFeedback('✅ Good job! That\'s correct!');
+        // Mark this step as answered correctly
+        setStepAnsweredCorrectly(prev => ({
+          ...prev,
+          [stepKey]: true
+        }));
+        // Reset wrong answer count on correct answer
+        setWrongAnswerCount(prev => ({
+          ...prev,
+          [stepKey]: 0
+        }));
+      } else {
+        // Increment wrong answer count
+        const currentWrongCount = wrongAnswerCount[stepKey] || 0;
+        const newWrongCount = currentWrongCount + 1;
+        
+        setWrongAnswerCount(prev => ({
+          ...prev,
+          [stepKey]: newWrongCount
+        }));
+        
+        if (newWrongCount >= 2) {
+          // Auto-advance to next step after 2 wrong answers
+          setFeedback('💡 Moving to the next step. Try to review this later!');
+          setTimeout(() => {
+            setFeedback('');
+            setShowHint(false);
+            if (currentStepIndex < totalSteps - 1) {
+              setCurrentStepIndex(currentStepIndex + 1);
+            } else {
+              // Mark lesson as completed even with wrong answers
+              if (!completedLessons.includes(selectedLesson)) {
+                setCompletedLessons([...completedLessons, selectedLesson]);
+                saveLessonCompletion(selectedLesson);
+              }
+              setFeedback('🎉 You completed this lesson! Review the steps you found difficult.');
+            }
+          }, 2000);
+        } else {
+          setFeedback('💡 Try again! Look at the hint if you need help.');
+        }
+      }
+      setTimeout(() => {
+        if (optionIndex === currentStep.interaction.correct) {
+          setFeedback('');
+        }
+      }, 2000);
+    }
+  };
+
+  // Start lesson
+  const handleStartLesson = (lessonId) => {
+    setSelectedLesson(lessonId);
+    setCurrentStepIndex(0);
+    setShowHint(false);
+    setFeedback('');
+    setStepAnsweredCorrectly({});
+    setWrongAnswerCount({});
+  };
+
+  // Return to lesson list
+  const handleBackToLessons = () => {
+    setSelectedLesson(null);
+    setCurrentStepIndex(0);
+    setShowHint(false);
+    setFeedback('');
+    setStepAnsweredCorrectly({});
+    setWrongAnswerCount({});
+  };
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    const audio = audioRef.current;
+    return () => {
+      if (audio) {
+        audio.pause();
+      }
+    };
+  }, []);
+
+  // EPIC 1.6: Distraction-free mode when in lesson view
+  if (selectedLesson && currentStep) {
+    return (
+      <div className="autism-view distraction-free">
+        {/* EPIC 1.6: Minimal header for focus */}
+        <header className="lesson-header">
+          <button onClick={handleBackToLessons} className="btn-back">
+            ← Back to Lessons
+          </button>
+          <h2 className="lesson-title">{currentLesson.title}</h2>
+        </header>
+
+        {/* EPIC 2.2 & 2.7: Consistent single-step layout */}
+        <main className="lesson-content">
+          <div className="lesson-step-container">
+            {/* Step progress indicator */}
+            <div className="step-progress">
+              <span className="step-number">Step {currentStepIndex + 1} of {totalSteps}</span>
+              <div className="progress-dots">
+                {Array.from({ length: totalSteps }, (_, i) => (
+                  <span 
+                    key={i} 
+                    className={`dot ${i === currentStepIndex ? 'active' : ''} ${i < currentStepIndex ? 'completed' : ''}`}
+                  ></span>
+                ))}
+              </div>
+            </div>
+
+            {/* EPIC 2.1: Multi-format lesson display */}
+            <div className="step-content-card">
+              {/* Title hidden to prevent revealing answers */}
+              
+              {/* EPIC 2.5: Visual learning aid with icon/image */}
+              <div className="step-visual">
+                <img 
+                  src={currentStep.image} 
+                  alt={currentStep.title}
+                  className="visual-image-hidden"
+                />
+              </div>
+
+              {/* EPIC 2.5: Highlighted main content */}
+              <div className="step-text">
+                <p className="content-main">
+                  <span className="highlight">{currentStep.highlight}</span>
+                </p>
+                <p className="content-translation">{currentStep.translation}</p>
+              </div>
+
+              {/* EPIC 2.1: Audio controls */}
+              <div className="step-audio-section">
+                <button onClick={handlePlayAudio} className="btn-audio">
+                  🔊 Play Audio
+                </button>
+                <audio 
+                  ref={audioRef} 
+                  src={currentStep.audio} 
+                  preload="none"
+                  onError={() => console.log('Audio file not found, will use text-to-speech')}
+                />
+                <p className="audio-info">Click to hear the pronunciation</p>
+              </div>
+
+              {/* EPIC 2.3: Interactive engagement */}
+              {currentStep.interaction && (
+                <div className="step-interaction">
+                  <p className="interaction-question">{currentStep.interaction.question}</p>
+                  <div className="interaction-options">
+                    {currentStep.interaction.options.map((option, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => handleInteraction(index)}
+                        className="btn-option"
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* EPIC 2.3: Immediate feedback */}
+              {feedback && (
+                <div className="feedback-message">
+                  {feedback}
+                </div>
+              )}
+
+              {/* EPIC 2.4: Hint section */}
+              <div className="hint-section">
+                <button onClick={handleShowHint} className="btn-hint">
+                  💡 {showHint ? 'Hide Hint' : 'Show Hint'}
+                </button>
+                {showHint && (
+                  <div className="hint-content">
+                    {currentStep.hint}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* EPIC 2.6 & 2.7: Consistent navigation in fixed position */}
+            <div className="step-navigation">
+              <button 
+                onClick={handlePrevious} 
+                disabled={currentStepIndex === 0}
+                className="btn-nav btn-previous"
+              >
+                ← Previous
+              </button>
+              <button 
+                onClick={handleNext}
+                className="btn-nav btn-next"
+              >
+                {currentStepIndex < totalSteps - 1 ? 'Next →' : 'Complete Lesson ✓'}
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // EPIC 1.6: Lesson selection view (simplified layout)
   return (
     <div className="autism-view">
       {/* Simple Header */}
       <header className="simple-header">
         <div className="header-left">
           <h1>Learning Center</h1>
-          <p className="header-subtitle">Step-by-step progress</p>
+          <p className="header-subtitle">Choose your lesson</p>
         </div>
         <div className="header-actions">
-          <button onClick={() => setShowSettings(true)} className="btn-exit" title="Settings">
+          <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
             ⚙️
           </button>
           <button onClick={logout} className="btn-exit">
@@ -72,91 +839,64 @@ const AutismView = () => {
         <ProfileSettings onClose={() => setShowSettings(false)} />
       )}
 
-      {/* Main Layout */}
-      <div className="main-layout">
-        {/* Sidebar - Daily Routine */}
-        <aside className="sidebar">
-          <div className="routine-card">
-            <h3>Today's Plan</h3>
-            <div className="routine-list">
-              {dailyRoutine.map((item, index) => (
-                <div 
-                  key={item.id} 
-                  className={`routine-item ${currentStep > index ? 'completed' : ''} ${currentStep === index + 1 ? 'active' : ''}`}
+      {/* Main Content */}
+      <main className="content-area-simple">
+        {/* Welcome Card */}
+        <div className="welcome-card">
+          <h2>Hello, {user?.name} 👋</h2>
+          <p>Select a lesson below to begin learning</p>
+        </div>
+
+        {/* Progress indicator */}
+        {completedLessons.length > 0 && (
+          <div className="progress-badge">
+            🎉 You completed {completedLessons.length} lesson{completedLessons.length > 1 ? 's' : ''}!
+          </div>
+        )}
+
+        {/* Lessons - Simple Grid */}
+        <div className="lessons-container">
+          <div className="lessons-simple-grid">
+            {lessons.map((lesson) => (
+              <div key={lesson.id} className={`lesson-simple-card ${completedLessons.includes(lesson.id) ? 'completed' : ''}`}>
+                <div className="lesson-top">
+                  <span className="lesson-large-icon">{lesson.icon}</span>
+                  {completedLessons.includes(lesson.id) && (
+                    <span className="completion-checkmark">✓</span>
+                  )}
+                </div>
+                <div className="lesson-body">
+                  <h4>{lesson.title}</h4>
+                  <p>{lesson.description}</p>
+                  <div className="lesson-meta">
+                    <span className="lesson-steps-count">{lesson.steps.length} steps</span>
+                    {completedLessons.includes(lesson.id) && (
+                      <span className="completion-badge">✓ Completed</span>
+                    )}
+                  </div>
+                </div>
+                <button 
+                  onClick={() => handleStartLesson(lesson.id)}
+                  className="btn-lesson-start"
                 >
-                  <span className="routine-icon">{item.icon}</span>
-                  <span className="routine-text">{item.task}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </aside>
-
-        {/* Main Content */}
-        <main className="content-area">
-          {/* Welcome Card */}
-          <div className="welcome-card">
-            <h2>Hello, {user?.name}</h2>
-            <p>Choose a lesson below to start learning</p>
-          </div>
-
-          {/* Progress Indicator */}
-          <div className="progress-section">
-            <h3>Your Progress</h3>
-            <div className="progress-visual">
-              <div className="progress-circle">
-                <div className="circle-inner">
-                  <span className="progress-number">0</span>
-                  <span className="progress-label">Lessons</span>
-                </div>
+                  {completedLessons.includes(lesson.id) ? 'Review Lesson' : 'Start Lesson'}
+                </button>
               </div>
-              <div className="progress-circle">
-                <div className="circle-inner">
-                  <span className="progress-number">0</span>
-                  <span className="progress-label">Words</span>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
+        </div>
 
-          {/* Lessons - Simple Grid */}
-          <div className="lessons-container">
-            <h3>Available Lessons</h3>
-            <div className="lessons-simple-grid">
-              {lessons.map((lesson) => (
-                <div key={lesson.id} className="lesson-simple-card">
-                  <div className="lesson-top">
-                    <span className="lesson-large-icon">{lesson.icon}</span>
-                  </div>
-                  <div className="lesson-body">
-                    <h4>{lesson.title}</h4>
-                    <p>{lesson.description}</p>
-                    <div className="lesson-steps">
-                      {Array.from({ length: lesson.steps }, (_, i) => (
-                        <span key={i} className="step-dot"></span>
-                      ))}
-                    </div>
-                  </div>
-                  <button className="btn-lesson-start" onClick={() => handleStartLesson(lesson)}>
-                    Start Lesson
-                  </button>
-                </div>
-              ))}
+        {/* Simple Help Section */}
+        <div className="help-section">
+          <div className="help-card">
+            <span className="help-icon">ℹ️</span>
+            <div className="help-text">
+              <h4>How it works</h4>
+              <p>Click "Start Lesson" to begin. Follow each step carefully. Use hints if you need help.</p>
             </div>
           </div>
-
-          {/* Simple Help Section */}
-          <div className="help-section">
-            <div className="help-card">
-              <span className="help-icon">ℹ️</span>
-              <div className="help-text">
-                <h4>Need Help?</h4>
-                <p>Click on any lesson to begin. Follow the steps one at a time.</p>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 };

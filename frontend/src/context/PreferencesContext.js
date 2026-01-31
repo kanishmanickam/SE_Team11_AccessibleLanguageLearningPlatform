@@ -13,7 +13,7 @@ export const usePreferences = () => {
 };
 
 export const PreferencesProvider = ({ children }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(true);
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFF9C4"/>
+  <circle cx="100" cy="100" r="70" fill="#FFC107"/>
+  <text x="100" y="125" font-size="70" font-weight="bold" text-anchor="middle" fill="#fff">7</text>
+  <circle cx="120" cy="28" r="4" fill="#F44336"/>
+  <circle cx="133" cy="28" r="4" fill="#F44336"/>
+  <circle cx="146" cy="28" r="4" fill="#F44336"/>
+  <circle cx="159" cy="28" r="4" fill="#F44336"/>
+  <circle cx="126" cy="38" r="4" fill="#F44336"/>
+  <circle cx="139" cy="38" r="4" fill="#F44336"/>
+  <circle cx="152" cy="38" r="4" fill="#F44336"/>
+  <text x="100" y="180" font-size="24" font-weight="bold" text-anchor="middle" fill="#F57F17">सात</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#E8EAF6"/>
+  <circle cx="100" cy="100" r="70" fill="#3F51B5"/>
+  <text x="100" y="125" font-size="70" font-weight="bold" text-anchor="middle" fill="#fff">1</text>
+  <circle cx="155" cy="45" r="8" fill="#FFC107"/>
+  <text x="100" y="180" font-size="24" font-weight="bold" text-anchor="middle" fill="#1A237E">एक</text>
+</svg>

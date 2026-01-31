@@ -29,10 +29,17 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/lessons', require('./routes/lessons'));
 app.use('/api/interactions', require('./routes/interactions'));
 app.use('/api/progress', require('./routes/progress'));
+app.use('/api/ai', require('./routes/ai'));
+app.use('/api/tts', require('./routes/tts'));
 
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is running' });
+});
+
+// Health check (API namespace)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'API is running' });
 });
 
 // Error handling middleware
