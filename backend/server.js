@@ -13,6 +13,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Simple request logger to help debug endpoints
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${new Date().toISOString()} ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Database connection
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -31,6 +37,12 @@ app.use('/api/interactions', require('./routes/interactions'));
 app.use('/api/progress', require('./routes/progress'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/tts', require('./routes/tts'));
+
+// Dev-only routes (enabled when NODE_ENV !== 'production')
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api/dev', require('./routes/dev'));
+  console.log('⚠️ Dev routes enabled: /api/dev');
+}
 
 // Health check
 app.get('/health', (req, res) => {

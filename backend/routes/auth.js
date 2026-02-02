@@ -35,9 +35,27 @@ router.post(
       .withMessage('Please provide a valid parent email'),
   ],
   async (req, res) => {
+    console.log('Registration endpoint hit with:', {
+      name: req.body.name,
+      email: req.body.email,
+      learningCondition: req.body.learningCondition,
+      age: req.body.age,
+      isMinor: req.body.isMinor,
+      parentEmail: req.body.parentEmail,
+    });
+
     // Check for validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Log validation errors and sanitized input for debugging (do not log password)
+      console.warn('Registration validation failed:', errors.array(), {
+        name: req.body.name,
+        email: req.body.email,
+        learningCondition: req.body.learningCondition,
+        age: req.body.age,
+        isMinor: req.body.isMinor,
+        parentEmail: req.body.parentEmail,
+      });
       return res.status(400).json({
         success: false,
         errors: errors.array(),
@@ -136,6 +154,10 @@ router.post(
       });
     } catch (error) {
       console.error('Registration error:', error);
+      // Handle duplicate key (race condition) with 409
+      if (error && error.code === 11000) {
+        return res.status(409).json({ success: false, message: 'Email already in use' });
+      }
       res.status(500).json({
         success: false,
         message: 'Server error during registration',

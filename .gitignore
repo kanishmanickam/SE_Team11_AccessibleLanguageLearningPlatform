@@ -2,3 +2,19 @@
 .env
 ./node_modules
 node_modules
+
+# Local/dev tools & backups
+/tools/
+/tools/*.json
+/tools/*.log
+*.backup
+*.sql
+
+# Local editor/session
+.vscode/
+.idea/
+*.sublime-workspace
+
+# Ignore local env files in subprojects
+backend/.env
+frontend/.env

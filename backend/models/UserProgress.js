@@ -24,6 +24,16 @@ const UserProgressSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+    // Whether the user has completed the lesson
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    // Timestamp when lesson was completed (if any)
+    completedAt: {
+      type: Date,
+      default: null,
+    },
     lastAccessedAt: {
       type: Date,
       default: Date.now,

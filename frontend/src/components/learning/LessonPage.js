@@ -16,6 +16,8 @@ const LessonPage = () => {
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  // Trigger to retry loading the lesson
+  const [retryKey, setRetryKey] = useState(0);
 
   const isLocalLessonId = useMemo(() => {
     return lessonId ? !/^[a-fA-F0-9]{24}$/.test(lessonId) : false;
@@ -23,6 +25,8 @@ const LessonPage = () => {
 
   const isSample = Boolean(isLocalLessonId && lessonSamples[lessonId]);
 
+  // Allow retryKey to re-trigger loading; listed in deps intentionally.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     let isMounted = true;
 
@@ -63,7 +67,10 @@ const LessonPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [lessonId, isLocalLessonId]);
+  }, [lessonId, isLocalLessonId, retryKey]);
+
+  const retryLoadLesson = () => setRetryKey((k) => k + 1);
+
 
   const readingTime = estimateReadingTime(lesson?.textContent);
   const interactionCount = lesson?.interactions?.length || 0;
@@ -80,6 +87,7 @@ const LessonPage = () => {
         lessonTitle={resolvedTitle}
         lessonSubtitle={resolvedSubtitle}
         notice={error}
+        onRetry={retryLoadLesson}
       />
     </div>
   );

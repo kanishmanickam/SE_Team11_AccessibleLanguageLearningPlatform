@@ -4,6 +4,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
 import './ADHDView.css';
 import ReactConfetti from 'react-confetti';
+import { getSummary } from '../../services/progressService';
 
 const API_BASE_URL = 'http://localhost:5002'; // Adjust port if needed
 
@@ -30,6 +31,29 @@ const ADHDView = () => {
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [countdownValue, setCountdownValue] = useState(5);
   const [dummyUpdate, setDummyUpdate] = useState(0); // For forcing re-renders on audio state changes
+
+  // Progress summary
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setSummaryLoading(true);
+      try {
+        const s = await getSummary();
+        if (mounted && s && s.success) setSummary(s);
+      } catch (e) {
+        // ignore
+      } finally {
+        mounted && setSummaryLoading(false);
+      }
+    };
+    load();
+    const onProgress = () => load();
+    window.addEventListener('progress:updated', onProgress);
+    return () => { mounted = false; window.removeEventListener('progress:updated', onProgress); };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -460,6 +484,16 @@ const ADHDView = () => {
               <div className="focus-card">
                 <h2>Hi, {user?.name}! 👋</h2>
                 <p>Let's focus on one lesson at a time.</p>
+              </div>
+
+              <div className="progress-card" style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0 }}>Progress</h3>
+                  <div style={{ fontSize: 14 }}>{summaryLoading ? 'Loading…' : `${summary.completedCount} of ${summary.totalLessons} (${summary.totalLessons ? Math.round((summary.completedCount / summary.totalLessons) * 100) : 0}%)`}</div>
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <p style={{ margin: 0 }}><strong>Completed:</strong> {summaryLoading ? '…' : summary.completedCount} • <strong>Remaining:</strong> {summaryLoading ? '…' : summary.remaining}</p>
+                </div>
               </div>
 
               {!isSessionActive ? (

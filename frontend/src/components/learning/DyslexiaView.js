@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
 import './DyslexiaView.css';
+import { getSummary } from '../../services/progressService';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
@@ -19,23 +20,47 @@ const DyslexiaView = () => {
     navigate(`/lessons/${lesson.apiId}`);
   };
 
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setSummaryLoading(true);
+      try {
+        const s = await getSummary();
+        if (mounted && s && s.success) setSummary(s);
+      } catch (e) {
+        // ignore
+      } finally {
+        mounted && setSummaryLoading(false);
+      }
+    };
+    load();
+    const onProgress = () => load();
+    window.addEventListener('progress:updated', onProgress);
+    return () => { mounted = false; window.removeEventListener('progress:updated', onProgress); };
+  }, []);
+
+  const SummaryBlock = () => (
+    <div className="progress-stats">
+      <div className="stat-item">
+        <div className="stat-value">{summaryLoading ? '…' : (summary?.completedCount ?? 0)}</div>
+        <div className="stat-label">Lessons Completed</div>
+      </div>
+      <div className="stat-item">
+        <div className="stat-value">0</div>
+        <div className="stat-label">Hours Practiced</div>
+      </div>
+      <div className="stat-item">
+        <div className="stat-value">0</div>
+        <div className="stat-label">Words Learned</div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="dyslexia-view">
-      {/* Navigation Bar */}
-      <nav className="navbar">
-        <div className="nav-brand">
-          <h1>📚 Language Learning</h1>
-        </div>
-        <div className="nav-menu">
-          <span className="user-name">Hello, {user?.name}!</span>
-          <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
-            ⚙️
-          </button>
-          <button onClick={logout} className="btn-logout">
-            Logout
-          </button>
-        </div>
-      </nav>
 
       {showSettings && (
         <ProfileSettings onClose={() => setShowSettings(false)} />
@@ -57,26 +82,7 @@ const DyslexiaView = () => {
             <h3>Your Progress</h3>
           </div>
           <div className="card-body">
-            <div className="progress-stats">
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Lessons Completed</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Hours Practiced</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Words Learned</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Lessons Grid */}
-        <div className="lessons-section">
-          <h3>Available Lessons</h3>
+          <SummaryBlock />
           <div className="lessons-grid">
             {lessons.map((lesson) => (
               <div key={lesson.id} className="lesson-card">
@@ -104,6 +110,7 @@ const DyslexiaView = () => {
             ))}
           </div>
         </div>
+      </div>
 
         {/* Tips Section */}
         <div className="tips-section">

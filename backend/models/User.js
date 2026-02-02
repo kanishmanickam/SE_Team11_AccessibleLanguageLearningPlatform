@@ -66,10 +66,23 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    // Completed lessons tracking
+    // Completed lessons tracking (simple list of keys)
     completedLessons: {
       type: [String],
       default: []
+    },
+    // Metadata for completed lessons (preserve timestamps for non-DB/sample completions)
+    completedLessonsMeta: {
+      type: [
+        new mongoose.Schema(
+          {
+            key: { type: String, required: true },
+            completedAt: { type: Date, required: true },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
     },
   },
   {

@@ -40,10 +40,6 @@ const Register = () => {
       return false;
     }
 
-    if (formData.learningCondition === 'none') {
-      setError('Please select your learning condition');
-      return false;
-    }
 
     const age = parseInt(formData.age);
     if (age && (age < 3 || age > 100)) {
