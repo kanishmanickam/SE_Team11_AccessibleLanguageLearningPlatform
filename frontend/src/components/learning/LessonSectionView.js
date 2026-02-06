@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import InteractionCard from './InteractionCard';
 import VisualLesson from './VisualLesson';
+import { useAuth } from '../../context/AuthContext';
+import { getLessonProgress, normalizeUserId, saveLessonProgress } from '../../services/dyslexiaProgressService';
 
 const formatTime = (seconds) => {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -10,6 +12,7 @@ const formatTime = (seconds) => {
 };
 
 const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
+  const { user } = useAuth();
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -17,6 +20,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
   const [activeInteractionIndex, setActiveInteractionIndex] = useState(0);
 
   const sectionKey = useMemo(() => section?._id ?? section?.id ?? null, [section?._id, section?.id]);
+  const lessonKey = useMemo(() => section?.lessonId ?? section?._id ?? section?.id ?? null, [section?.lessonId, section?._id, section?.id]);
+  const userKey = useMemo(() => normalizeUserId(user), [user]);
 
   const paragraphs = useMemo(() => {
     if (!section?.textContent) return [];
@@ -36,7 +41,9 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
 
   const interactions = useMemo(() => {
     if (!section?.interactions) return [];
-    return [...section.interactions].sort((a, b) => (a.position || 0) - (b.position || 0));
+    return [...section.interactions]
+      .sort((a, b) => (a.position || 0) - (b.position || 0))
+      .slice(0, 5);
   }, [section?.interactions]);
 
   const currentInteraction = interactions[activeInteractionIndex];
@@ -47,6 +54,11 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
     setCurrentTime(0);
     setDuration(0);
   }, [sectionKey]);
+
+  useEffect(() => {
+    if (!lessonKey) return;
+    const stored = getLessonProgress(userKey, lessonKey);
+  }, [lessonKey, userKey]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -101,6 +113,25 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
     setActiveInteractionIndex((prev) => Math.min(prev + 1, interactions.length));
   };
 
+  const handleAnswered = ({ isCorrect, interactionId }) => {
+    if (!lessonKey || !interactionId) return;
+    if (isReplay) return;
+
+    const existing = getLessonProgress(userKey, lessonKey);
+    const nextStatus = existing.status === 'Not Started' ? 'In Progress' : existing.status;
+    const correctIds = new Set(existing.correctIds || []);
+    if (isCorrect) {
+      correctIds.add(interactionId);
+    }
+    const correctCount = Math.min(5, correctIds.size);
+    const status = correctCount >= 5 ? 'Completed' : nextStatus;
+    const updated = saveLessonProgress(userKey, lessonKey, {
+      status,
+      correctCount,
+      correctIds: Array.from(correctIds),
+    });
+  };
+
   if (!section) return null;
 
   return (
@@ -127,11 +158,14 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
 
           {currentInteraction && (
             <InteractionCard
-              lessonId={section.lessonId || section.id}
+              lessonId={lessonKey}
               interaction={currentInteraction}
               readOnly={isReplay}
               useLocalSubmission={useLocalSubmission}
               onContinue={handleContinue}
+              onAnswered={handleAnswered}
+              autoAdvanceOnCorrect={!isReplay}
+              enableTimer={!isReplay}
             />
           )}
         </div>

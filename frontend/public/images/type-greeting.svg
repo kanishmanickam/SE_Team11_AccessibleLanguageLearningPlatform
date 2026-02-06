@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFFAF0"/>
+  <!-- Keyboard -->
+  <rect x="40" y="80" width="120" height="60" rx="5" fill="#4A5568" opacity="0.9"/>
+  <g fill="#E2E8F0">
+    <rect x="50" y="90" width="15" height="15" rx="2"/>
+    <rect x="70" y="90" width="15" height="15" rx="2"/>
+    <rect x="90" y="90" width="15" height="15" rx="2"/>
+    <rect x="110" y="90" width="15" height="15" rx="2"/>
+    <rect x="130" y="90" width="15" height="15" rx="2"/>
+    <rect x="50" y="110" width="15" height="15" rx="2"/>
+    <rect x="70" y="110" width="15" height="15" rx="2"/>
+    <rect x="90" y="110" width="35" height="15" rx="2"/>
+    <rect x="130" y="110" width="15" height="15" rx="2"/>
+  </g>
+  <text x="100" y="60" font-family="Arial, sans-serif" font-size="20" fill="#2C5282" text-anchor="middle" font-weight="bold">Hello</text>
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="16" fill="#4A5568" text-anchor="middle">Type Your Greeting</text>
+</svg>

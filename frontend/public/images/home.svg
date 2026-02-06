@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#F7FAFC"/>
+  <!-- House -->
+  <rect x="60" y="100" width="80" height="70" fill="#E53E3E"/>
+  <!-- Roof -->
+  <path d="M 50 100 L 100 50 L 150 100 Z" fill="#742A2A"/>
+  <!-- Door -->
+  <rect x="85" y="130" width="30" height="40" rx="2" fill="#8B4513"/>
+  <circle cx="108" cy="150" r="3" fill="#FFD700"/>
+  <!-- Window -->
+  <rect x="120" y="115" width="15" height="15" rx="1" fill="#90CDF4"/>
+  <line x1="127.5" y1="115" x2="127.5" y2="130" stroke="#2C5282" stroke-width="1"/>
+  <line x1="120" y1="122.5" x2="135" y2="122.5" stroke="#2C5282" stroke-width="1"/>
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="24" fill="#742A2A" text-anchor="middle" font-weight="bold">Home</text>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="14" fill="#4A5568" text-anchor="middle">Where You Live</text>
+</svg>

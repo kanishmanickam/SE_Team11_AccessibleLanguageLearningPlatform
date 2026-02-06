@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFF5F5"/>
+  <!-- Chair -->
+  <rect x="70" y="90" width="60" height="10" rx="2" fill="#8B4513"/>
+  <rect x="75" y="100" width="50" height="40" rx="5" fill="#D2691E"/>
+  <rect x="75" y="60" width="50" height="30" rx="5" fill="#CD853F"/>
+  <!-- Chair legs -->
+  <rect x="75" y="140" width="8" height="35" fill="#8B4513"/>
+  <rect x="117" y="140" width="8" height="35" fill="#8B4513"/>
+  <rect x="75" y="60" width="8" height="30" fill="#8B4513"/>
+  <rect x="117" y="60" width="8" height="30" fill="#8B4513"/>
+  <text x="100" y="35" font-family="Arial, sans-serif" font-size="24" fill="#742A2A" text-anchor="middle" font-weight="bold">Chair</text>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="14" fill="#4A5568" text-anchor="middle">Something to Sit On</text>
+</svg>

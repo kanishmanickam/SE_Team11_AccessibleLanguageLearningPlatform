@@ -1,4 +1,120 @@
 .lesson-page {
   width: 100%;
-  background: var(--theme-bg, var(--bg-primary));
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 50%, #c2e9fb 100%);
+  background-attachment: fixed;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated Background Layer 1 - Top right orb */
+.lesson-page::before {
+  content: '';
+  position: fixed;
+  top: -15%;
+  right: -15%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(147, 51, 234, 0.2) 35%, transparent 65%);
+  animation: morphOrb1 28s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  filter: blur(70px);
+}
+
+/* Animated Background Layer 2 - Bottom left orb */
+.lesson-page::after {
+  content: '';
+  position: fixed;
+  bottom: -15%;
+  left: -15%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, rgba(96, 165, 250, 0.2) 35%, transparent 65%);
+  animation: morphOrb2 32s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+  filter: blur(70px);
+}
+
+@keyframes morphOrb1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    opacity: 0.7;
+  }
+  25% {
+    transform: translate(-100px, 80px) scale(1.15);
+    border-radius: 60% 40% 50% 50% / 70% 30% 60% 40%;
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(-150px, 150px) scale(1.3);
+    border-radius: 50% 50% 40% 60% / 30% 70% 60% 40%;
+    opacity: 1;
+  }
+  75% {
+    transform: translate(-80px, 100px) scale(1.1);
+    border-radius: 70% 30% 60% 40% / 50% 50% 40% 60%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes morphOrb2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 60% 40% 30% 70% / 50% 60% 40% 50%;
+    opacity: 0.7;
+  }
+  25% {
+    transform: translate(120px, -90px) scale(1.2);
+    border-radius: 40% 60% 70% 30% / 60% 40% 50% 50%;
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(160px, -160px) scale(1.35);
+    border-radius: 30% 70% 60% 40% / 40% 60% 50% 50%;
+    opacity: 1;
+  }
+  75% {
+    transform: translate(90px, -110px) scale(1.15);
+    border-radius: 50% 50% 40% 60% / 70% 30% 60% 40%;
+    opacity: 0.9;
+  }
+}
+
+/* Floating accent particles */
+@keyframes floatAccent {
+  0%, 100% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-50px) translateX(30px) rotate(180deg);
+  }
+}
+
+@keyframes floatParticle1 {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(100px, -100px) rotate(180deg);
+  }
+}
+
+@keyframes floatParticle2 {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(-80px, 120px) rotate(-180deg);
+  }
+}
+
+/* Ensure content is above the background */
+.lesson-page > * {
+  position: relative;
+  z-index: 1;
 }

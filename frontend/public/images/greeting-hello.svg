@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#E8F4F8"/>
+  <g transform="translate(100, 80)">
+    <!-- Waving hand -->
+    <path d="M -20 0 Q -30 -20, -20 -40 L -15 -40 Q -25 -20, -15 0 Z" fill="#FFD700"/>
+    <ellipse cx="0" cy="15" rx="25" ry="30" fill="#FFE4B5"/>
+    <path d="M -10 -5 L -20 -30 L -15 -32 L -5 -7 Z" fill="#FFE4B5"/>
+    <path d="M -5 -5 L -10 -35 L -5 -37 L 0 -7 Z" fill="#FFE4B5"/>
+    <path d="M 0 -5 L 0 -35 L 5 -37 L 5 -7 Z" fill="#FFE4B5"/>
+    <path d="M 5 -5 L 10 -32 L 15 -30 L 10 -7 Z" fill="#FFE4B5"/>
+  </g>
+  <text x="100" y="140" font-family="Arial, sans-serif" font-size="24" fill="#2C5282" text-anchor="middle" font-weight="bold">Hello!</text>
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="16" fill="#4A5568" text-anchor="middle">Friendly Greeting</text>
+</svg>

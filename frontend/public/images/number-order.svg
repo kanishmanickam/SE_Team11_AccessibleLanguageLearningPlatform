@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFF5F5"/>
+  <!-- Correct order (highlighted) -->
+  <g>
+    <rect x="45" y="70" width="110" height="50" rx="8" fill="#C6F6D5" stroke="#38A169" stroke-width="4"/>
+    <text x="100" y="100" font-family="Arial, sans-serif" font-size="28" fill="#22543D" text-anchor="middle" font-weight="bold">1, 2, 3</text>
+    <text x="100" y="115" font-family="Arial, sans-serif" font-size="14" fill="#22543D" text-anchor="middle">✓ Correct</text>
+  </g>
+  <!-- Wrong order 1 -->
+  <g opacity="0.4">
+    <rect x="45" y="130" width="70" height="30" rx="5" fill="#FED7E2" stroke="#D53F8C" stroke-width="2"/>
+    <text x="80" y="150" font-family="Arial, sans-serif" font-size="16" fill="#702459" text-anchor="middle">1, 3, 2</text>
+  </g>
+  <!-- Wrong order 2 -->
+  <g opacity="0.4">
+    <rect x="120" y="130" width="70" height="30" rx="5" fill="#FED7E2" stroke="#D53F8C" stroke-width="2"/>
+    <text x="155" y="150" font-family="Arial, sans-serif" font-size="16" fill="#702459" text-anchor="middle">2, 1, 3</text>
+  </g>
+  <text x="100" y="45" font-family="Arial, sans-serif" font-size="20" fill="#2C5282" text-anchor="middle" font-weight="bold">Number Order</text>
+  <text x="100" y="185" font-family="Arial, sans-serif" font-size="14" fill="#4A5568" text-anchor="middle">Choose the Right Order</text>
+</svg>

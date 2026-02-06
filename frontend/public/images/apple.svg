@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFFAF0"/>
+  <!-- Apple -->
+  <ellipse cx="100" cy="110" rx="45" ry="50" fill="#DC143C"/>
+  <ellipse cx="95" cy="100" rx="20" ry="25" fill="#FF6B6B" opacity="0.5"/>
+  <!-- Stem -->
+  <rect x="98" y="60" width="4" height="15" fill="#8B4513"/>
+  <!-- Leaf -->
+  <ellipse cx="110" cy="65" rx="12" ry="8" fill="#2F855A"/>
+  <text x="100" y="40" font-family="Arial, sans-serif" font-size="24" fill="#742A2A" text-anchor="middle" font-weight="bold">Apple</text>
+  <text x="100" y="190" font-family="Arial, sans-serif" font-size="14" fill="#4A5568" text-anchor="middle">Healthy Fruit</text>
+</svg>
