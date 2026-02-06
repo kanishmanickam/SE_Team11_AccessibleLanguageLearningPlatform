@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#F0FFF4"/>
+  <!-- Number 1 -->
+  <g>
+    <rect x="50" y="70" width="40" height="60" rx="5" fill="#90CDF4"/>
+    <text x="70" y="110" font-family="Arial, sans-serif" font-size="40" fill="#1A365D" text-anchor="middle" font-weight="bold">1</text>
+  </g>
+  <!-- Arrow -->
+  <path d="M 95 100 L 115 100" stroke="#2D3748" stroke-width="3" marker-end="url(#arrowhead3)"/>
+  <defs>
+    <marker id="arrowhead3" markerWidth="12" markerHeight="12" refX="6" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#2D3748"/>
+    </marker>
+  </defs>
+  <!-- Number 2 -->
+  <g>
+    <rect x="120" y="70" width="40" height="60" rx="5" fill="#68D391"/>
+    <text x="140" y="110" font-family="Arial, sans-serif" font-size="40" fill="#22543D" text-anchor="middle" font-weight="bold">2</text>
+  </g>
+  <text x="100" y="45" font-family="Arial, sans-serif" font-size="20" fill="#2C5282" text-anchor="middle" font-weight="bold">After 1 Comes...</text>
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="14" fill="#4A5568" text-anchor="middle">What's Next?</text>
+</svg>

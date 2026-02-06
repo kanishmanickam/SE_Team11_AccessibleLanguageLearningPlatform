@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { requestInteractionHelp, submitInteraction } from '../../services/interactionService';
 import GuidedSupport from './GuidedSupport';
 import './InteractionCard.css';
@@ -11,9 +11,9 @@ const normalizeAnswer = (value) => {
 
 const encouragementMessages = [
   "You're getting closer!",
-  "Nice try — let's look at this together.",
+  'Nice try. Let’s look at this together.',
   'Learning takes practice. Keep going!',
-  'Good effort! Try once more.',
+  'Good effort. Try once more.',
   'You are making progress. Keep it up!',
 ];
 
@@ -30,24 +30,50 @@ const InteractionCard = ({
   disableContinue = false,
   useLocalSubmission = false,
   readOnly = false,
+  enableTimer = true,
+  autoAdvanceOnCorrect = true,
+  timeLimitSeconds = 30,
+  enableSpeech = true,
+  enableTts = true,
+  onAnswered,
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
+  const [typedAnswer, setTypedAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [attempts, setAttempts] = useState(0);
   const [guidance, setGuidance] = useState(null);
   const [isHelping, setIsHelping] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+  const [lastTranscript, setLastTranscript] = useState('');
+  const recognitionRef = useRef(null);
+  const timerRef = useRef(null);
+  const audioRef = useRef(null);
 
   const hintTriggerAttempts = useMemo(() => 2, []);
+  const resolvedTimeLimit = Number.isFinite(interaction?.timeLimitSeconds)
+    ? interaction.timeLimitSeconds
+    : timeLimitSeconds;
+
+  const hasAnswer = Boolean(selectedAnswer || typedAnswer);
+  const isAnswered = Boolean(result);
+  const isCorrect = Boolean(result?.isCorrect);
+  const isLocked = isSubmitting || isCorrect;
 
   useEffect(() => {
     setSelectedAnswer('');
+    setTypedAnswer('');
     setResult(null);
     setError('');
     setIsSubmitting(false);
     setAttempts(0);
     setGuidance(null);
+    setTimeLeft(enableTimer && !readOnly ? resolvedTimeLimit : null);
+    setLastTranscript('');
+    setVoiceError('');
   }, [interaction?.id, lessonId]);
 
   const options =
@@ -55,12 +81,141 @@ const InteractionCard = ({
       ? ['True', 'False']
       : interaction.options || [];
 
+  const isShortAnswer = interaction.type === 'short_answer';
+
+  const speak = (text, overrides = {}) => {
+    if (!enableTts) return;
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+    if (!text) return;
+
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = overrides.rate ?? 0.85;
+      utterance.pitch = overrides.pitch ?? 1.0;
+      utterance.volume = overrides.volume ?? 1.0;
+      utterance.lang = overrides.lang ?? 'en-US';
+      window.speechSynthesis.speak(utterance);
+    } catch (speechError) {
+      // Ignore speech failures silently
+    }
+  };
+
+  const playAudio = (audioUrl) => {
+    if (!audioUrl) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    try {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      audio.play().catch((err) => {
+        console.warn('Audio playback failed:', err);
+        // Fallback to TTS if audio file not found
+        if (interaction?.question) {
+          speak(interaction.question);
+        }
+      });
+    } catch (err) {
+      console.warn('Audio creation failed:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (!interaction?.question || readOnly) return;
+    
+    // Try to play audio file first, fallback to TTS
+    if (interaction.questionAudioUrl) {
+      playAudio(interaction.questionAudioUrl);
+    } else {
+      speak(interaction.question);
+    }
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [interaction?.id]);
+
+  useEffect(() => {
+    if (!enableTimer || readOnly || isAnswered) return undefined;
+    if (!Number.isFinite(resolvedTimeLimit) || resolvedTimeLimit <= 0) return undefined;
+    if (timeLeft === null) return undefined;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === null) return prev;
+        if (prev <= 1) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [enableTimer, readOnly, isAnswered, resolvedTimeLimit, timeLeft]);
+
+  useEffect(() => {
+    if (!enableTimer || readOnly) return;
+    if (timeLeft === 0 && !isAnswered) {
+      const payload = {
+        isCorrect: false,
+        feedback: 'Time is up. Let’s try again.',
+        timedOut: true,
+      };
+      setResult(payload);
+      setGuidance(resolveGuidance({ encouragement: pickEncouragement() }));
+      speak('Time is up. Let’s try again.');
+      if (onAnswered) {
+        onAnswered({ isCorrect: false, interactionId: interaction?.id, timedOut: true });
+      }
+    }
+  }, [timeLeft, enableTimer, readOnly, isAnswered, interaction?.id]);
+
+  // Play feedback audio when result changes
+  useEffect(() => {
+    if (!result || readOnly) return;
+    
+    const isCorrect = Boolean(result.isCorrect);
+    const feedback = result.feedback;
+    
+    if (isCorrect && interaction?.feedback?.correctAudioUrl) {
+      playAudio(interaction.feedback.correctAudioUrl);
+    } else if (!isCorrect && interaction?.feedback?.incorrectAudioUrl) {
+      playAudio(interaction.feedback.incorrectAudioUrl);
+    } else if (feedback) {
+      speak(feedback);
+    }
+    
+    // Play explanation audio if available
+    if (result.explanation && interaction?.explanationAudioUrl) {
+      setTimeout(() => {
+        playAudio(interaction.explanationAudioUrl);
+      }, 2000); // Wait 2 seconds after feedback
+    }
+  }, [result, readOnly]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (readOnly || !selectedAnswer || isSubmitting) return;
+    if (readOnly || !hasAnswer || isSubmitting) return;
 
     setIsSubmitting(true);
     setError('');
+
+    const finalAnswer = selectedAnswer || typedAnswer;
 
     try {
       const nextAttempts = attempts + 1;
@@ -68,7 +223,7 @@ const InteractionCard = ({
 
       if (useLocalSubmission) {
         const isCorrect =
-          normalizeAnswer(selectedAnswer) === normalizeAnswer(interaction.correctAnswer);
+          normalizeAnswer(finalAnswer) === normalizeAnswer(interaction.correctAnswer);
         const payload = {
           isCorrect,
           feedback: isCorrect ? interaction.feedback.correct : interaction.feedback.incorrect,
@@ -86,14 +241,20 @@ const InteractionCard = ({
 
         setResult(payload);
         setGuidance(resolveGuidance(payload));
+        if (onAnswered) {
+          onAnswered({ isCorrect, interactionId: interaction?.id, timedOut: false });
+        }
       } else {
         const response = await submitInteraction({
           lessonId,
           interactionId: interaction.id,
-          selectedAnswer,
+          selectedAnswer: finalAnswer,
         });
         setResult(response);
         setGuidance(resolveGuidance(response));
+        if (onAnswered) {
+          onAnswered({ isCorrect: Boolean(response?.isCorrect), interactionId: interaction?.id, timedOut: false });
+        }
       }
     } catch (submitError) {
       setError('Unable to submit your answer. Please try again.');
@@ -109,13 +270,16 @@ const InteractionCard = ({
       setGuidance(null);
     }
     setSelectedAnswer(option);
+    setTypedAnswer('');
   };
 
   const handleRetry = () => {
     setResult(null);
     setSelectedAnswer('');
+    setTypedAnswer('');
     setError('');
     setGuidance(null);
+    setTimeLeft(enableTimer && !readOnly ? resolvedTimeLimit : null);
   };
 
   const handleHelp = async () => {
@@ -147,15 +311,123 @@ const InteractionCard = ({
     }
   };
 
-  const isAnswered = Boolean(result);
-  const isCorrect = Boolean(result?.isCorrect);
-  const isLocked = isSubmitting || isCorrect;
+  useEffect(() => {
+    if (!result) return;
+    if (result.isCorrect) {
+      speak('Great job. Moving on.');
+      if (autoAdvanceOnCorrect && onContinue) {
+        const timer = setTimeout(() => {
+          onContinue();
+        }, 700);
+        return () => clearTimeout(timer);
+      }
+    } else if (result?.timedOut) {
+      speak('Let’s try again.');
+    } else {
+      speak('Nice try. Let’s try again.');
+    }
+    return undefined;
+  }, [result?.isCorrect, result?.timedOut]);
 
   const guidanceMessage = guidance?.message || '';
   const guidanceTone = guidance?.tone || '';
 
+  const handleReplayNarration = () => {
+    speak(interaction?.question);
+  };
+
+  const initSpeechRecognition = () => {
+    if (typeof window === 'undefined') return null;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return null;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    return recognition;
+  };
+
+  const handleStartListening = () => {
+    if (!enableSpeech) return;
+    if (readOnly || isLocked) return;
+    setVoiceError('');
+    if (!recognitionRef.current) {
+      recognitionRef.current = initSpeechRecognition();
+    }
+    const recognition = recognitionRef.current;
+    if (!recognition) {
+      setVoiceError('Voice input is not supported in this browser.');
+      return;
+    }
+
+    recognition.onresult = (event) => {
+      const transcript = event.results?.[0]?.[0]?.transcript || '';
+      const cleaned = transcript.trim();
+      setLastTranscript(cleaned);
+      if (options.length > 0) {
+        const matched = options.find(
+          (option) => normalizeAnswer(option) === normalizeAnswer(cleaned)
+        );
+        if (matched) {
+          setSelectedAnswer(matched);
+          setTypedAnswer('');
+          return;
+        }
+      }
+      setTypedAnswer(cleaned);
+      setSelectedAnswer('');
+    };
+
+    recognition.onerror = () => {
+      setVoiceError('We could not hear you clearly. Please try again or type your answer.');
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    try {
+      setIsListening(true);
+      recognition.start();
+    } catch (startError) {
+      setIsListening(false);
+    }
+  };
+
+  const handleStopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsListening(false);
+  };
+
   return (
     <form className="interaction-card fx-card" onSubmit={handleSubmit} aria-live="polite">
+      <div className="interaction-meta">
+        <div className="interaction-timer" aria-live="polite">
+          {enableTimer && !readOnly ? (
+            <>
+              <span className="timer-label">Time</span>
+              <span className={`timer-value ${timeLeft !== null && timeLeft <= 5 ? 'warn' : ''}`}>
+                {timeLeft ?? resolvedTimeLimit}s
+              </span>
+            </>
+          ) : (
+            <span className="timer-label">No timer</span>
+          )}
+        </div>
+        <button
+          type="button"
+          className="narration-btn fx-pressable fx-focus"
+          onClick={handleReplayNarration}
+          aria-label="Replay narration"
+          disabled={!enableTts}
+        >
+          Replay narration
+        </button>
+      </div>
+
       <fieldset disabled={isLocked || readOnly}>
         <legend className="interaction-question">{interaction.question}</legend>
 
@@ -173,6 +445,21 @@ const InteractionCard = ({
               </button>
             ))}
           </div>
+        ) : isShortAnswer ? (
+          <div className="interaction-input">
+            <label htmlFor={`short-${interaction.id}`} className="sr-only">Type your answer</label>
+            <input
+              id={`short-${interaction.id}`}
+              type="text"
+              value={typedAnswer}
+              onChange={(event) => {
+                setTypedAnswer(event.target.value);
+                setSelectedAnswer('');
+              }}
+              placeholder="Type your answer here"
+              disabled={readOnly || isLocked}
+            />
+          </div>
         ) : (
           <div className="interaction-options" role="radiogroup" aria-label={interaction.question}>
             {options.map((option) => (
@@ -189,6 +476,42 @@ const InteractionCard = ({
             ))}
           </div>
         )}
+
+        {enableSpeech && !readOnly && (
+          <div className="interaction-voice">
+            <div className="voice-controls">
+              <button
+                type="button"
+                className="voice-btn fx-pressable fx-focus"
+                onClick={isListening ? handleStopListening : handleStartListening}
+                aria-pressed={isListening}
+              >
+                {isListening ? 'Stop voice input' : 'Use voice input'}
+              </button>
+              {lastTranscript && (
+                <span className="voice-transcript">Heard: {lastTranscript}</span>
+              )}
+            </div>
+            {voiceError && <p className="interaction-feedback warning">{voiceError}</p>}
+          </div>
+        )}
+
+        {!isShortAnswer && (
+          <div className="interaction-typed-fallback">
+            <label htmlFor={`typed-${interaction.id}`}>Prefer typing?</label>
+            <input
+              id={`typed-${interaction.id}`}
+              type="text"
+              value={typedAnswer}
+              onChange={(event) => {
+                setTypedAnswer(event.target.value);
+                setSelectedAnswer('');
+              }}
+              placeholder="Type your answer"
+              disabled={readOnly || isLocked}
+            />
+          </div>
+        )}
       </fieldset>
 
       {error && (
@@ -197,18 +520,28 @@ const InteractionCard = ({
         </p>
       )}
       {isAnswered && (
-        <p
+        <div
           className={`interaction-feedback ${isCorrect ? 'correct' : 'incorrect'}`}
           role="status"
         >
-          {isCorrect ? '✅ ' : '❌ '}
-          {result?.feedback}
-        </p>
+          <p>{result?.feedback}</p>
+          {isCorrect ? (
+            <div className="answer-celebration" aria-hidden="true">
+              <span className="celebration-star"></span>
+              <span className="celebration-star"></span>
+              <span className="celebration-star"></span>
+            </div>
+          ) : (
+            <div className="answer-try-again" aria-hidden="true">
+              <span className="try-again-pulse"></span>
+            </div>
+          )}
+        </div>
       )}
 
       {readOnly && (
         <p className="interaction-feedback" role="status">
-          🔒 Replay mode: interactions are read-only.
+          Replay mode: interactions are read-only.
         </p>
       )}
 
@@ -221,7 +554,7 @@ const InteractionCard = ({
 
       <div className="interaction-actions">
         {!isAnswered ? (
-          <button type="submit" className="btn-submit fx-pressable fx-focus" disabled={readOnly || !selectedAnswer || isSubmitting}>
+          <button type="submit" className="btn-submit fx-pressable fx-focus" disabled={readOnly || !hasAnswer || isSubmitting}>
             {isSubmitting ? 'Checking…' : 'Submit Answer'}
           </button>
         ) : (

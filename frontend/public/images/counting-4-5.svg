@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFF5F5"/>
+  <!-- Number 4 -->
+  <g>
+    <circle cx="70" cy="100" r="30" fill="#FC8181" opacity="0.7"/>
+    <text x="70" y="115" font-family="Arial, sans-serif" font-size="36" fill="#742A2A" text-anchor="middle" font-weight="bold">4</text>
+  </g>
+  <!-- Arrow -->
+  <path d="M 105 100 L 125 100" stroke="#4A5568" stroke-width="3" marker-end="url(#arrowhead2)"/>
+  <defs>
+    <marker id="arrowhead2" markerWidth="12" markerHeight="12" refX="6" refY="4" orient="auto">
+      <polygon points="0 0, 8 4, 0 8" fill="#4A5568"/>
+    </marker>
+  </defs>
+  <!-- Number 5 -->
+  <g>
+    <circle cx="150" cy="100" r="30" fill="#68D391"/>
+    <text x="150" y="115" font-family="Arial, sans-serif" font-size="36" fill="#22543D" text-anchor="middle" font-weight="bold">5</text>
+  </g>
+  <text x="100" y="50" font-family="Arial, sans-serif" font-size="20" fill="#2C5282" text-anchor="middle" font-weight="bold">After 4 Comes...</text>
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="14" fill="#4A5568" text-anchor="middle">Count Forward</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#F7FAFC"/>
+  <rect x="30" y="40" width="50" height="40" rx="5" fill="#68D391" opacity="0.8"/>
+  <text x="55" y="68" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF" text-anchor="middle" font-weight="bold">Hello</text>
+  <rect x="30" y="90" width="50" height="40" rx="5" fill="#FC8181" opacity="0.8"/>
+  <text x="55" y="118" font-family="Arial, sans-serif" font-size="16" fill="#FFFFFF" text-anchor="middle" font-weight="bold">Goodbye</text>
+  <rect x="30" y="140" width="50" height="40" rx="5" fill="#90CDF4" opacity="0.8"/>
+  <text x="55" y="168" font-family="Arial, sans-serif" font-size="18" fill="#FFFFFF" text-anchor="middle" font-weight="bold">Later</text>
+  <text x="120" y="110" font-family="Arial, sans-serif" font-size="20" fill="#2D3748" font-weight="bold">Choose One</text>
+  <path d="M 90 100 L 110 110 L 90 120 Z" fill="#4299E1"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FFF5F5"/>
+  <!-- Person asking -->
+  <ellipse cx="70" cy="60" rx="20" ry="25" fill="#FED7D7"/>
+  <ellipse cx="70" cy="100" rx="30" ry="40" fill="#FC8181"/>
+  <!-- Speech bubble with question -->
+  <ellipse cx="130" cy="70" rx="45" ry="35" fill="#E6FFFA" stroke="#319795" stroke-width="2"/>
+  <path d="M 100 85 L 85 95 L 95 92 Z" fill="#E6FFFA" stroke="#319795" stroke-width="2"/>
+  <text x="130" y="65" font-family="Arial, sans-serif" font-size="14" fill="#234E52" text-anchor="middle" font-weight="bold">How are</text>
+  <text x="130" y="82" font-family="Arial, sans-serif" font-size="14" fill="#234E52" text-anchor="middle" font-weight="bold">you?</text>
+  <text x="100" y="170" font-family="Arial, sans-serif" font-size="16" fill="#4A5568" text-anchor="middle">Asking About Someone</text>
+</svg>
