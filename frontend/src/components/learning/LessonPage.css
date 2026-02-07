@@ -1,10 +1,12 @@
 .lesson-page {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 50%, #c2e9fb 100%);
+  background-color: var(--bg-primary);
   background-attachment: fixed;
   position: relative;
   overflow-x: hidden;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 /* Animated Background Layer 1 - Top right orb */

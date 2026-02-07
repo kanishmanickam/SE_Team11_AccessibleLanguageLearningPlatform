@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getLessonById } from '../../services/lessonService';
+import { useAuth } from '../../context/AuthContext';
+import { usePreferences } from '../../context/PreferencesContext';
 import LessonReplay from './LessonReplay';
 import lessonSamples from './lessonSamples';
 import './LessonPage.css';
@@ -13,6 +15,8 @@ const estimateReadingTime = (text) => {
 
 const LessonPage = () => {
   const { lessonId } = useParams();
+  const { user } = useAuth();
+  const { preferences, applyPreferences } = usePreferences();
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -72,6 +76,14 @@ const LessonPage = () => {
   const retryLoadLesson = () => setRetryKey((k) => k + 1);
 
 
+  useEffect(() => {
+    if (!preferences) return;
+    applyPreferences(preferences, {
+      containerId: 'learning-container',
+      baseClass: 'lesson-page motion-enabled',
+    });
+  }, [preferences, applyPreferences]);
+
   const readingTime = estimateReadingTime(lesson?.textContent);
   const interactionCount = lesson?.interactions?.length || 0;
   const resolvedTitle = lesson?.title || (isLoading ? 'Loading lesson…' : 'Lesson');
@@ -80,7 +92,11 @@ const LessonPage = () => {
     : `About ${readingTime} min • ${interactionCount} interactions`;
 
   return (
-    <div className="lesson-page">
+    <div
+      className="lesson-page"
+      id="learning-container"
+      data-user-condition={user?.learningCondition || ''}
+    >
       <LessonReplay
         lessonId={lessonId}
         isSample={isSample}

@@ -5,7 +5,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-greetings',
       title: 'Greeting basics',
       textContent: 'Hello! This section shows how to greet politely.',
-      audioUrl: '',
+      audioUrl: '/audio/greet-s1-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/hello.svg', altText: 'Waving hand saying hello', relatedPhrase: 'Hello', placement: 'inline' },
       ],
@@ -121,7 +121,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-greetings',
       title: 'Friendly phrases',
       textContent: 'Say "Hello" or "Hi" with a smile. Ask "How are you?"',
-      audioUrl: '',
+      audioUrl: '/audio/greet-s2-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/how-are-you.svg', altText: 'Friendly question: How are you?', relatedPhrase: 'How are you?', placement: 'below' },
       ],
@@ -135,7 +135,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-vocabulary',
       title: 'Everyday objects',
       textContent: 'Let’s learn simple words for everyday items.',
-      audioUrl: '',
+      audioUrl: '/audio/vocab-s1-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/basic-words.svg', altText: 'Everyday objects and words', relatedPhrase: 'everyday items', placement: 'inline' },
       ],
@@ -252,7 +252,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-vocabulary',
       title: 'People and places',
       textContent: 'Practice words for people and places you see daily.',
-      audioUrl: '',
+      audioUrl: '/audio/vocab-s2-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/sun.svg', altText: 'Sun icon', relatedPhrase: 'daily', placement: 'inline' },
       ],
@@ -264,7 +264,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-vocabulary',
       title: 'Action words',
       textContent: 'Say simple action words like "eat", "walk", and "read".',
-      audioUrl: '',
+      audioUrl: '/audio/vocab-s3-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/speech.svg', altText: 'Speech bubble icon', relatedPhrase: 'Say', placement: 'below' },
       ],
@@ -278,7 +278,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-numbers',
       title: 'Counting up',
       textContent: 'Count from one to five. Name a color for each number.',
-      audioUrl: '',
+      audioUrl: '/audio/num-s1-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/numbers.svg', altText: 'Numbers one two three', relatedPhrase: 'Count', placement: 'inline' },
       ],
@@ -395,7 +395,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-numbers',
       title: 'Number pairs',
       textContent: 'Match numbers with the correct number of objects.',
-      audioUrl: '',
+      audioUrl: '/audio/num-s2-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/sun.svg', altText: 'Bright icon for counting objects', relatedPhrase: 'numbers', placement: 'inline' },
       ],
@@ -407,7 +407,7 @@ const lessonSectionSamples = {
       lessonId: 'lesson-numbers',
       title: 'Counting forward',
       textContent: 'Say the next number after 1, 2, and 3.',
-      audioUrl: '',
+      audioUrl: '/audio/num-s3-narration.mp3',
       visuals: [
         { imageUrl: '/visuals/speech.svg', altText: 'Speech bubble icon', relatedPhrase: 'Say', placement: 'below' },
       ],

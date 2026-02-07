@@ -40,10 +40,11 @@ export const PreferencesProvider = ({ children }) => {
     loadPreferences();
   }, [isAuthenticated]);
 
-  const applyPreferences = (prefs, containerId = 'learning-container') => {
+  const applyPreferences = (prefs, options = {}) => {
     if (!prefs) return;
 
     // Only apply to learning container if it exists, not to body
+    const { containerId = 'learning-container', baseClass = 'motion-enabled' } = options;
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -184,6 +185,7 @@ export const PreferencesProvider = ({ children }) => {
     updateADHDSettings,
     updateAutismSettings,
     resetPreferences,
+    applyPreferences,
   };
 
   return (

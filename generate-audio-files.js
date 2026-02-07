@@ -99,6 +99,16 @@ const audioContent = {
   'numbers-5-explanation': 'The correct order is 1, 2, 3.',
   'numbers-5-correct': 'Excellent ordering!',
   'numbers-5-incorrect': 'Good effort. Start at 1 and count up.',
+
+  // Section Narrations
+  'greet-s1-narration': 'Hello! This section shows how to greet politely.',
+  'greet-s2-narration': 'Say Hello or Hi with a smile. Ask How are you?',
+  'vocab-s1-narration': 'Let\'s learn simple words for everyday items.',
+  'vocab-s2-narration': 'Practice words for people and places you see daily.',
+  'vocab-s3-narration': 'Say simple action words like eat, walk, and read.',
+  'num-s1-narration': 'Count from one to five. Name a color for each number.',
+  'num-s2-narration': 'Match numbers with the correct number of objects.',
+  'num-s3-narration': 'Say the next number after 1, 2, and 3.',
 };
 
 /**

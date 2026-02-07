@@ -1,6 +1,6 @@
 .dyslexia-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 50%, #b8e6f9 100%);
+  background-color: var(--bg-primary);
   background-attachment: fixed;
   position: relative;
   overflow-x: hidden;
