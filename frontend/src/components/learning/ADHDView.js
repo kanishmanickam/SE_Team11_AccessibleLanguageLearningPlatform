@@ -43,17 +43,17 @@ const ADHDView = () => {
   // Audio handling
   const [currentAudio, setCurrentAudio] = useState(null);
 
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const playAudio = async (text, rate = 1) => {
-    // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
     }
-    // Also cancel browser speech just in case
     window.speechSynthesis.cancel();
+    setIsPlaying(false);
 
     try {
-      // Fetch audio from backend (gTTS)
       const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,25 +66,32 @@ const ADHDView = () => {
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
 
-      // Note: HTML5 Audio playbackRate is supported
       audio.playbackRate = rate;
 
       audio.play().catch(e => console.error("Playback failed:", e));
       setCurrentAudio(audio);
+      setIsPlaying(true);
 
       audio.onended = () => {
-        URL.revokeObjectURL(url); // Cleanup
+        URL.revokeObjectURL(url);
         setCurrentAudio(null);
+        setIsPlaying(false);
       };
+
+      audio.onpause = () => setIsPlaying(false);
+      audio.onplay = () => setIsPlaying(true);
 
     } catch (error) {
       console.error("Server TTS failed, falling back to browser:", error);
-      // Fallback to browser TTS if server fails
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = rate;
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
       window.speechSynthesis.speak(utterance);
     }
   };
+
+
 
   // Ensure speed updates apply to active audio
   useEffect(() => {
@@ -409,6 +416,49 @@ const ADHDView = () => {
     }
   };
 
+  // Voice Input for ADHD View
+  const [isListening, setIsListening] = useState(false);
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      setFeedback({ type: 'error', message: 'Voice input not supported in this browser' });
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      // setFeedback({ type: 'info', message: 'Listening...' }); // Optional, might distract
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      // Match with options
+      const step = steps[currentStepIndex];
+      if (step.type === 'quiz' && step.options) {
+        const matchedOpt = step.options.find(opt =>
+          transcript.includes(opt.toLowerCase()) || opt.toLowerCase().includes(transcript)
+        );
+        if (matchedOpt) {
+          handleAnswer(matchedOpt);
+        } else {
+          setFeedback({ type: 'error', message: `Heard "${transcript}". Try saying one of the options.` });
+        }
+      }
+    };
+
+    recognition.onerror = () => {
+      setFeedback({ type: 'error', message: 'Could not hear clearly. Try again.' });
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
   const handlePlayStory = () => {
     const step = steps[currentStepIndex];
     if (currentAudio) {
@@ -683,7 +733,20 @@ const ADHDView = () => {
                               )}
                             </div>
                           </div>
-                          <p style={{ fontSize: '1.3rem', lineHeight: '1.6', color: 'var(--text-primary)', textAlign: 'left', background: 'var(--bg-primary)', padding: '20px', borderRadius: '8px' }}>
+                          <p
+                            className={isPlaying ? 'story-text active-reading-block' : 'story-text'}
+                            style={{
+                              fontSize: '1.3rem',
+                              lineHeight: '1.6',
+                              color: 'var(--text-primary)',
+                              textAlign: 'left',
+                              background: isPlaying ? '#fff9c4' : 'var(--bg-primary)', // Highlight background
+                              padding: '20px',
+                              borderRadius: '8px',
+                              transition: 'background 0.3s ease',
+                              border: isPlaying ? '2px solid #fbc02d' : '1px solid transparent'
+                            }}
+                          >
                             {currentStep.content}
                           </p>
                         </div>
@@ -703,6 +766,27 @@ const ADHDView = () => {
                                 {opt}
                               </button>
                             ))}
+                          </div>
+
+                          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                            <button
+                              onClick={startListening}
+                              disabled={isListening}
+                              style={{
+                                background: isListening ? '#ffe0b2' : 'transparent',
+                                border: '2px solid #ff9800',
+                                padding: '8px 20px',
+                                borderRadius: '30px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                color: '#e65100',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}
+                            >
+                              <span>🎤</span> {isListening ? 'Listening...' : 'Use Voice Answer'}
+                            </button>
                           </div>
                         </div>
                       )}
