@@ -18,6 +18,7 @@
     transform: translateY(30px) scale(0.95);
     opacity: 0;
   }
+
   to {
     transform: translateY(0) scale(1);
     opacity: 1;
@@ -62,6 +63,7 @@
     transform: translateY(-10px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -84,16 +86,28 @@
   animation-delay: calc(var(--option-index) * 0.1s);
 }
 
-.interaction-option:nth-child(1) { --option-index: 1; }
-.interaction-option:nth-child(2) { --option-index: 2; }
-.interaction-option:nth-child(3) { --option-index: 3; }
-.interaction-option:nth-child(4) { --option-index: 4; }
+.interaction-option:nth-child(1) {
+  --option-index: 1;
+}
+
+.interaction-option:nth-child(2) {
+  --option-index: 2;
+}
+
+.interaction-option:nth-child(3) {
+  --option-index: 3;
+}
+
+.interaction-option:nth-child(4) {
+  --option-index: 4;
+}
 
 @keyframes fadeInLeft {
   from {
     transform: translateX(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -117,7 +131,7 @@
   transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
 }
 
-.interaction-option input:checked + span {
+.interaction-option input:checked+span {
   background: var(--theme-option-selected-bg, var(--bg-secondary));
   color: var(--theme-option-selected-text, var(--text-primary));
   border-color: var(--theme-accent, var(--accent-color));
@@ -139,16 +153,28 @@
   overflow: hidden;
 }
 
-.interaction-click:nth-child(1) { --click-index: 1; }
-.interaction-click:nth-child(2) { --click-index: 2; }
-.interaction-click:nth-child(3) { --click-index: 3; }
-.interaction-click:nth-child(4) { --click-index: 4; }
+.interaction-click:nth-child(1) {
+  --click-index: 1;
+}
+
+.interaction-click:nth-child(2) {
+  --click-index: 2;
+}
+
+.interaction-click:nth-child(3) {
+  --click-index: 3;
+}
+
+.interaction-click:nth-child(4) {
+  --click-index: 4;
+}
 
 @keyframes scaleIn {
   from {
     transform: scale(0.9);
     opacity: 0;
   }
+
   to {
     transform: scale(1);
     opacity: 1;
@@ -288,9 +314,11 @@
     transform: scale(0.8);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.05);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -421,12 +449,32 @@
 }
 
 .voice-btn {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 2px solid var(--theme-border, var(--border-color));
-  background: var(--theme-bg, var(--bg-secondary));
-  color: var(--theme-text, var(--text-primary));
-  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 20px;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voice-btn:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+}
+
+.voice-btn[aria-pressed="true"] {
+  background: #ffeb3b;
+  color: #333;
+  border-color: #fbc02d;
+  animation: pulse 1.5s infinite;
 }
 
 .voice-transcript {
@@ -455,17 +503,19 @@
 }
 
 @keyframes popStar {
-  0% { 
-    transform: scale(0) rotate(0deg); 
-    opacity: 0.6; 
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0.6;
   }
-  60% { 
-    transform: scale(1.3) rotate(180deg); 
-    opacity: 1; 
+
+  60% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 1;
   }
-  100% { 
-    transform: scale(1) rotate(360deg); 
-    opacity: 1; 
+
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
   }
 }
 
@@ -485,18 +535,20 @@
 }
 
 @keyframes pulseGlow {
-  0% { 
-    transform: scale(0.7); 
+  0% {
+    transform: scale(0.7);
     opacity: 0.6;
     box-shadow: 0 0 0 rgba(96, 165, 250, 0.5);
   }
-  70% { 
-    transform: scale(1.1); 
+
+  70% {
+    transform: scale(1.1);
     opacity: 1;
     box-shadow: 0 0 20px rgba(96, 165, 250, 0.8);
   }
-  100% { 
-    transform: scale(1); 
+
+  100% {
+    transform: scale(1);
     opacity: 1;
     box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
   }
@@ -504,13 +556,35 @@
 
 /* Keep old animation names for backward compatibility */
 @keyframes pop {
-  0% { transform: scale(0.6); opacity: 0.6; }
-  60% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 @keyframes pulse {
-  0% { transform: scale(0.7); opacity: 0.6; }
-  70% { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+
+  70% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }

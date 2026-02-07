@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { requestInteractionHelp, submitInteraction } from '../../services/interactionService';
 import GuidedSupport from './GuidedSupport';
 import './InteractionCard.css';
@@ -76,7 +76,7 @@ const InteractionCard = ({
     setTimeLeft(enableTimer && !readOnly ? resolvedTimeLimit : null);
     setLastTranscript('');
     setVoiceError('');
-  }, [interaction?.id, lessonId]);
+  }, [interaction?.id, lessonId, enableTimer, readOnly, resolvedTimeLimit]);
 
   const options =
     interaction.type === 'true_false'
@@ -85,44 +85,66 @@ const InteractionCard = ({
 
   const isShortAnswer = interaction.type === 'short_answer';
 
-  const speak = (text, overrides = {}) => {
-    if (!enableTts) return;
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    if (!text) return;
+  const API_BASE_URL = 'http://localhost:5002';
 
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = overrides.rate ?? 0.85;
-      utterance.pitch = overrides.pitch ?? 1.0;
-      utterance.volume = overrides.volume ?? 1.0;
-      utterance.lang = overrides.lang ?? 'en-US';
-      window.speechSynthesis.speak(utterance);
-    } catch (speechError) {
-      // Ignore speech failures silently
+  const speak = useCallback(async (text, overrides = {}) => {
+    if (!enableTts || !text) return;
+
+    // Stop existing audio
+    window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
     }
-  };
 
-  const playAudio = (audioUrl) => {
+    // Try Backend TTS first
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text,
+          speed: overrides.rate ?? 0.85
+        })
+      });
+
+      if (!response.ok) throw new Error('TTS Failed');
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.play().catch(e => console.warn("Backend Play error", e));
+
+      audio.onended = () => URL.revokeObjectURL(url);
+
+    } catch (e) {
+      // Fallback
+      if (typeof window !== 'undefined' && window.speechSynthesis) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = overrides.rate ?? 0.85;
+        utterance.lang = overrides.lang ?? 'en-US';
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+  }, [enableTts]);
+
+  const playAudio = useCallback((audioUrl) => {
     if (!audioUrl) return;
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
-    try {
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-      audio.play().catch((err) => {
-        console.warn('Audio playback failed:', err);
-        // Fallback to TTS if audio file not found
-        if (interaction?.question) {
-          speak(interaction.question);
-        }
-      });
-    } catch (err) {
-      console.warn('Audio creation failed:', err);
-    }
-  };
+
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    audio.play().catch((err) => {
+      console.warn('Audio playback failed, trying TTS:', err);
+      if (interaction?.question) {
+        speak(interaction.question);
+      }
+    });
+  }, [interaction?.question, speak]);
 
   useEffect(() => {
     if (!interaction?.question || readOnly || !autoPlayNarration || disableAutoSpeak) return;
@@ -133,16 +155,15 @@ const InteractionCard = ({
     } else {
       speak(interaction.question);
     }
-    
+
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      window.speechSynthesis.cancel();
     };
+  }, [interaction?.id, interaction?.question, interaction?.questionAudioUrl, readOnly, playAudio, speak]);
   }, [interaction?.id, readOnly, autoPlayNarration, disableAutoSpeak]);
 
   useEffect(() => {
@@ -185,7 +206,7 @@ const InteractionCard = ({
         onAnswered({ isCorrect: false, interactionId: interaction?.id, timedOut: true });
       }
     }
-  }, [timeLeft, enableTimer, readOnly, isAnswered, interaction?.id]);
+  }, [timeLeft, enableTimer, readOnly, isAnswered, interaction?.id, onAnswered, speak]);
 
   // Play feedback audio when result changes (only if auto-speak is not disabled)
   useEffect(() => {
@@ -193,7 +214,7 @@ const InteractionCard = ({
     
     const isCorrect = Boolean(result.isCorrect);
     const feedback = result.feedback;
-    
+
     if (isCorrect && interaction?.feedback?.correctAudioUrl) {
       playAudio(interaction.feedback.correctAudioUrl);
     } else if (!isCorrect && interaction?.feedback?.incorrectAudioUrl) {
@@ -201,13 +222,14 @@ const InteractionCard = ({
     } else if (feedback) {
       speak(feedback);
     }
-    
+
     // Play explanation audio if available
     if (result.explanation && interaction?.explanationAudioUrl) {
       setTimeout(() => {
         playAudio(interaction.explanationAudioUrl);
       }, 2000); // Wait 2 seconds after feedback
     }
+  }, [result, readOnly, interaction, playAudio, speak]);
   }, [result, readOnly, disableAutoSpeak]);
 
   const handleSubmit = async (event) => {
@@ -329,6 +351,7 @@ const InteractionCard = ({
       if (!disableAutoSpeak) speak('Nice try. Let\'s try again.');
     }
     return undefined;
+  }, [result, autoAdvanceOnCorrect, onContinue, speak]);
   }, [result?.isCorrect, result?.timedOut, disableAutoSpeak]);
 
   const guidanceMessage = guidance?.message || '';
@@ -362,13 +385,20 @@ const InteractionCard = ({
       return;
     }
 
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceError('');
+    };
+
     recognition.onresult = (event) => {
       const transcript = event.results?.[0]?.[0]?.transcript || '';
       const cleaned = transcript.trim();
       setLastTranscript(cleaned);
       if (options.length > 0) {
+        // loose matching
         const matched = options.find(
-          (option) => normalizeAnswer(option) === normalizeAnswer(cleaned)
+          (option) => normalizeAnswer(option) === normalizeAnswer(cleaned) ||
+            cleaned.toLowerCase().includes(option.toLowerCase())
         );
         if (matched) {
           setSelectedAnswer(matched);
@@ -380,9 +410,18 @@ const InteractionCard = ({
       setSelectedAnswer('');
     };
 
-    recognition.onerror = () => {
-      setVoiceError('We could not hear you clearly. Please try again or type your answer.');
+    recognition.onerror = (event) => {
+      console.warn('Speech recognition error:', event.error);
       setIsListening(false);
+      if (event.error === 'no-speech') {
+        setVoiceError('No speech was detected. Please try again.');
+      } else if (event.error === 'audio-capture') {
+        setVoiceError('No microphone was found. Ensure it is plugged in.');
+      } else if (event.error === 'not-allowed') {
+        setVoiceError('Microphone permission denied. Please allow access.');
+      } else {
+        setVoiceError('We could not hear you clearly. Please try again.');
+      }
     };
 
     recognition.onend = () => {
@@ -390,9 +429,9 @@ const InteractionCard = ({
     };
 
     try {
-      setIsListening(true);
       recognition.start();
     } catch (startError) {
+      console.error("Speech start error", startError);
       setIsListening(false);
     }
   };

@@ -75,3 +75,13 @@
 .visual-below {
   justify-self: start;
 }
+
+.highlight-active {
+  background-color: #ffd700;
+  color: black;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  transform: scale(1.05); /* Slight pop */
+  display: inline-block;
+  z-index: 10;
+  position: relative;
+}

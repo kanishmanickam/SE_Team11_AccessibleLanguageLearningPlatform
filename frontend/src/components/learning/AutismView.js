@@ -7,7 +7,7 @@ import './AutismView.css';
 const AutismView = () => {
   const { user, logout } = useAuth();
   const [showSettings, setShowSettings] = useState(false);
-  
+
   // Lesson navigation state
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -16,7 +16,7 @@ const AutismView = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   const [wrongAnswerCount, setWrongAnswerCount] = useState({});
-  
+
   const audioRef = useRef(null);
 
   // Load completed lessons from backend on mount
@@ -35,14 +35,14 @@ const AutismView = () => {
         console.error('Error fetching completed lessons:', error);
       }
     };
-    
+
     fetchCompletedLessons();
   }, []);
 
   // EPIC 2.1-2.7: Three complete lessons with multi-format content
   const lessons = [
-    { 
-      id: 1, 
+    {
+      id: 1,
       title: 'Greetings',
       language: 'Tamil',
       icon: '🙏',
@@ -200,8 +200,8 @@ const AutismView = () => {
         }
       ]
     },
-    { 
-      id: 2, 
+    {
+      id: 2,
       title: 'Basic Words',
       language: 'English',
       icon: '🔤',
@@ -359,8 +359,8 @@ const AutismView = () => {
         }
       ]
     },
-    { 
-      id: 3, 
+    {
+      id: 3,
       title: 'Numbers',
       language: 'Hindi',
       icon: '🔢',
@@ -529,13 +529,13 @@ const AutismView = () => {
   const handleNext = () => {
     // Check if current step has been answered correctly
     const stepKey = `${selectedLesson}-${currentStepIndex}`;
-    
+
     if (!stepAnsweredCorrectly[stepKey]) {
       setFeedback('⚠️ Please answer the question correctly before moving to the next step.');
       setTimeout(() => setFeedback(''), 3000);
       return;
     }
-    
+
     setFeedback('');
     setShowHint(false);
     if (currentStepIndex < totalSteps - 1) {
@@ -605,24 +605,127 @@ const AutismView = () => {
     }
   };
 
+  const [activeWord, setActiveWord] = useState('');
+  const [playbackSpeed, setPlaybackSpeed] = useState(0.8);
+
   // Text-to-speech fallback function
-  const speakText = (text) => {
-    if ('speechSynthesis' in window) {
-      // Cancel any ongoing speech
-      window.speechSynthesis.cancel();
-      
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.8; // Slower speed for better comprehension
-      utterance.pitch = 1.0;
-      utterance.volume = 1.0;
-      
-      window.speechSynthesis.speak(utterance);
+  // Audio Handling with Backend Support
+  const API_BASE_URL = 'http://localhost:5002';
+
+  const speakText = async (text) => {
+    // Cancel any existing
+    window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    try {
+      // Try Backend TTS
+      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, speed: playbackSpeed })
+      });
+
+      if (!response.ok) throw new Error('Backend failed');
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.playbackRate = playbackSpeed;
+
+      audio.onplay = () => setFeedback('🔊 Playing audio...');
+      audio.onended = () => {
+        setFeedback('');
+        URL.revokeObjectURL(url);
+      };
+
+      audio.play();
+
+    } catch (e) {
+      // Fallback to Browser
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = playbackSpeed;
+
+        utterance.onboundary = (event) => {
+          if (event.name === 'word') {
+            const charIndex = event.charIndex;
+            const textBefore = text.slice(charIndex);
+            const firstSpace = textBefore.search(/\s/);
+            const word = firstSpace === -1 ? textBefore : textBefore.slice(0, firstSpace);
+            const cleanWord = word.replace(/[.,!?;:()"]/g, '');
+            setActiveWord(cleanWord);
+          }
+        };
+
+        utterance.onstart = () => setFeedback('🔊 Playing audio...');
+        utterance.onend = () => {
+          setActiveWord('');
+          setFeedback('');
+        };
+
+        window.speechSynthesis.speak(utterance);
+      }
     }
   };
 
   // EPIC 2.4: Hint toggle
   const handleShowHint = () => {
     setShowHint(!showHint);
+  };
+
+
+  // Voice Input Logic
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      setFeedback('⚠️ Voice input not supported in this browser.');
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setFeedback('🎤 Listening...');
+      setVoiceError('');
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      // Try to match with options
+      if (currentStep?.interaction?.options) {
+        const matchedIndex = currentStep.interaction.options.findIndex(opt =>
+          transcript.includes(opt.toLowerCase()) || opt.toLowerCase().includes(transcript)
+        );
+
+        if (matchedIndex !== -1) {
+          handleInteraction(matchedIndex);
+          setFeedback(`🗣️ Heard "${transcript}". Selected: ${currentStep.interaction.options[matchedIndex]}`);
+        } else {
+          setFeedback(`🗣️ Heard "${transcript}". Please try creating saying one of the options.`);
+        }
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Voice error", event.error);
+      setFeedback('⚠️ Could not hear clearly. Try again.');
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
   };
 
   // EPIC 2.3: Interactive engagement with feedback
@@ -645,12 +748,12 @@ const AutismView = () => {
         // Increment wrong answer count
         const currentWrongCount = wrongAnswerCount[stepKey] || 0;
         const newWrongCount = currentWrongCount + 1;
-        
+
         setWrongAnswerCount(prev => ({
           ...prev,
           [stepKey]: newWrongCount
         }));
-        
+
         if (newWrongCount >= 2) {
           // Auto-advance to next step after 2 wrong answers
           setFeedback('💡 Moving to the next step. Try to review this later!');
@@ -730,8 +833,8 @@ const AutismView = () => {
               <span className="step-number">Step {currentStepIndex + 1} of {totalSteps}</span>
               <div className="progress-dots">
                 {Array.from({ length: totalSteps }, (_, i) => (
-                  <span 
-                    key={i} 
+                  <span
+                    key={i}
                     className={`dot ${i === currentStepIndex ? 'active' : ''} ${i < currentStepIndex ? 'completed' : ''}`}
                   ></span>
                 ))}
@@ -741,11 +844,11 @@ const AutismView = () => {
             {/* EPIC 2.1: Multi-format lesson display */}
             <div className="step-content-card">
               {/* Title hidden to prevent revealing answers */}
-              
+
               {/* EPIC 2.5: Visual learning aid with icon/image */}
               <div className="step-visual">
-                <img 
-                  src={currentStep.image} 
+                <img
+                  src={currentStep.image}
                   alt={currentStep.title}
                   className="visual-image-hidden"
                 />
@@ -754,7 +857,22 @@ const AutismView = () => {
               {/* EPIC 2.5: Highlighted main content */}
               <div className="step-text">
                 <p className="content-main">
-                  <span className="highlight">{currentStep.highlight}</span>
+                  {/* Dynamic highlighting */}
+                  {currentStep.content.split(' ').map((word, idx) => {
+                    const cleanWord = word.replace(/[.,!?;:()"]/g, '');
+                    const isActive = activeWord && cleanWord.toLowerCase() === activeWord.toLowerCase();
+                    const isStaticHighlight = currentStep.highlight && word.includes(currentStep.highlight);
+
+                    return (
+                      <span
+                        key={idx}
+                        className={isActive ? 'highlight active-word' : (isStaticHighlight ? 'highlight' : '')}
+                        style={isActive ? { backgroundColor: '#ffd700', transform: 'scale(1.1)', display: 'inline-block', transition: 'all 0.2s' } : {}}
+                      >
+                        {word}{' '}
+                      </span>
+                    );
+                  })}
                 </p>
                 <p className="content-translation">{currentStep.translation}</p>
               </div>
@@ -764,13 +882,31 @@ const AutismView = () => {
                 <button onClick={handlePlayAudio} className="btn-audio">
                   🔊 Play Audio
                 </button>
-                <audio 
-                  ref={audioRef} 
-                  src={currentStep.audio} 
+                <audio
+                  ref={audioRef}
+                  src={currentStep.audio}
                   preload="none"
                   onError={() => console.log('Audio file not found, will use text-to-speech')}
                 />
                 <p className="audio-info">Click to hear the pronunciation</p>
+
+                <div className="audio-controls-speed" style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '0.9rem', alignSelf: 'center' }}>Speed:</span>
+                  <button
+                    onClick={() => setPlaybackSpeed(0.6)}
+                    className={playbackSpeed === 0.6 ? 'btn-speed active' : 'btn-speed'}
+                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.6 ? '#e3f2fd' : 'white' }}
+                  >
+                    Slow
+                  </button>
+                  <button
+                    onClick={() => setPlaybackSpeed(0.9)}
+                    className={playbackSpeed === 0.9 ? 'btn-speed active' : 'btn-speed'}
+                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.9 ? '#e3f2fd' : 'white' }}
+                  >
+                    Normal
+                  </button>
+                </div>
               </div>
 
               {/* EPIC 2.3: Interactive engagement */}
@@ -779,7 +915,7 @@ const AutismView = () => {
                   <p className="interaction-question">{currentStep.interaction.question}</p>
                   <div className="interaction-options">
                     {currentStep.interaction.options.map((option, index) => (
-                      <button 
+                      <button
                         key={index}
                         onClick={() => handleInteraction(index)}
                         className="btn-option"
@@ -813,14 +949,14 @@ const AutismView = () => {
 
             {/* EPIC 2.6 & 2.7: Consistent navigation in fixed position */}
             <div className="step-navigation">
-              <button 
-                onClick={handlePrevious} 
+              <button
+                onClick={handlePrevious}
                 disabled={currentStepIndex === 0}
                 className="btn-nav btn-previous"
               >
                 ← Previous
               </button>
-              <button 
+              <button
                 onClick={handleNext}
                 className="btn-nav btn-next"
               >
@@ -892,7 +1028,7 @@ const AutismView = () => {
                     )}
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => handleStartLesson(lesson.id)}
                   className="btn-lesson-start"
                 >
