@@ -35,6 +35,8 @@ const InteractionCard = ({
   timeLimitSeconds = 30,
   enableSpeech = true,
   enableTts = true,
+  autoPlayNarration = false,
+  disableAutoSpeak = false,
   onAnswered,
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
@@ -145,8 +147,9 @@ const InteractionCard = ({
   }, [interaction?.question, speak]);
 
   useEffect(() => {
-    if (!interaction?.question || readOnly) return;
-
+    if (!interaction?.question || readOnly || !autoPlayNarration || disableAutoSpeak) return;
+    
+    // Try to play audio file first, fallback to TTS
     if (interaction.questionAudioUrl) {
       playAudio(interaction.questionAudioUrl);
     } else {
@@ -161,6 +164,7 @@ const InteractionCard = ({
       window.speechSynthesis.cancel();
     };
   }, [interaction?.id, interaction?.question, interaction?.questionAudioUrl, readOnly, playAudio, speak]);
+  }, [interaction?.id, readOnly, autoPlayNarration, disableAutoSpeak]);
 
   useEffect(() => {
     if (!enableTimer || readOnly || isAnswered) return undefined;
@@ -197,17 +201,17 @@ const InteractionCard = ({
       };
       setResult(payload);
       setGuidance(resolveGuidance({ encouragement: pickEncouragement() }));
-      speak('Time is up. Let’s try again.');
+      if (!disableAutoSpeak) speak('Time is up. Let\'s try again.');
       if (onAnswered) {
         onAnswered({ isCorrect: false, interactionId: interaction?.id, timedOut: true });
       }
     }
   }, [timeLeft, enableTimer, readOnly, isAnswered, interaction?.id, onAnswered, speak]);
 
-  // Play feedback audio when result changes
+  // Play feedback audio when result changes (only if auto-speak is not disabled)
   useEffect(() => {
-    if (!result || readOnly) return;
-
+    if (!result || readOnly || disableAutoSpeak) return;
+    
     const isCorrect = Boolean(result.isCorrect);
     const feedback = result.feedback;
 
@@ -226,6 +230,7 @@ const InteractionCard = ({
       }, 2000); // Wait 2 seconds after feedback
     }
   }, [result, readOnly, interaction, playAudio, speak]);
+  }, [result, readOnly, disableAutoSpeak]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -333,7 +338,7 @@ const InteractionCard = ({
   useEffect(() => {
     if (!result) return;
     if (result.isCorrect) {
-      speak('Great job. Moving on.');
+      if (!disableAutoSpeak) speak('Great job. Moving on.');
       if (autoAdvanceOnCorrect && onContinue) {
         const timer = setTimeout(() => {
           onContinue();
@@ -341,12 +346,13 @@ const InteractionCard = ({
         return () => clearTimeout(timer);
       }
     } else if (result?.timedOut) {
-      speak('Let’s try again.');
+      if (!disableAutoSpeak) speak('Let\'s try again.');
     } else {
-      speak('Nice try. Let’s try again.');
+      if (!disableAutoSpeak) speak('Nice try. Let\'s try again.');
     }
     return undefined;
   }, [result, autoAdvanceOnCorrect, onContinue, speak]);
+  }, [result?.isCorrect, result?.timedOut, disableAutoSpeak]);
 
   const guidanceMessage = guidance?.message || '';
   const guidanceTone = guidance?.tone || '';

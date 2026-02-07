@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getLessonById } from '../../services/lessonService';
+import { useAuth } from '../../context/AuthContext';
+import { usePreferences } from '../../context/PreferencesContext';
 import LessonReplay from './LessonReplay';
 import lessonSamples from './lessonSamples';
 import './LessonPage.css';
@@ -13,9 +15,13 @@ const estimateReadingTime = (text) => {
 
 const LessonPage = () => {
   const { lessonId } = useParams();
+  const { user } = useAuth();
+  const { preferences, applyPreferences } = usePreferences();
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  // Trigger to retry loading the lesson
+  const [retryKey, setRetryKey] = useState(0);
 
   const isLocalLessonId = useMemo(() => {
     return lessonId ? !/^[a-fA-F0-9]{24}$/.test(lessonId) : false;
@@ -23,6 +29,8 @@ const LessonPage = () => {
 
   const isSample = Boolean(isLocalLessonId && lessonSamples[lessonId]);
 
+  // Allow retryKey to re-trigger loading; listed in deps intentionally.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     let isMounted = true;
 
@@ -63,7 +71,18 @@ const LessonPage = () => {
     return () => {
       isMounted = false;
     };
-  }, [lessonId, isLocalLessonId]);
+  }, [lessonId, isLocalLessonId, retryKey]);
+
+  const retryLoadLesson = () => setRetryKey((k) => k + 1);
+
+
+  useEffect(() => {
+    if (!preferences) return;
+    applyPreferences(preferences, {
+      containerId: 'learning-container',
+      baseClass: 'lesson-page motion-enabled',
+    });
+  }, [preferences, applyPreferences]);
 
   const readingTime = estimateReadingTime(lesson?.textContent);
   const interactionCount = lesson?.interactions?.length || 0;
@@ -73,13 +92,18 @@ const LessonPage = () => {
     : `About ${readingTime} min • ${interactionCount} interactions`;
 
   return (
-    <div className="lesson-page">
+    <div
+      className="lesson-page"
+      id="learning-container"
+      data-user-condition={user?.learningCondition || ''}
+    >
       <LessonReplay
         lessonId={lessonId}
         isSample={isSample}
         lessonTitle={resolvedTitle}
         lessonSubtitle={resolvedSubtitle}
         notice={error}
+        onRetry={retryLoadLesson}
       />
     </div>
   );

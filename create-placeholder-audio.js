@@ -82,6 +82,16 @@ const audioFiles = [
   'numbers-5-explanation.mp3',
   'numbers-5-correct.mp3',
   'numbers-5-incorrect.mp3',
+  
+  // Section Narrations
+  'greet-s1-narration.mp3',
+  'greet-s2-narration.mp3',
+  'vocab-s1-narration.mp3',
+  'vocab-s2-narration.mp3',
+  'vocab-s3-narration.mp3',
+  'num-s1-narration.mp3',
+  'num-s2-narration.mp3',
+  'num-s3-narration.mp3',
 ];
 
 // Minimal MP3 file (silent, ~1 second) - Base64 encoded

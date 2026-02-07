@@ -3,17 +3,19 @@ import LessonLayout from './LessonLayout';
 import LessonNav from './LessonNav';
 import LessonSectionView from './LessonSectionView';
 import { getLessonSections } from '../../services/lessonSectionService';
-import { getProgress, updateProgress } from '../../services/progressService';
+import { getProgress, updateProgress, getSummary } from '../../services/progressService';
 import lessonSectionSamples from './lessonSectionSamples';
 import './LessonReplay.css';
 
-const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice }) => {
+const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice, onRetry }) => {
   const [sections, setSections] = useState([]);
   const [progress, setProgress] = useState(null);
   const [activeSectionId, setActiveSectionId] = useState('');
   const [replaySectionId, setReplaySectionId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -44,6 +46,12 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
           setSections(sectionsData);
           setProgress(progressData);
           setActiveSectionId(progressData?.currentSectionId || sectionsData[0]?._id || '');
+
+          // If lesson already completed, show a friendly note
+          if (progressData?.completed) {
+            setSuccessMessage('Good job! Lesson completed! Keep going!');
+            setTimeout(() => isMounted && setSuccessMessage(''), 4000);
+          }
         }
       } catch (loadError) {
         if (isMounted) {
@@ -61,7 +69,12 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
     return () => {
       isMounted = false;
     };
-  }, [lessonId, isSample]);
+  }, [lessonId, isSample, reloadKey]);
+
+  const handleRetryLoad = () => {
+    setReloadKey((n) => n + 1);
+  };
+
 
   const sectionList = useMemo(() => {
     return sections.map((section) => ({
@@ -119,7 +132,79 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
     if (currentIndex < 0) return;
     const nextIndex = currentIndex + direction;
     const nextSection = sectionList[nextIndex];
-    if (!nextSection) return;
+
+    // If trying to navigate past the last section -> treat as lesson completion
+    if (!nextSection && direction > 0) {
+      const nextCompleted = Array.from(new Set([...completedSections, displayedSectionId]));
+
+      if (!isSample) {
+        const updated = await updateProgress({
+          lessonId,
+          currentSectionId: displayedSectionId,
+          completedSections: nextCompleted,
+          isReplay: false,
+        });
+
+        setProgress(updated);
+
+        if (updated?.completed) {
+          const msgs = ['Good job!', 'Lesson completed!', 'Keep going!'];
+          const msg = `${msgs[Math.floor(Math.random() * msgs.length)]} You completed this lesson.`;
+          setSuccessMessage(msg);
+          // Notify other parts of app (Dashboard) to refresh progress summary
+          try {
+            // Post updated summary in event detail to allow immediate UI update
+            let summary = null;
+            try { summary = await getSummary(); } catch (e) { /* ignore */ }
+
+            window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId, summary } }));
+            // dispatch again after a short delay to guard against race / eventual consistency
+            setTimeout(async () => {
+              try {
+                const summary2 = await getSummary().catch(() => null);
+                window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId, summary: summary2 } }));
+              } catch (e) {}
+            }, 500);
+          } catch (e) {}
+          setTimeout(() => setSuccessMessage(''), 4000);
+        }
+      } else {
+        setProgress((prev) => ({
+          ...(prev || {}),
+          currentSectionId: displayedSectionId,
+          completedSections: nextCompleted,
+          completed: true,
+        }));
+
+        setSuccessMessage('Good job! Lesson completed! Keep going!');
+
+        // Persist sample lesson completion server-side so Dashboard/summaries reflect it
+        try {
+          const api = await import('../../utils/api');
+          const lessonKey = `sample-${lessonId}`;
+          const res = await api.default.post('/users/complete-lesson', { lessonKey });
+          const summary = res?.data?.summary;
+          if (summary) {
+            window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary } }));
+          } else {
+            window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId } }));
+            setTimeout(() => {
+              try { window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId } })); } catch (e) {}
+            }, 500);
+          }
+        } catch (e) {
+          // If server call fails, still fire the event for UI to refresh
+          try { window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId } })); } catch (e) {}
+          setTimeout(() => {
+            try { window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId } })); } catch (e) {}
+          }, 500);
+        }
+
+        setTimeout(() => setSuccessMessage(''), 4000);
+      }
+
+      return;
+    }
 
     if (isReplay) {
       if (completedSections.includes(nextSection.id)) {
@@ -146,6 +231,14 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
         isReplay: false,
       });
       setProgress(updated);
+
+      // If the backend reports completion, show encouraging feedback
+      if (updated?.completed) {
+        const msgs = ['Good job!', 'Lesson completed!', 'Keep going!'];
+        const msg = `${msgs[Math.floor(Math.random() * msgs.length)]} You completed this lesson.`;
+        setSuccessMessage(msg);
+        setTimeout(() => setSuccessMessage(''), 4000);
+      }
     } else {
       setProgress((prev) => ({
         ...(prev || {}),
@@ -155,19 +248,22 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
     }
   };
 
+
   const prevSection = displayedSectionId ? sectionList[getSectionIndex(displayedSectionId) - 1] : null;
   const nextSection = displayedSectionId ? sectionList[getSectionIndex(displayedSectionId) + 1] : null;
   const canGoBack = Boolean(prevSection && completedSections.includes(prevSection.id));
   const canGoNext = Boolean(nextSection && (!isReplay || completedSections.includes(nextSection.id)));
   const canReplay = Boolean(lastCompletedSectionId) || isReplay;
 
-  const guidanceText = error
-    ? error
-    : notice
-      ? notice
-      : isReplay
-        ? 'Replaying a completed section. Your progress remains saved.'
-        : 'Select a completed section to replay at any time.';
+  const guidanceText = successMessage
+    ? successMessage
+    : error
+      ? error
+      : notice
+        ? notice
+        : isReplay
+          ? 'Replaying a completed section. Your progress remains saved.'
+          : 'Select a completed section to replay at any time.';
 
   const resolvedTitle = lessonTitle || 'Lesson';
   const resolvedSubtitle = lessonSubtitle || 'Move through one section at a time for steady progress.';
@@ -180,6 +276,11 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
         <div className="lesson-guidance">
           <p className="lesson-guidance__label">Guidance</p>
           <p className={`lesson-guidance__text${error ? ' is-error' : ''}`}>{guidanceText}</p>
+          {notice && onRetry && !isSample && (
+            <div style={{ marginTop: 8 }}>
+              <button type="button" onClick={onRetry}>Retry</button>
+            </div>
+          )}
         </div>
       )}
       footer={(
@@ -203,6 +304,11 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
             </div>
             {isLoading ? (
               <p className="lesson-replay-loading">Loading sections…</p>
+            ) : error ? (
+              <div className="fx-card">
+                <p className="is-error">{error}</p>
+                {!isSample && <button type="button" onClick={handleRetryLoad}>Retry</button>}
+              </div>
             ) : (
               <nav className="lesson-timeline" aria-label="Lesson sections">
                 {sectionList.map((section, index) => {

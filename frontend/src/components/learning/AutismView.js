@@ -559,11 +559,28 @@ const AutismView = () => {
     }
   };
 
-  // Save lesson completion to backend
+  // Save lesson completion to backend and notify progress system
   const saveLessonCompletion = async (lessonId) => {
     try {
       const lessonKey = `autism-lesson-${lessonId}`;
-      await api.post('/users/complete-lesson', { lessonKey });
+      const res = await api.post('/users/complete-lesson', { lessonKey });
+
+      // If backend returned a progress summary, broadcast it to update the progress bar/dashboard
+      const summary = res?.data?.summary;
+      if (summary) {
+        window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary } }));
+      } else {
+        // Fallback: try to fetch summary and dispatch
+        try {
+          const { getSummary } = await import('../../services/progressService');
+          const s = await getSummary();
+          if (s) {
+            window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: s } }));
+          }
+        } catch (e) {
+          // ignore fallback errors
+        }
+      }
     } catch (error) {
       console.error('Error saving lesson completion:', error);
     }

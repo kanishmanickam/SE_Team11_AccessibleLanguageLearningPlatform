@@ -65,9 +65,27 @@ const LessonDisplay = ({ lesson, isLoading, error, onClose }) => {
     }
 
     try {
+      // Ensure audio is loaded before playing
+      if (audioRef.current.readyState < 2) {
+        audioRef.current.load();
+        // Wait for audio to be ready with timeout
+        await Promise.race([
+          new Promise((resolve) => {
+            const onCanPlay = () => {
+              audioRef.current?.removeEventListener('canplay', onCanPlay);
+              audioRef.current?.removeEventListener('loadeddata', onCanPlay);
+              resolve();
+            };
+            audioRef.current.addEventListener('canplay', onCanPlay);
+            audioRef.current.addEventListener('loadeddata', onCanPlay);
+          }),
+          new Promise((resolve) => setTimeout(resolve, 3000)) // 3 second timeout
+        ]);
+      }
       await audioRef.current.play();
       setIsPlaying(true);
     } catch (playError) {
+      console.warn('Audio playback failed:', playError);
       setIsPlaying(false);
     }
   };
