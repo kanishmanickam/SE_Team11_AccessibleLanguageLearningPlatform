@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { getAllLessonProgress, normalizeUserId } from '../../services/dyslexiaProgressService';
 import ProfileSettings from '../ProfileSettings';
 import './DyslexiaView.css';
+import { getSummary } from '../../services/progressService';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
@@ -21,6 +22,47 @@ const DyslexiaView = () => {
     navigate(`/lessons/${lesson.apiId}`);
   };
 
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setSummaryLoading(true);
+      try {
+        const s = await getSummary();
+        if (mounted && s && s.success) setSummary(s);
+      } catch (e) {
+        // ignore
+      } finally {
+        mounted && setSummaryLoading(false);
+      }
+    };
+    load();
+    const onProgress = () => load();
+    window.addEventListener('progress:updated', onProgress);
+    return () => { mounted = false; window.removeEventListener('progress:updated', onProgress); };
+  }, []);
+
+  const SummaryBlock = () => (
+    <div className="progress-stats">
+      <div className="stat-item">
+        <div className="stat-value">{summaryLoading ? '…' : (summary?.completedCount ?? 0)}</div>
+        <div className="stat-label">Lessons Completed</div>
+      </div>
+      <div className="stat-item">
+        <div className="stat-value">0</div>
+        <div className="stat-label">Hours Practiced</div>
+      </div>
+      <div className="stat-item">
+        <div className="stat-value">0</div>
+        <div className="stat-label">Words Learned</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="dyslexia-view">
   useEffect(() => {
     const key = normalizeUserId(user);
     const progress = getAllLessonProgress(key);
@@ -69,26 +111,7 @@ const DyslexiaView = () => {
             <h3>Your Progress</h3>
           </div>
           <div className="card-body">
-            <div className="progress-stats">
-              <div className="stat-item">
-                <div className="stat-value">{completedCount}</div>
-                <div className="stat-label">Lessons Completed</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Hours Practiced</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Words Learned</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Lessons Grid */}
-        <div className="lessons-section">
-          <h3>Available Lessons</h3>
+          <SummaryBlock />
           <div className="lessons-grid">
             {lessons.map((lesson) => {
               const progress = lessonProgress?.[lesson.apiId] || { status: 'Not Started', correctCount: 0 };
@@ -123,6 +146,7 @@ const DyslexiaView = () => {
             })}
           </div>
         </div>
+      </div>
 
         {/* Tips Section */}
         <div className="tips-section">

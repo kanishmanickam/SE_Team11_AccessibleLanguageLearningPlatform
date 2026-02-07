@@ -21,3 +21,8 @@ export const updateProgress = async ({
   });
   return response.data.progress;
 };
+
+export const getSummary = async () => {
+  const response = await api.get('/progress/summary');
+  return response.data;
+};
