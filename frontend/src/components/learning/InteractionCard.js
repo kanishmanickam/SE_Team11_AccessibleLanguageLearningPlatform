@@ -85,8 +85,6 @@ const InteractionCard = ({
 
   const isShortAnswer = interaction.type === 'short_answer';
 
-  const API_BASE_URL = 'http://localhost:5002';
-
   const speak = useCallback(async (text, overrides = {}) => {
     if (!enableTts || !text) return;
 
@@ -99,7 +97,7 @@ const InteractionCard = ({
 
     // Try Backend TTS first
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+      const response = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -163,8 +161,16 @@ const InteractionCard = ({
       }
       window.speechSynthesis.cancel();
     };
-  }, [interaction?.id, interaction?.question, interaction?.questionAudioUrl, readOnly, playAudio, speak]);
-  }, [interaction?.id, readOnly, autoPlayNarration, disableAutoSpeak]);
+  }, [
+    interaction?.id,
+    interaction?.question,
+    interaction?.questionAudioUrl,
+    readOnly,
+    autoPlayNarration,
+    disableAutoSpeak,
+    playAudio,
+    speak,
+  ]);
 
   useEffect(() => {
     if (!enableTimer || readOnly || isAnswered) return undefined;
@@ -206,7 +212,7 @@ const InteractionCard = ({
         onAnswered({ isCorrect: false, interactionId: interaction?.id, timedOut: true });
       }
     }
-  }, [timeLeft, enableTimer, readOnly, isAnswered, interaction?.id, onAnswered, speak]);
+  }, [timeLeft, enableTimer, readOnly, isAnswered, interaction?.id, onAnswered, speak, disableAutoSpeak]);
 
   // Play feedback audio when result changes (only if auto-speak is not disabled)
   useEffect(() => {
@@ -229,8 +235,16 @@ const InteractionCard = ({
         playAudio(interaction.explanationAudioUrl);
       }, 2000); // Wait 2 seconds after feedback
     }
-  }, [result, readOnly, interaction, playAudio, speak]);
-  }, [result, readOnly, disableAutoSpeak]);
+  }, [
+    result,
+    readOnly,
+    disableAutoSpeak,
+    interaction?.feedback?.correctAudioUrl,
+    interaction?.feedback?.incorrectAudioUrl,
+    interaction?.explanationAudioUrl,
+    playAudio,
+    speak,
+  ]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -351,8 +365,7 @@ const InteractionCard = ({
       if (!disableAutoSpeak) speak('Nice try. Let\'s try again.');
     }
     return undefined;
-  }, [result, autoAdvanceOnCorrect, onContinue, speak]);
-  }, [result?.isCorrect, result?.timedOut, disableAutoSpeak]);
+  }, [result, autoAdvanceOnCorrect, onContinue, speak, disableAutoSpeak]);
 
   const guidanceMessage = guidance?.message || '';
   const guidanceTone = guidance?.tone || '';

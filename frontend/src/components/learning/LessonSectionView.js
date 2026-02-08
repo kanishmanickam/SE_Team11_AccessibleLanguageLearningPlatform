@@ -102,7 +102,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
 
   useEffect(() => {
     if (!lessonKey) return;
-    const stored = getLessonProgress(userKey, lessonKey);
+    getLessonProgress(userKey, lessonKey);
   }, [lessonKey, userKey]);
 
   useEffect(() => {
@@ -140,8 +140,6 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
   }, [playbackRate, isUsingTTS]);
 
   // Audio Playback Handling (Backend -> Browser Fallback)
-  const API_BASE_URL = 'http://localhost:5002';
-
   const speakText = async (text) => {
     // 1. Stop existing audio
     if (audioRef.current) {
@@ -155,7 +153,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
 
     // 2. Try Backend TTS first (Reliable on all OS)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+      const response = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, speed: playbackRate })
@@ -278,7 +276,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
     }
     const correctCount = Math.min(5, correctIds.size);
     const status = correctCount >= 5 ? 'Completed' : nextStatus;
-    const updated = saveLessonProgress(userKey, lessonKey, {
+    saveLessonProgress(userKey, lessonKey, {
       status,
       correctCount,
       correctIds: Array.from(correctIds),
@@ -391,10 +389,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
             <p className="lesson-muted" style={{ marginTop: '8px', fontSize: '0.8rem' }}>
               {isPlaying ? "📖 Text is being read aloud..." : "Press play to listen."}
             </p>
-          {/* Hidden audio element for Replay narration button */}
-          {section.audioUrl && (
-            <audio ref={audioRef} src={section.audioUrl} preload="metadata" />
-          )}
+          </div>
 
           {/* Dynamic illustration based on current question */}
           <div className="lesson-illustration fx-card" aria-label="Question illustration">

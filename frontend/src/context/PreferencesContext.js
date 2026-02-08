@@ -44,7 +44,7 @@ export const PreferencesProvider = ({ children }) => {
     if (!prefs) return;
 
     // Only apply to learning container if it exists, not to body
-    const { containerId = 'learning-container', baseClass = 'motion-enabled' } = options;
+    const { containerId = 'learning-container' } = options;
     const container = document.getElementById(containerId);
     if (!container) return;
 

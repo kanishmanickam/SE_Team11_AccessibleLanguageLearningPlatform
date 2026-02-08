@@ -610,7 +610,6 @@ const AutismView = () => {
 
   // Text-to-speech fallback function
   // Audio Handling with Backend Support
-  const API_BASE_URL = 'http://localhost:5002';
 
   const speakText = async (text) => {
     // Cancel any existing
@@ -621,7 +620,7 @@ const AutismView = () => {
 
     try {
       // Try Backend TTS
-      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+      const response = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, speed: playbackSpeed })
@@ -673,59 +672,6 @@ const AutismView = () => {
   // EPIC 2.4: Hint toggle
   const handleShowHint = () => {
     setShowHint(!showHint);
-  };
-
-
-  // Voice Input Logic
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState('');
-
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      setFeedback('⚠️ Voice input not supported in this browser.');
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      setFeedback('🎤 Listening...');
-      setVoiceError('');
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
-      // Try to match with options
-      if (currentStep?.interaction?.options) {
-        const matchedIndex = currentStep.interaction.options.findIndex(opt =>
-          transcript.includes(opt.toLowerCase()) || opt.toLowerCase().includes(transcript)
-        );
-
-        if (matchedIndex !== -1) {
-          handleInteraction(matchedIndex);
-          setFeedback(`🗣️ Heard "${transcript}". Selected: ${currentStep.interaction.options[matchedIndex]}`);
-        } else {
-          setFeedback(`🗣️ Heard "${transcript}". Please try creating saying one of the options.`);
-        }
-      }
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Voice error", event.error);
-      setFeedback('⚠️ Could not hear clearly. Try again.');
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognition.start();
   };
 
   // EPIC 2.3: Interactive engagement with feedback

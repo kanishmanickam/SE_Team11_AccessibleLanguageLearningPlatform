@@ -6,8 +6,6 @@ import './ADHDView.css';
 import ReactConfetti from 'react-confetti';
 import { getSummary } from '../../services/progressService';
 
-const API_BASE_URL = 'http://localhost:5002'; // Adjust port if needed
-
 const ADHDView = () => {
   const { user, logout } = useAuth();
   const { preferences } = usePreferences();
@@ -78,7 +76,7 @@ const ADHDView = () => {
     setIsPlaying(false);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+      const response = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, speed: rate })
@@ -326,7 +324,7 @@ const ADHDView = () => {
           newSteps.push(step);
           if (step.type === 'story') {
             try {
-              const response = await fetch(`${API_BASE_URL}/api/ai/story-quiz`, {
+              const response = await fetch('/api/ai/story-quiz', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ storyText: step.content })
@@ -345,7 +343,7 @@ const ADHDView = () => {
       } else {
         // Basic lesson - append random questions
         try {
-          const response = await fetch(`${API_BASE_URL}/api/ai/generate-questions`, {
+          const response = await fetch('/api/ai/generate-questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ topic: lesson.title })
