@@ -58,14 +58,13 @@ const DyslexiaView = () => {
     return Object.values(lessonProgress || {}).filter((entry) => entry?.status === 'Completed').length;
   }, [lessonProgress]);
 
-<<<<<<< HEAD
   const wordsLearned = useMemo(() => {
     // Calculate total correct answers across all lessons as words learned
     return Object.values(lessonProgress || {}).reduce((total, entry) => {
       return total + (entry?.correctCount || 0);
     }, 0);
   }, [lessonProgress]);
-=======
+
   const SummaryBlock = () => (
     <div className="progress-stats">
       <div className="stat-item">
@@ -79,12 +78,11 @@ const DyslexiaView = () => {
         <div className="stat-label">Hours Practiced</div>
       </div>
       <div className="stat-item">
-        <div className="stat-value">0</div>
+        <div className="stat-value">{wordsLearned}</div>
         <div className="stat-label">Words Learned</div>
       </div>
     </div>
   );
->>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
 
   return (
     <div className="dyslexia-view">
@@ -124,24 +122,7 @@ const DyslexiaView = () => {
             <h3>Your Progress</h3>
           </div>
           <div className="card-body">
-<<<<<<< HEAD
-            <div className="progress-stats">
-              <div className="stat-item">
-                <div className="stat-value">{completedCount}</div>
-                <div className="stat-label">Lessons Completed</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Hours Practiced</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">{wordsLearned}</div>
-                <div className="stat-label">Words Learned</div>
-              </div>
-            </div>
-=======
             <SummaryBlock />
->>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
           </div>
         </div>
 

@@ -16,6 +16,12 @@ const AutismView = () => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   const [wrongAnswerCount, setWrongAnswerCount] = useState({});
+  
+  // Timer state for questions
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [timerActive, setTimerActive] = useState(false);
+  const [questionAnswered, setQuestionAnswered] = useState(false);
+  const timerIntervalRef = useRef(null);
 
   const audioRef = useRef(null);
 
@@ -60,7 +66,8 @@ const AutismView = () => {
           interaction: {
             question: 'What does வணக்கம் mean?',
             options: ['Hello', 'Goodbye', 'Thank you'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
@@ -75,41 +82,12 @@ const AutismView = () => {
           interaction: {
             question: 'When do you say நன்றி?',
             options: ['To greet', 'To thank', 'To say goodbye'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
           id: 3,
-          title: 'Goodbye in Tamil',
-          content: 'பிரியாவிடை (Piriyavidai)',
-          translation: 'A respectful parting word in Tamil',
-          highlight: 'பிரியாவிடை',
-          image: '/images/autism-tamil-goodbye.svg',
-          audio: '/audio/autism-tamil-goodbye.mp3',
-          hint: 'Say "பிரியாவிடை" when you leave. It\'s a respectful way to say goodbye.',
-          interaction: {
-            question: 'What is பிரியாவிடை used for?',
-            options: ['Greeting', 'Thanking', 'Saying goodbye'],
-            correct: 2
-          }
-        },
-        {
-          id: 4,
-          title: 'Good Morning in Tamil',
-          content: 'காலை வணக்கம் (Kaalai Vanakkam)',
-          translation: 'A time-specific greeting in Tamil',
-          highlight: 'காலை வணக்கம்',
-          image: '/images/autism-tamil-good-morning.svg',
-          audio: '/audio/autism-tamil-good-morning.mp3',
-          hint: 'காலை means morning. Use this greeting in the morning time.',
-          interaction: {
-            question: 'When do you say காலை வணக்கம்?',
-            options: ['In the morning', 'At night', 'In the evening'],
-            correct: 0
-          }
-        },
-        {
-          id: 5,
           title: 'How Are You in Tamil',
           content: 'எப்படி இருக்கிறீர்கள்? (Eppadi Irukkireergal?)',
           translation: 'A question to ask someone in Tamil',
@@ -120,41 +98,12 @@ const AutismView = () => {
           interaction: {
             question: 'What does எப்படி இருக்கிறீர்கள் mean?',
             options: ['How are you?', 'Where are you?', 'What is your name?'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
-          id: 6,
-          title: 'I Am Fine in Tamil',
-          content: 'நான் நலமாக இருக்கிறேன் (Naan Nalamaaga Irukkiren)',
-          translation: 'A common response in conversation',
-          highlight: 'நான் நலமாக இருக்கிறேன்',
-          image: '/images/autism-tamil-i-am-fine.svg',
-          audio: '/audio/autism-tamil-i-am-fine.mp3',
-          hint: 'Say this when someone asks how you are and you feel good.',
-          interaction: {
-            question: 'When do you say நான் நலமாக இருக்கிறேன்?',
-            options: ['To say you are fine', 'To say goodbye', 'To say thank you'],
-            correct: 0
-          }
-        },
-        {
-          id: 7,
-          title: 'Please in Tamil',
-          content: 'தயவு செய்து (Thayavu Seidhu)',
-          translation: 'A word used when making requests',
-          highlight: 'தயவு செய்து',
-          image: '/images/autism-tamil-please.svg',
-          audio: '/audio/autism-tamil-please.mp3',
-          hint: 'Add this when making a request to be polite and respectful.',
-          interaction: {
-            question: 'Why do we use தயவு செய்து?',
-            options: ['To be polite', 'To greet', 'To say goodbye'],
-            correct: 0
-          }
-        },
-        {
-          id: 8,
+          id: 4,
           title: 'Sorry in Tamil',
           content: 'மன்னிக்கவும் (Mannikkavum)',
           translation: 'A word used when you make a mistake',
@@ -165,7 +114,72 @@ const AutismView = () => {
           interaction: {
             question: 'What does மன்னிக்கவும் mean?',
             options: ['Sorry', 'Thank you', 'Hello'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
+          }
+        },
+        {
+          id: 5,
+          title: 'No in Tamil',
+          content: 'இல்லை (Illai)',
+          translation: 'Another response word in Tamil',
+          highlight: 'இல்லை',
+          image: '/images/autism-tamil-no.svg',
+          audio: '/audio/autism-tamil-no.mp3',
+          hint: 'Use இல்லை when you disagree or want to say no.',
+          interaction: {
+            question: 'What does இல்லை mean?',
+            options: ['No', 'Yes', 'Maybe'],
+            correct: 0,
+            difficulty: 'easy'
+          }
+        },
+        {
+          id: 6,
+          title: 'Goodbye in Tamil',
+          content: 'பிரியாவிடை (Piriyavidai)',
+          translation: 'A respectful parting word in Tamil',
+          highlight: 'பிரியாவிடை',
+          image: '/images/autism-tamil-goodbye.svg',
+          audio: '/audio/autism-tamil-goodbye.mp3',
+          hint: 'Say "பிரியாவிடை" when you leave. It\'s a respectful way to say goodbye.',
+          interaction: {
+            question: 'What is பிரியாவிடை used for?',
+            options: ['Greeting', 'Thanking', 'Saying goodbye'],
+            correct: 2,
+            difficulty: 'medium'
+          }
+        },
+        {
+          id: 7,
+          title: 'Good Morning in Tamil',
+          content: 'காலை வணக்கம் (Kaalai Vanakkam)',
+          translation: 'A time-specific greeting in Tamil',
+          highlight: 'காலை வணக்கம்',
+          image: '/images/autism-tamil-good-morning.svg',
+          audio: '/audio/autism-tamil-good-morning.mp3',
+          hint: 'காலை means morning. Use this greeting in the morning time.',
+          interaction: {
+            question: 'When do you say காலை வணக்கம்?',
+            options: ['In the morning', 'At night', 'In the evening'],
+            correct: 0,
+            difficulty: 'medium'
+          }
+        },
+        {
+          id: 8,
+          title: 'I Am Fine in Tamil',
+          content: 'நான் நலமாக இருக்கிறேன் (Naan Nalamaaga Irukkiren)',
+          translation: 'A common response in conversation',
+          highlight: 'நான் நலமாக இருக்கிறேன்',
+          image: '/images/autism-tamil-i-am-fine.svg',
+          audio: '/audio/autism-tamil-i-am-fine.mp3',
+          hint: 'Say this when someone asks how you are and you feel good.',
+          interaction: {
+            question: 'When do you say நான் நலமாக இருக்கிறேன்?',
+            options: ['To say you are fine', 'To say goodbye', 'To say thank you'],
+            correct: 0,
+            difficulty: 'medium'
           }
         },
         {
@@ -180,22 +194,24 @@ const AutismView = () => {
           interaction: {
             question: 'When do you say ஆம்?',
             options: ['To agree', 'To disagree', 'To ask a question'],
-            correct: 0
+            correct: 0,
+            difficulty: 'medium'
           }
         },
         {
           id: 10,
-          title: 'No in Tamil',
-          content: 'இல்லை (Illai)',
-          translation: 'Another response word in Tamil',
-          highlight: 'இல்லை',
-          image: '/images/autism-tamil-no.svg',
-          audio: '/audio/autism-tamil-no.mp3',
-          hint: 'Use இல்லை when you disagree or want to say no.',
+          title: 'Please in Tamil',
+          content: 'தயவு செய்து (Thayavu Seidhu)',
+          translation: 'A word used when making requests',
+          highlight: 'தயவு செய்து',
+          image: '/images/autism-tamil-please.svg',
+          audio: '/audio/autism-tamil-please.mp3',
+          hint: 'Add this when making a request to be polite and respectful.',
           interaction: {
-            question: 'What does இல்லை mean?',
-            options: ['No', 'Yes', 'Maybe'],
-            correct: 0
+            question: 'Why do we use தயவு செய்து?',
+            options: ['To be polite', 'To greet', 'To say goodbye'],
+            correct: 0,
+            difficulty: 'hard'
           }
         }
       ]
@@ -219,7 +235,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with A?',
             options: ['Ball', 'Apple', 'Cat'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -234,7 +251,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with B?',
             options: ['Apple', 'Ball', 'Dog'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -249,7 +267,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with C?',
             options: ['Cat', 'Ball', 'Apple'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
@@ -264,7 +283,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with D?',
             options: ['Dog', 'Elephant', 'Cat'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
@@ -279,7 +299,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with E?',
             options: ['Fish', 'Elephant', 'Apple'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -294,7 +315,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with F?',
             options: ['Fish', 'Goat', 'Dog'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
@@ -309,7 +331,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with G?',
             options: ['Hat', 'Goat', 'Fish'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -324,7 +347,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with H?',
             options: ['Ice', 'Hat', 'Goat'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -339,7 +363,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with I?',
             options: ['Ice', 'Jug', 'Hat'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
@@ -354,7 +379,8 @@ const AutismView = () => {
           interaction: {
             question: 'Which word starts with J?',
             options: ['Kite', 'Jug', 'Ice'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         }
       ]
@@ -378,7 +404,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is एक?',
             options: ['One', 'Two', 'Three'],
-            correct: 0
+            correct: 0,
+            difficulty: 'easy'
           }
         },
         {
@@ -393,7 +420,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is दो?',
             options: ['One', 'Two', 'Three'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -408,7 +436,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is तीन?',
             options: ['One', 'Two', 'Three'],
-            correct: 2
+            correct: 2,
+            difficulty: 'easy'
           }
         },
         {
@@ -423,7 +452,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is चार?',
             options: ['Three', 'Four', 'Five'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -438,7 +468,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is पाँच?',
             options: ['Four', 'Five', 'Six'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -453,7 +484,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is छह?',
             options: ['Five', 'Six', 'Seven'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -468,7 +500,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is सात?',
             options: ['Six', 'Seven', 'Eight'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -483,7 +516,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is आठ?',
             options: ['Seven', 'Eight', 'Nine'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -498,7 +532,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is नौ?',
             options: ['Eight', 'Nine', 'Ten'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         },
         {
@@ -513,7 +548,8 @@ const AutismView = () => {
           interaction: {
             question: 'What number is दस?',
             options: ['Nine', 'Ten', 'Eleven'],
-            correct: 1
+            correct: 1,
+            difficulty: 'easy'
           }
         }
       ]
@@ -538,6 +574,12 @@ const AutismView = () => {
 
     setFeedback('');
     setShowHint(false);
+    setQuestionAnswered(false); // Reset for next question
+    setTimerActive(false); // Stop current timer
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     } else {
@@ -554,6 +596,12 @@ const AutismView = () => {
   const handlePrevious = () => {
     setFeedback('');
     setShowHint(false);
+    setQuestionAnswered(false); // Reset for previous question
+    setTimerActive(false); // Stop current timer
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
     }
@@ -674,9 +722,104 @@ const AutismView = () => {
     setShowHint(!showHint);
   };
 
+  // Timer logic for questions based on difficulty
+  const getTimeForDifficulty = (difficulty) => {
+    switch (difficulty) {
+      case 'easy':
+        return 20; // 20 seconds for easy questions
+      case 'medium':
+        return 35; // 35 seconds for medium questions
+      case 'hard':
+        return 50; // 50 seconds for hard questions
+      default:
+        return 30; // default 30 seconds
+    }
+  };
+
+  // Start timer when step changes or has interaction
+  useEffect(() => {
+    if (currentStep?.interaction && !questionAnswered) {
+      const difficulty = currentStep.interaction.difficulty || 'medium';
+      const timeLimit = getTimeForDifficulty(difficulty);
+      setTimeRemaining(timeLimit);
+      setTimerActive(true);
+      setQuestionAnswered(false);
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [currentStepIndex, selectedLesson]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (timerActive && timeRemaining !== null && timeRemaining > 0 && !questionAnswered) {
+      timerIntervalRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timerIntervalRef.current);
+            setTimerActive(false);
+            // Handle timeout
+            handleTimeOut();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+        }
+      };
+    }
+  }, [timerActive, timeRemaining, questionAnswered]);
+
+  // Handle timeout
+  const handleTimeOut = () => {
+    if (!questionAnswered) {
+      setFeedback('⏰ Time\'s up! Click retry to try again.');
+      setQuestionAnswered(true);
+      setTimerActive(false);
+      
+      const stepKey = `${selectedLesson}-${currentStepIndex}`;
+      const currentWrongCount = wrongAnswerCount[stepKey] || 0;
+      const newWrongCount = currentWrongCount + 1;
+
+      setWrongAnswerCount(prev => ({
+        ...prev,
+        [stepKey]: newWrongCount
+      }));
+
+      setTimeout(() => {
+        setShowHint(true); // Show hint after timeout
+      }, 1500);
+    }
+  };
+
+  // Handle retry button click
+  const handleRetry = () => {
+    setQuestionAnswered(false);
+    setFeedback('');
+    setShowHint(false);
+    const difficulty = currentStep?.interaction?.difficulty || 'medium';
+    const timeLimit = getTimeForDifficulty(difficulty);
+    setTimeRemaining(timeLimit);
+    setTimerActive(true);
+  };
+
   // EPIC 2.3: Interactive engagement with feedback
   const handleInteraction = (optionIndex) => {
-    if (currentStep?.interaction) {
+    if (currentStep?.interaction && !questionAnswered) {
+      // Stop timer when answer is selected
+      setTimerActive(false);
+      setQuestionAnswered(true);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+
       const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
         setFeedback('✅ Good job! That\'s correct!');
@@ -737,6 +880,11 @@ const AutismView = () => {
     setFeedback('');
     setStepAnsweredCorrectly({});
     setWrongAnswerCount({});
+    setQuestionAnswered(false);
+    setTimerActive(false);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
   };
 
   // Return to lesson list
@@ -747,6 +895,11 @@ const AutismView = () => {
     setFeedback('');
     setStepAnsweredCorrectly({});
     setWrongAnswerCount({});
+    setQuestionAnswered(false);
+    setTimerActive(false);
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
   };
 
   // Cleanup audio on unmount
@@ -789,89 +942,154 @@ const AutismView = () => {
 
             {/* EPIC 2.1: Multi-format lesson display */}
             <div className="step-content-card">
-              {/* Title hidden to prevent revealing answers */}
-
-              {/* EPIC 2.5: Visual learning aid with icon/image */}
-              <div className="step-visual">
-                <img
-                  src={currentStep.image}
-                  alt={currentStep.title}
-                  className="visual-image-hidden"
-                />
-              </div>
-
-              {/* EPIC 2.5: Highlighted main content */}
-              <div className="step-text">
-                <p className="content-main">
-                  {/* Dynamic highlighting */}
-                  {currentStep.content.split(' ').map((word, idx) => {
-                    const cleanWord = word.replace(/[.,!?;:()"]/g, '');
-                    const isActive = activeWord && cleanWord.toLowerCase() === activeWord.toLowerCase();
-                    const isStaticHighlight = currentStep.highlight && word.includes(currentStep.highlight);
-
-                    return (
-                      <span
-                        key={idx}
-                        className={isActive ? 'highlight active-word' : (isStaticHighlight ? 'highlight' : '')}
-                        style={isActive ? { backgroundColor: '#ffd700', transform: 'scale(1.1)', display: 'inline-block', transition: 'all 0.2s' } : {}}
-                      >
-                        {word}{' '}
-                      </span>
-                    );
-                  })}
-                </p>
-                <p className="content-translation">{currentStep.translation}</p>
-              </div>
-
-              {/* EPIC 2.1: Audio controls */}
-              <div className="step-audio-section">
-                <button onClick={handlePlayAudio} className="btn-audio">
-                  🔊 Play Audio
-                </button>
-                <audio
-                  ref={audioRef}
-                  src={currentStep.audio}
-                  preload="none"
-                  onError={() => console.log('Audio file not found, will use text-to-speech')}
-                />
-                <p className="audio-info">Click to hear the pronunciation</p>
-
-                <div className="audio-controls-speed" style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                  <span style={{ fontSize: '0.9rem', alignSelf: 'center' }}>Speed:</span>
-                  <button
-                    onClick={() => setPlaybackSpeed(0.6)}
-                    className={playbackSpeed === 0.6 ? 'btn-speed active' : 'btn-speed'}
-                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.6 ? '#e3f2fd' : 'white' }}
-                  >
-                    Slow
-                  </button>
-                  <button
-                    onClick={() => setPlaybackSpeed(0.9)}
-                    className={playbackSpeed === 0.9 ? 'btn-speed active' : 'btn-speed'}
-                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.9 ? '#e3f2fd' : 'white' }}
-                  >
-                    Normal
-                  </button>
+              {/* Left Column: Image, Question, and Options */}
+              <div className="visual-column">
+                {/* EPIC 2.5: Visual learning aid with icon/image */}
+                <div className="step-visual">
+                  <img
+                    src={currentStep.image}
+                    alt={currentStep.title}
+                    className="visual-image-hidden"
+                  />
                 </div>
-              </div>
 
-              {/* EPIC 2.3: Interactive engagement */}
-              {currentStep.interaction && (
-                <div className="step-interaction">
-                  <p className="interaction-question">{currentStep.interaction.question}</p>
+                {/* Question below image */}
+                {currentStep.interaction && (
+                  <div className="step-interaction-left">
+                    <p className="interaction-question">{currentStep.interaction.question}</p>
+                  </div>
+                )}
+
+                {/* Answer Options below question */}
+                {currentStep.interaction && (
                   <div className="interaction-options">
                     {currentStep.interaction.options.map((option, index) => (
                       <button
                         key={index}
                         onClick={() => handleInteraction(index)}
                         className="btn-option"
+                        disabled={questionAnswered}
                       >
-                        {option}
+                        <span className="option-letter">{String.fromCharCode(65 + index)}</span>
+                        <span className="option-text">{option}</span>
                       </button>
                     ))}
                   </div>
+                )}
+              </div>
+
+              {/* Right Column: Content, Timer/Retry */}
+              <div className="content-column">
+                {/* EPIC 2.5: Highlighted main content */}
+                <div className="step-text">
+                  <p className="content-main">
+                    {/* Dynamic highlighting */}
+                    {currentStep.content.split(' ').map((word, idx) => {
+                      const cleanWord = word.replace(/[.,!?;:()"]/g, '');
+                      const isActive = activeWord && cleanWord.toLowerCase() === activeWord.toLowerCase();
+                      const isStaticHighlight = currentStep.highlight && word.includes(currentStep.highlight);
+
+                      return (
+                        <span
+                          key={idx}
+                          className={isActive ? 'highlight active-word' : (isStaticHighlight ? 'highlight' : '')}
+                          style={isActive ? { backgroundColor: '#ffd700', transform: 'scale(1.1)', display: 'inline-block', transition: 'all 0.2s' } : {}}
+                        >
+                          {word}{' '}
+                        </span>
+                      );
+                    })}
+                  </p>
+                  <p className="content-translation">{currentStep.translation}</p>
                 </div>
-              )}
+
+                {/* EPIC 2.1: Audio controls */}
+                <div className="step-audio-section">
+                  <button onClick={handlePlayAudio} className="btn-audio">
+                    🔊 Play Audio
+                  </button>
+                  <audio
+                    ref={audioRef}
+                    src={currentStep.audio}
+                    preload="none"
+                    onError={() => console.log('Audio file not found, will use text-to-speech')}
+                  />
+                  <p className="audio-info">Click to hear the pronunciation</p>
+
+                  <div className="audio-controls-speed" style={{ marginTop: '10px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                    <span style={{ fontSize: '0.9rem', alignSelf: 'center' }}>Speed:</span>
+                    <button
+                      onClick={() => setPlaybackSpeed(0.6)}
+                      className={playbackSpeed === 0.6 ? 'btn-speed active' : 'btn-speed'}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.6 ? '#e3f2fd' : 'white' }}
+                    >
+                      Slow
+                    </button>
+                    <button
+                      onClick={() => setPlaybackSpeed(0.9)}
+                      className={playbackSpeed === 0.9 ? 'btn-speed active' : 'btn-speed'}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.9 ? '#e3f2fd' : 'white' }}
+                    >
+                      Normal
+                    </button>
+                  </div>
+                </div>
+
+                {/* Timer Display OR Retry Button in same position */}
+                {currentStep.interaction && (
+                  <div className="timer-retry-container">
+                    {timerActive && timeRemaining !== null && !questionAnswered ? (
+                      <div className={`timer-display ${timeRemaining <= 10 ? 'timer-warning' : ''}`}>
+                        <div className="timer-circle">
+                          <svg width="100" height="100" viewBox="0 0 120 120">
+                            <circle
+                              cx="60"
+                              cy="60"
+                              r="50"
+                              fill="none"
+                              stroke="#e0e0e0"
+                              strokeWidth="8"
+                            />
+                            <circle
+                              cx="60"
+                              cy="60"
+                              r="50"
+                              fill="none"
+                              stroke={timeRemaining <= 10 ? '#ff5252' : '#4CAF50'}
+                              strokeWidth="8"
+                              strokeDasharray={`${2 * Math.PI * 50}`}
+                              strokeDashoffset={`${2 * Math.PI * 50 * (1 - timeRemaining / getTimeForDifficulty(currentStep.interaction.difficulty))}`}
+                              transform="rotate(-90 60 60)"
+                              style={{ transition: 'stroke-dashoffset 1s linear' }}
+                            />
+                          </svg>
+                          <div className="timer-content">
+                            <span className="timer-emoji">⏱️</span>
+                            <span className="timer-number">{timeRemaining}</span>
+                          </div>
+                        </div>
+                        <div className="timer-info">
+                          <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
+                            {currentStep.interaction.difficulty === 'easy' && '⭐ Easy'}
+                            {currentStep.interaction.difficulty === 'medium' && '⭐⭐ Medium'}
+                            {currentStep.interaction.difficulty === 'hard' && '⭐⭐⭐ Hard'}
+                          </span>
+                        </div>
+                      </div>
+                    ) : questionAnswered && !timerActive ? (
+                      <div className="retry-section">
+                        <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
+                          {currentStep.interaction.difficulty === 'easy' && '⭐ Easy'}
+                          {currentStep.interaction.difficulty === 'medium' && '⭐⭐ Medium'}
+                          {currentStep.interaction.difficulty === 'hard' && '⭐⭐⭐ Hard'}
+                        </span>
+                        <button onClick={handleRetry} className="btn-retry">
+                          🔄 Retry Question
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
 
               {/* EPIC 2.3: Immediate feedback */}
               {feedback && (
@@ -890,6 +1108,7 @@ const AutismView = () => {
                     {currentStep.hint}
                   </div>
                 )}
+              </div>
               </div>
             </div>
 

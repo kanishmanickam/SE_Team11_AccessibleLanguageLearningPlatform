@@ -95,15 +95,12 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
-<<<<<<< HEAD
-    if (onInteractionChange && section) {
-      onInteractionChange(section.id || section._id, 0);
-    }
-=======
     setActiveWord('');
     setIsUsingTTS(false);
     window.speechSynthesis.cancel();
->>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
+    if (onInteractionChange && section) {
+      onInteractionChange(section.id || section._id, 0);
+    }
   }, [sectionKey]);
 
   useEffect(() => {
