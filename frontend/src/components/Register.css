@@ -4,18 +4,19 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, var(--app-gradient-start) 0%, var(--app-gradient-end) 100%);
 }
 
 .register-card {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
   border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--fx-shadow-soft);
   padding: 40px;
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--border-color);
 }
 
 .register-title {
@@ -44,7 +45,8 @@
   border: 2px solid var(--border-color);
   border-radius: 6px;
   font-size: inherit;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   cursor: pointer;
 }
 

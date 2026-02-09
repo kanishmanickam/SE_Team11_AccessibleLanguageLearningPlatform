@@ -8,7 +8,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/greet-s1-narration.mp3',
       highlights: [
         { phrase: 'Hello', emphasisType: 'background', color: '#ffd700' },
-        { phrase: 'greet', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'greet', emphasisType: 'underline', color: 'var(--accent-color)' },
         { phrase: 'politely', emphasisType: 'bold' },
       ],
       visuals: [
@@ -198,7 +198,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/vocab-s1-narration.mp3',
       highlights: [
         { phrase: 'simple words', emphasisType: 'background', color: '#b39ddb' },
-        { phrase: 'everyday items', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'everyday items', emphasisType: 'underline', color: 'var(--accent-color)' },
       ],
       visuals: [
         { imageUrl: '/visuals/basic-words.svg', altText: 'Everyday objects and words', relatedPhrase: 'everyday items', placement: 'inline' },
@@ -452,7 +452,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/num-s1-narration.mp3',
       highlights: [
         { phrase: 'Count', emphasisType: 'background', color: '#ffd700' },
-        { phrase: 'one to five', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'one to five', emphasisType: 'underline', color: 'var(--accent-color)' },
         { phrase: 'color', emphasisType: 'bold' },
       ],
       visuals: [
@@ -574,7 +574,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/num-s2-narration.mp3',
       highlights: [
         { phrase: 'Match', emphasisType: 'background', color: '#ffd700' },
-        { phrase: 'numbers', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'numbers', emphasisType: 'underline', color: 'var(--accent-color)' },
         { phrase: 'objects', emphasisType: 'bold' },
       ],
       visuals: [

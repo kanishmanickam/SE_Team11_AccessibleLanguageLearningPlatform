@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
@@ -725,7 +725,7 @@ const AutismView = ({ initialLessonId = null }) => {
   };
 
   // Timer logic for questions based on difficulty
-  const getTimeForDifficulty = (difficulty) => {
+  const getTimeForDifficulty = useCallback((difficulty) => {
     switch (difficulty) {
       case 'easy':
         return 20; // 20 seconds for easy questions
@@ -736,16 +736,43 @@ const AutismView = ({ initialLessonId = null }) => {
       default:
         return 30; // default 30 seconds
     }
-  };
+  }, []);
+
+  // Handle timeout
+  const handleTimeOut = useCallback(() => {
+    if (!questionAnswered) {
+      setFeedback('⏰ Time\'s up! Click retry to try again.');
+      setQuestionAnswered(true);
+      setTimerActive(false);
+
+      const stepKey = `${selectedLesson}-${currentStepIndex}`;
+      const currentWrongCount = wrongAnswerCount[stepKey] || 0;
+      const newWrongCount = currentWrongCount + 1;
+
+      setWrongAnswerCount((prev) => ({
+        ...prev,
+        [stepKey]: newWrongCount,
+      }));
+
+      setTimeout(() => {
+        setShowHint(true); // Show hint after timeout
+      }, 1500);
+    }
+  }, [questionAnswered, selectedLesson, currentStepIndex, wrongAnswerCount]);
 
   // Start timer when step changes or has interaction
   useEffect(() => {
-    if (currentStep?.interaction && !questionAnswered) {
+    if (currentStep?.interaction) {
       const difficulty = currentStep.interaction.difficulty || 'medium';
       const timeLimit = getTimeForDifficulty(difficulty);
       setTimeRemaining(timeLimit);
       setTimerActive(true);
       setQuestionAnswered(false);
+      setFeedback('');
+      setShowHint(false);
+    } else {
+      setTimerActive(false);
+      setTimeRemaining(null);
     }
 
     return () => {
@@ -753,7 +780,7 @@ const AutismView = ({ initialLessonId = null }) => {
         clearInterval(timerIntervalRef.current);
       }
     };
-  }, [currentStepIndex, selectedLesson]);
+  }, [currentStepIndex, selectedLesson, currentStep?.interaction, getTimeForDifficulty]);
 
   // Timer countdown effect
   useEffect(() => {
@@ -777,29 +804,7 @@ const AutismView = ({ initialLessonId = null }) => {
         }
       };
     }
-  }, [timerActive, timeRemaining, questionAnswered]);
-
-  // Handle timeout
-  const handleTimeOut = () => {
-    if (!questionAnswered) {
-      setFeedback('⏰ Time\'s up! Click retry to try again.');
-      setQuestionAnswered(true);
-      setTimerActive(false);
-      
-      const stepKey = `${selectedLesson}-${currentStepIndex}`;
-      const currentWrongCount = wrongAnswerCount[stepKey] || 0;
-      const newWrongCount = currentWrongCount + 1;
-
-      setWrongAnswerCount(prev => ({
-        ...prev,
-        [stepKey]: newWrongCount
-      }));
-
-      setTimeout(() => {
-        setShowHint(true); // Show hint after timeout
-      }, 1500);
-    }
-  };
+  }, [timerActive, timeRemaining, questionAnswered, handleTimeOut]);
 
   // Handle retry button click
   const handleRetry = () => {
@@ -972,11 +977,7 @@ const AutismView = ({ initialLessonId = null }) => {
               <div className="visual-column">
                 {/* EPIC 2.5: Visual learning aid with icon/image */}
                 <div className="step-visual">
-                  <img
-                    src={currentStep.image}
-                    alt={currentStep.title}
-                    className="visual-image-hidden"
-                  />
+                  <img src={currentStep.image} alt={currentStep.title} className="visual-image-hidden" />
                 </div>
 
                 {/* Question below image */}
@@ -1003,7 +1004,6 @@ const AutismView = ({ initialLessonId = null }) => {
                   </div>
                 )}
               </div>
-
               {/* Right Column: Content, Timer/Retry */}
               <div className="content-column">
                 {/* EPIC 2.5: Highlighted main content */}
@@ -1047,14 +1047,14 @@ const AutismView = ({ initialLessonId = null }) => {
                     <button
                       onClick={() => setPlaybackSpeed(0.6)}
                       className={playbackSpeed === 0.6 ? 'btn-speed active' : 'btn-speed'}
-                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.6 ? '#e3f2fd' : 'white' }}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: playbackSpeed === 0.6 ? 'var(--accent-color-soft)' : 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                     >
                       Slow
                     </button>
                     <button
                       onClick={() => setPlaybackSpeed(0.9)}
                       className={playbackSpeed === 0.9 ? 'btn-speed active' : 'btn-speed'}
-                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.9 ? '#e3f2fd' : 'white' }}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: playbackSpeed === 0.9 ? 'var(--accent-color-soft)' : 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                     >
                       Normal
                     </button>
@@ -1117,25 +1117,18 @@ const AutismView = ({ initialLessonId = null }) => {
                   </div>
                 )}
 
-              {/* EPIC 2.3: Immediate feedback */}
-              {feedback && (
-                <div className="feedback-message">
-                  {feedback}
-                </div>
-              )}
+                {/* EPIC 2.3: Immediate feedback */}
+                {feedback && <div className="feedback-message">{feedback}</div>}
 
-              {/* EPIC 2.4: Hint section */}
-              <div className="hint-section">
-                <button onClick={handleShowHint} className="btn-hint">
-                  💡 {showHint ? 'Hide Hint' : 'Show Hint'}
-                </button>
-                {showHint && (
-                  <div className="hint-content">
-                    {currentStep.hint}
-                  </div>
-                )}
+                {/* EPIC 2.4: Hint section */}
+                <div className="hint-section">
+                  <button onClick={handleShowHint} className="btn-hint">
+                    💡 {showHint ? 'Hide Hint' : 'Show Hint'}
+                  </button>
+                  {showHint && <div className="hint-content">{currentStep.hint}</div>}
+                </div>
               </div>
-              </div>
+
             </div>
 
             {/* EPIC 2.6 & 2.7: Consistent navigation in fixed position */}

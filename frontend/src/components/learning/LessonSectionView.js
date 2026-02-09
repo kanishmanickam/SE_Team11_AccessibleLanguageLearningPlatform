@@ -13,29 +13,29 @@ const formatTime = (seconds) => {
 
 /* Map keywords in questions/section titles to emoji illustrations */
 const illustrationMap = [
-  { keywords: ['hello', 'greet', 'greeting', 'hi'], emoji: '????', label: 'Greeting', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['how are you', 'feeling', 'fine'], emoji: '????', label: 'Feelings', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['goodbye', 'bye', 'see you'], emoji: '????', label: 'Farewell', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['reply', 'respond', 'answer'], emoji: '????', label: 'Conversation', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
-  { keywords: ['chair', 'sit', 'furniture'], emoji: '????', label: 'Furniture', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
-  { keywords: ['apple', 'eat', 'fruit', 'food'], emoji: '????', label: 'Food', bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
-  { keywords: ['book', 'read', 'reading'], emoji: '????', label: 'Reading', bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
-  { keywords: ['home', 'house', 'live', 'place'], emoji: '????', label: 'Home', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['shoe', 'feet', 'wear'], emoji: '????', label: 'Clothing', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
-  { keywords: ['number', 'count', 'counting'], emoji: '????', label: 'Numbers', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['after', 'next', 'order', 'sequence'], emoji: '??????', label: 'Sequence', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' },
-  { keywords: ['three', 'star', 'items', 'set'], emoji: '???', label: 'Counting', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['walk', 'action', 'run'], emoji: '????', label: 'Actions', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
-  { keywords: ['people', 'person', 'friend'], emoji: '????', label: 'People', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
-  { keywords: ['sun', 'day', 'daily'], emoji: '??????', label: 'Daily Life', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['speak', 'say', 'speech', 'talk', 'phrase'], emoji: '???????', label: 'Speaking', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['true', 'false', 'yes', 'no'], emoji: '???', label: 'True or False', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
-  { keywords: ['click', 'choose', 'pick', 'select'], emoji: '????', label: 'Choose', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['type', 'write', 'word'], emoji: '??????', label: 'Writing', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
-  { keywords: ['friendly', 'polite', 'smile'], emoji: '????', label: 'Friendly', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['hello', 'greet', 'greeting', 'hi'], emoji: '👋', label: 'Greeting', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['how are you', 'feeling', 'fine'], emoji: '😊', label: 'Feelings', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['goodbye', 'bye', 'see you'], emoji: '🤗', label: 'Farewell', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['reply', 'respond', 'answer'], emoji: '💬', label: 'Conversation', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+  { keywords: ['chair', 'sit', 'furniture'], emoji: '🪑', label: 'Furniture', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
+  { keywords: ['apple', 'eat', 'fruit', 'food'], emoji: '🍎', label: 'Food', bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+  { keywords: ['book', 'read', 'reading'], emoji: '📖', label: 'Reading', bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
+  { keywords: ['home', 'house', 'live', 'place'], emoji: '🏠', label: 'Home', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['shoe', 'feet', 'wear'], emoji: '👟', label: 'Clothing', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+  { keywords: ['number', 'count', 'counting'], emoji: '🔢', label: 'Numbers', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['after', 'next', 'order', 'sequence'], emoji: '➡️', label: 'Sequence', bg: 'var(--accent-gradient-strong)' },
+  { keywords: ['three', 'star', 'items', 'set'], emoji: '⭐', label: 'Counting', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['walk', 'action', 'run'], emoji: '🚶', label: 'Actions', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+  { keywords: ['people', 'person', 'friend'], emoji: '👫', label: 'People', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
+  { keywords: ['sun', 'day', 'daily'], emoji: '☀️', label: 'Daily Life', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['speak', 'say', 'speech', 'talk', 'phrase'], emoji: '🗣️', label: 'Speaking', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['true', 'false', 'yes', 'no'], emoji: '✅', label: 'True or False', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+  { keywords: ['click', 'choose', 'pick', 'select'], emoji: '👆', label: 'Choose', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['type', 'write', 'word'], emoji: '✏️', label: 'Writing', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
+  { keywords: ['friendly', 'polite', 'smile'], emoji: '😄', label: 'Friendly', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
 ];
 
-const defaultIllustration = { emoji: '????', label: 'Learning', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' };
+const defaultIllustration = { emoji: '📚', label: 'Learning', bg: 'var(--accent-gradient-strong)' };
 
 const getIllustration = (text) => {
   if (!text) return defaultIllustration;

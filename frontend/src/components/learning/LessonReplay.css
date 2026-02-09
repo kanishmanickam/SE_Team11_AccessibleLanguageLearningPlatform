@@ -102,7 +102,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.4s ease;
@@ -114,13 +114,13 @@
 
 .lesson-replay-panel:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+  box-shadow: var(--fx-shadow-hover);
 }
 
 .lesson-replay-panel__header h2 {
   margin: 0 0 4px;
   font-size: 18px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient-strong);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -193,7 +193,7 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, var(--accent-color) 0%, var(--accent-color-hover) 100%);
   transform: scaleY(0);
   transition: transform 0.3s ease;
 }
@@ -204,13 +204,13 @@
 
 .timeline-item:hover {
   transform: translateX(5px);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 4px 15px rgba(77, 134, 201, 0.18);
 }
 
 .timeline-item.current {
   border-color: var(--theme-accent, var(--accent-color));
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+  background: linear-gradient(135deg, var(--accent-color-soft) 0%, rgba(63, 116, 184, 0.10) 100%);
+  box-shadow: 0 4px 15px rgba(77, 134, 201, 0.14);
 }
 
 .timeline-item.current::before {
@@ -323,7 +323,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient);
   animation: shimmer 2.5s infinite;
 }
 
@@ -338,7 +338,7 @@
 
 .lesson-section:hover {
   transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+  box-shadow: var(--fx-shadow-hover);
 }
 
 .lesson-section-header {
@@ -360,7 +360,7 @@
 .lesson-section-header h2 {
   margin: 0;
   font-size: 22px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient-strong);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -389,7 +389,7 @@
   color: var(--theme-accent, var(--accent-color));
   font-size: 12px;
   font-weight: 600;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(135deg, var(--accent-color-soft) 0%, rgba(63, 116, 184, 0.10) 100%);
   animation: popIn 0.5s ease-out 0.3s both;
   transition: all 0.3s ease;
 }
@@ -443,8 +443,8 @@
 .lesson-audio:hover,
 .lesson-visuals:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 20px rgba(77, 134, 201, 0.16);
+  border-color: rgba(77, 134, 201, 0.30);
 }
 
 .lesson-audio-header {
@@ -460,7 +460,7 @@
   margin: 0;
   font-size: 16px;
   font-weight: 700;
-  color: #667eea;
+  color: var(--theme-accent, var(--accent-color));
 }
 
 .lesson-audio-time {
@@ -477,12 +477,12 @@
   padding: 8px 12px;
   border-radius: 10px;
   border: 1px solid var(--theme-border, var(--border-color));
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--accent-gradient-strong);
   color: white;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 8px rgba(77, 134, 201, 0.28);
   position: relative;
   overflow: hidden;
 }
@@ -507,7 +507,7 @@
 
 .audio-toggle:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(77, 134, 201, 0.36);
 }
 
 .audio-toggle:active {
@@ -536,15 +536,15 @@
 
 .lesson-illustration:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.3);
+  box-shadow: 0 6px 20px rgba(77, 134, 201, 0.16);
+  border-color: rgba(77, 134, 201, 0.30);
 }
 
 .lesson-illustration h3 {
   margin: 0 0 10px 0;
   font-size: 16px;
   font-weight: 700;
-  color: #667eea;
+  color: var(--theme-accent, var(--accent-color));
 }
 
 .illustration-scene {
@@ -570,7 +570,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(248, 248, 255, 0.70);
   border-radius: 50%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   animation: emojiFloat 3s ease-in-out infinite;

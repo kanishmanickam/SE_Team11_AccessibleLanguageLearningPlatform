@@ -9,9 +9,9 @@ const resolveCssVar = (name, fallback) => {
 
 const getInitialTheme = () => {
   return {
-    backgroundColor: resolveCssVar('--bg-primary', '#ffffff'),
-    primaryColor: resolveCssVar('--accent-color', '#4caf50'),
-    accentColor: resolveCssVar('--accent-color', '#4caf50'),
+    backgroundColor: resolveCssVar('--bg-primary', '#F0F8FF'),
+    primaryColor: resolveCssVar('--accent-color', '#4D86C9'),
+    accentColor: resolveCssVar('--accent-color', '#4D86C9'),
   };
 };
 

@@ -1,6 +1,6 @@
 export const buildTheme = (input) => {
-  const background = resolveColor(input.backgroundColor, '#ffffff');
-  const primary = resolveColor(input.primaryColor, '#4caf50');
+  const background = resolveColor(input.backgroundColor, '#F0F8FF');
+  const primary = resolveColor(input.primaryColor, '#4D86C9');
   const accentRaw = resolveColor(input.accentColor || primary, primary);
 
   const text = getReadableTextColor(background);

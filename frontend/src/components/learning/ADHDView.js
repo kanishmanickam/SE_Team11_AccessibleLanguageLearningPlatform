@@ -635,12 +635,12 @@ const ADHDView = ({ initialLessonId = null }) => {
             </>
           ) : lessonPhase === 'intro' ? (
             <div className="intro-view" style={{ textAlign: 'center', padding: '3rem', animation: 'fadeIn 0.5s ease' }}>
-              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: '#2c3e50' }}>{activeLesson.title}</h2>
+              <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{activeLesson.title}</h2>
               {isLoading && <p>Generating focused content for you... 🤖</p>}
-              <div style={{ background: '#e3f2fd', padding: '2rem', borderRadius: '15px', display: 'inline-block', marginBottom: '2rem' }}>
-                <p style={{ fontSize: '1.5rem', margin: 0, color: '#1565c0' }}>Passing Score: <strong>20 Points</strong></p>
+              <div style={{ background: 'var(--accent-color-soft)', padding: '2rem', borderRadius: '15px', display: 'inline-block', marginBottom: '2rem', border: '1px solid var(--border-color)' }}>
+                <p style={{ fontSize: '1.5rem', margin: 0, color: 'var(--accent-color-hover)' }}>Passing Score: <strong>20 Points</strong></p>
               </div>
-              <p style={{ fontSize: '1.2rem', marginBottom: '2rem', color: '#666' }}>
+              <p style={{ fontSize: '1.2rem', marginBottom: '2rem', color: 'var(--text-secondary)' }}>
                 Get ready! We will count down before we start.
               </p>
               <button
@@ -652,10 +652,10 @@ const ADHDView = ({ initialLessonId = null }) => {
                   fontSize: '1.5rem',
                   borderRadius: '50px',
                   border: 'none',
-                  background: isLoading ? '#ccc' : '#4CAF50',
+                  background: isLoading ? 'rgba(148, 163, 184, 0.45)' : 'var(--accent-color)',
                   color: 'white',
                   cursor: isLoading ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 4px 15px rgba(76, 175, 80, 0.3)'
+                  boxShadow: '0 4px 15px rgba(77, 134, 201, 0.28)'
                 }}
               >
                 {isLoading ? 'Loading...' : "I'm Ready! 🚀"}
@@ -665,9 +665,9 @@ const ADHDView = ({ initialLessonId = null }) => {
             <div className="countdown-view" style={{
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh'
             }}>
-              <h2 style={{ fontSize: '2rem', color: '#666', marginBottom: '1rem' }}>Starting in...</h2>
+              <h2 style={{ fontSize: '2rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Starting in...</h2>
               <div style={{
-                fontSize: '8rem', fontWeight: 'bold', color: countdownValue <= 3 ? '#ef5350' : '#4CAF50',
+                fontSize: '8rem', fontWeight: 'bold', color: countdownValue <= 3 ? 'var(--error-color)' : 'var(--success-color)',
                 animation: 'scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
               }}>
                 {countdownValue === 0 ? 'GO!' : countdownValue}
@@ -684,31 +684,31 @@ const ADHDView = ({ initialLessonId = null }) => {
                     numberOfPieces={200}
                     gravity={0.2}
                   />
-                  <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#2c3e50', zIndex: 10, position: 'relative' }}>Congratulations!</h2>
-                  <p style={{ fontSize: '1.2rem', color: '#666', zIndex: 10, position: 'relative' }}>
+                  <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--text-primary)', zIndex: 10, position: 'relative' }}>Congratulations!</h2>
+                  <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', zIndex: 10, position: 'relative' }}>
                     You have completed <strong>{activeLesson.title}</strong>!
                   </p>
                 </>
               ) : (
                 <>
                   <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>💪</div>
-                  <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#2c3e50' }}>Don't Give Up!</h2>
-                  <p style={{ fontSize: '1.5rem', color: '#d32f2f', fontWeight: 'bold' }}>
+                  <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Don't Give Up!</h2>
+                  <p style={{ fontSize: '1.5rem', color: 'var(--error-color)', fontWeight: 'bold' }}>
                     You have one more chance!!!!
                   </p>
-                  <p style={{ fontSize: '1.1rem', color: '#666', marginTop: '1rem' }}>
+                  <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginTop: '1rem' }}>
                     You need 20 points to pass. Let's try again!
                   </p>
                 </>
               )}
 
               <div className="score-summary" style={{
-                background: 'white', padding: '2rem', borderRadius: '20px', margin: '2rem auto', maxWidth: '300px',
-                boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 10, position: 'relative'
+                background: 'var(--bg-secondary)', padding: '2rem', borderRadius: '20px', margin: '2rem auto', maxWidth: '300px',
+                boxShadow: 'var(--fx-shadow-soft)', border: '1px solid var(--border-color)', zIndex: 10, position: 'relative'
               }}>
                 <div style={{ fontSize: '0.9rem', color: '#888', textTransform: 'uppercase', letterSpacing: '1px' }}>Lesson Score</div>
-                <div style={{ fontSize: '3.5rem', fontWeight: '800', color: currentLessonScore >= 20 ? '#4CAF50' : '#ef5350', margin: '0.5rem 0' }}>{currentLessonScore}</div>
-                <div style={{ fontSize: '1rem', borderTop: '1px solid #eee', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
+                <div style={{ fontSize: '3.5rem', fontWeight: '800', color: currentLessonScore >= 20 ? 'var(--success-color)' : 'var(--error-color)', margin: '0.5rem 0' }}>{currentLessonScore}</div>
+                <div style={{ fontSize: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.5rem', marginTop: '0.5rem' }}>
                   Total Points Today: <strong>{score}</strong>
                 </div>
               </div>
@@ -720,7 +720,7 @@ const ADHDView = ({ initialLessonId = null }) => {
                     className="btn-primary"
                     style={{
                       padding: '1rem 2rem', fontSize: '1.1rem', borderRadius: '12px', border: 'none',
-                      background: '#2563eb', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(37, 99, 235, 0.2)'
+                      background: 'var(--accent-color)', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(77, 134, 201, 0.22)'
                     }}
                   >
                     Return to Dashboard
@@ -731,7 +731,7 @@ const ADHDView = ({ initialLessonId = null }) => {
                     className="btn-primary"
                     style={{
                       padding: '1rem 2rem', fontSize: '1.1rem', borderRadius: '12px', border: 'none',
-                      background: '#ff9800', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(255, 152, 0, 0.2)'
+                      background: 'var(--warning-color)', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(194, 122, 44, 0.22)'
                     }}
                   >
                     Try Again 🔄

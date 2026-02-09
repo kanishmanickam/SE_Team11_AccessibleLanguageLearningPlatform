@@ -5,7 +5,7 @@
 
 /* EPIC 1.6: Distraction-free mode */
 .autism-view.distraction-free {
-  background: linear-gradient(135deg, #fafafa 0%, #f0f4f8 100%);
+  background: linear-gradient(135deg, var(--app-gradient-start) 0%, var(--app-gradient-end) 100%);
   animation: backgroundShift 10s ease-in-out infinite;
 }
 
@@ -63,7 +63,7 @@
   gap: 12px;
 }
 
-.btn-exit, .btn-settings {
+.btn-exit {
   padding: 10px 24px;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
   color: #1565C0;
@@ -105,12 +105,11 @@
 }
 
 .btn-settings:hover {
-  border-color: #4CAF50;
-  color: #4CAF50;
+  border-color: var(--accent-color);
+  color: var(--accent-color);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+  box-shadow: 0 5px 15px rgba(77, 134, 201, 0.25);
 }
-
 /* Main Layout */
 .main-layout {
   display: grid;
@@ -1071,7 +1070,6 @@ body.simplified-layout .sidebar {
   border: 3px solid white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
-
 /* Responsive */
 @media (max-width: 1024px) {
   .main-layout {
@@ -1101,10 +1099,6 @@ body.simplified-layout .sidebar {
   .content-area {
     padding: 20px 15px;
   }
-  
-  .content-area-simple {
-    padding: 20px 15px;
-  }
 
   .lesson-simple-card {
     grid-template-columns: 1fr;
@@ -1117,43 +1111,6 @@ body.simplified-layout .sidebar {
 
   .progress-visual {
     flex-direction: column;
-  }
-  
-  .lesson-header {
-    padding: 15px 20px;
-  }
-  
-  .lesson-content {
-    padding: 20px 15px;
-  }
-  
-  .step-content-card {
-    padding: 24px 20px;
-  }
-  
-  .visual-icon-container {
-    padding: 30px;
-    min-height: 150px;
-  }
-  
-  .visual-icon-large {
-    font-size: 80px;
-  }
-  
-  .step-visual img {
-    max-width: 200px;
-  }
-  
-  .interaction-options {
-    gap: 10px;
-  }
-  
-  .step-navigation {
-    flex-direction: column;
-  }
-  
-  .btn-nav {
-    width: 100%;
   }
 }
 
