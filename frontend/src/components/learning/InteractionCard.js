@@ -366,17 +366,21 @@ const InteractionCard = ({
       const transcript = event.results?.[0]?.[0]?.transcript || '';
       const cleaned = transcript.trim();
       setLastTranscript(cleaned);
+      
+      // Always show the transcribed text in the typing field
+      setTypedAnswer(cleaned);
+      
       if (options.length > 0) {
         const matched = options.find(
           (option) => normalizeAnswer(option) === normalizeAnswer(cleaned)
         );
         if (matched) {
           setSelectedAnswer(matched);
-          setTypedAnswer('');
+          // Keep the transcribed text visible in the typing field
           return;
         }
       }
-      setTypedAnswer(cleaned);
+      // For short answer or unmatched voice input, clear selection
       setSelectedAnswer('');
     };
 
