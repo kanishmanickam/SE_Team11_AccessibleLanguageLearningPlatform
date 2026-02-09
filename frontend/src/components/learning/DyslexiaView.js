@@ -13,9 +13,9 @@ const DyslexiaView = () => {
   const navigate = useNavigate();
 
   const lessons = [
-    { id: 1, title: 'Greetings', level: 'Beginner', apiId: 'lesson-greetings' },
-    { id: 2, title: 'Basic Words', level: 'Beginner', apiId: 'lesson-vocabulary' },
-    { id: 3, title: 'Numbers', level: 'Beginner', apiId: 'lesson-numbers' },
+    { id: 1, title: 'Greetings', level: 'Beginner', apiId: 'lesson-greetings', icon: '👋', color: '#ffd700', description: 'Learn hello, hi, and friendly phrases' },
+    { id: 2, title: 'Basic Words', level: 'Beginner', apiId: 'lesson-vocabulary', icon: '📝', color: '#90caf9', description: 'Everyday objects, people, and actions' },
+    { id: 3, title: 'Numbers', level: 'Beginner', apiId: 'lesson-numbers', icon: '🔢', color: '#a5d6a7', description: 'Count, match, and order numbers' },
   ];
 
   const handleStartLesson = (lesson) => {
@@ -58,33 +58,11 @@ const DyslexiaView = () => {
     return Object.values(lessonProgress || {}).filter((entry) => entry?.status === 'Completed').length;
   }, [lessonProgress]);
 
-<<<<<<< HEAD
   const wordsLearned = useMemo(() => {
-    // Calculate total correct answers across all lessons as words learned
     return Object.values(lessonProgress || {}).reduce((total, entry) => {
       return total + (entry?.correctCount || 0);
     }, 0);
   }, [lessonProgress]);
-=======
-  const SummaryBlock = () => (
-    <div className="progress-stats">
-      <div className="stat-item">
-        <div className="stat-value">
-          {summaryLoading ? '…' : (summary?.completedCount ?? completedCount ?? 0)}
-        </div>
-        <div className="stat-label">Lessons Completed</div>
-      </div>
-      <div className="stat-item">
-        <div className="stat-value">0</div>
-        <div className="stat-label">Hours Practiced</div>
-      </div>
-      <div className="stat-item">
-        <div className="stat-value">0</div>
-        <div className="stat-label">Words Learned</div>
-      </div>
-    </div>
-  );
->>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
 
   return (
     <div className="dyslexia-view">
@@ -124,10 +102,11 @@ const DyslexiaView = () => {
             <h3>Your Progress</h3>
           </div>
           <div className="card-body">
-<<<<<<< HEAD
             <div className="progress-stats">
               <div className="stat-item">
-                <div className="stat-value">{completedCount}</div>
+                <div className="stat-value">
+                  {summaryLoading ? '…' : (summary?.completedCount ?? completedCount ?? 0)}
+                </div>
                 <div className="stat-label">Lessons Completed</div>
               </div>
               <div className="stat-item">
@@ -139,9 +118,6 @@ const DyslexiaView = () => {
                 <div className="stat-label">Words Learned</div>
               </div>
             </div>
-=======
-            <SummaryBlock />
->>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
           </div>
         </div>
 
@@ -155,8 +131,11 @@ const DyslexiaView = () => {
               const statusClass = (progress.status || 'Not Started').replace(/\s+/g, '-').toLowerCase();
               return (
                 <div key={lesson.id} className="lesson-card">
-                  <div className="lesson-icon">📖</div>
+                  <div className="lesson-icon" style={{ background: `linear-gradient(135deg, ${lesson.color}88, ${lesson.color})` }}>
+                    <span className="lesson-icon-emoji" role="img" aria-label={lesson.title}>{lesson.icon}</span>
+                  </div>
                   <h4>{lesson.title}</h4>
+                  <p className="lesson-description">{lesson.description}</p>
                   <div className="lesson-meta">
                     <span className="badge">{lesson.level}</span>
                     <span className={`status-pill status-${statusClass}`}>{progress.status}</span>

@@ -60,6 +60,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   const [playbackRate, setPlaybackRate] = useState(0.85); // Default slow for easier understanding
   const [activeWord, setActiveWord] = useState(''); // For visual highlighting
   const [isUsingTTS, setIsUsingTTS] = useState(false);
+  const [audioFailed, setAudioFailed] = useState(false);
 
   const sectionKey = useMemo(() => section?._id ?? section?.id ?? null, [section?._id, section?.id]);
   const lessonKey = useMemo(() => section?.lessonId ?? section?._id ?? section?.id ?? null, [section?.lessonId, section?._id, section?.id]);
@@ -95,15 +96,13 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
-<<<<<<< HEAD
+    setActiveWord('');
+    setIsUsingTTS(false);
+    setAudioFailed(false);
+    window.speechSynthesis.cancel();
     if (onInteractionChange && section) {
       onInteractionChange(section.id || section._id, 0);
     }
-=======
-    setActiveWord('');
-    setIsUsingTTS(false);
-    window.speechSynthesis.cancel();
->>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
   }, [sectionKey]);
 
   useEffect(() => {
@@ -219,7 +218,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   };
 
   const handleToggleAudio = async () => {
-    if (section?.audioUrl) {
+    if (section?.audioUrl && !audioFailed) {
       // Use Backend/File Audio
       if (!audioRef.current) return;
       if (isPlaying) {
@@ -228,10 +227,12 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
         return;
       }
       try {
-        audioRef.current.play();
+        await audioRef.current.play();
         setIsPlaying(true);
       } catch (error) {
-        setIsPlaying(false);
+        // Audio file failed to play, fall back to TTS
+        setAudioFailed(true);
+        speakText(section.textContent || section.title || 'No text content');
       }
     } else {
       // Use TTS Fallback
@@ -247,10 +248,13 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   };
 
   const handleReplay = () => {
-    if (section?.audioUrl) {
+    if (section?.audioUrl && !audioFailed) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
-        audioRef.current.play();
+        audioRef.current.play().catch(() => {
+          setAudioFailed(true);
+          speakText(section.textContent);
+        });
         setIsPlaying(true);
       }
     } else {
@@ -344,7 +348,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
               {!isUsingTTS && <span className="lesson-audio-time">{formatTime(currentTime)} / {formatTime(duration)}</span>}
             </div>
 
-            {section.audioUrl && <audio ref={audioRef} src={section.audioUrl} preload="metadata" />}
+            {section.audioUrl && <audio ref={audioRef} src={section.audioUrl} preload="metadata" onError={() => { audioRef.current = null; setAudioFailed(true); }} />}
 
             <div className="lesson-audio-controls" style={{ flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', gap: '8px', width: '100%' }}>

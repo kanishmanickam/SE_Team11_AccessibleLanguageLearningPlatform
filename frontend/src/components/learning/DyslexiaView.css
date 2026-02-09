@@ -556,6 +556,20 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
+.lesson-icon-emoji {
+  font-size: 32px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.lesson-description {
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+  min-height: 40px;
+}
+
 @keyframes pulse {
   0%, 100% {
     transform: scale(1);
