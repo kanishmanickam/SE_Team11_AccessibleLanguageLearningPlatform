@@ -593,7 +593,7 @@ const InteractionCard = ({
 
       {error && (
         <p className="interaction-feedback error" role="status">
-          ⚠️ {error}
+          {error}
         </p>
       )}
       {isAnswered && (
