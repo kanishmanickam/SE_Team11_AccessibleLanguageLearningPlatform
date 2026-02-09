@@ -1,18 +1,39 @@
 {
-  "name": "accessible-language-learning-platform",
-  "version": "1.0.0",
+  "name": "accessible-language-learning-frontend",
+  "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "concurrently \"npm --prefix backend run dev\" \"npm --prefix frontend start\"",
-    "backend": "npm --prefix backend run dev",
-    "frontend": "npm --prefix frontend start"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
   "dependencies": {
-    "axios": "^1.13.4",
-    "dotenv": "^17.2.3",
-    "mongoose": "^9.1.5"
-  }
+    "accessible-language-learning-platform": "file:..",
+    "axios": "^1.6.2",
+    "lucide-react": "^0.563.0",
+    "react": "^18.2.0",
+    "react-confetti": "^6.4.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:5002"
 }

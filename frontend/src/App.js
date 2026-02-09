@@ -21,17 +21,17 @@ const SystemCheck = () => {
 
       // Feature support checks
       if (!('speechSynthesis' in window)) {
-        currentWarnings.push("❌ Text-to-Speech not supported.");
+        currentWarnings.push("Text-to-Speech not supported.");
       }
       if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-        currentWarnings.push("❌ Voice Recognition not supported.");
+        currentWarnings.push("Voice recognition not supported.");
       }
 
       // Voice availability check
       if (window.speechSynthesis) {
         const voices = window.speechSynthesis.getVoices();
         if (voices.length === 0) {
-          currentWarnings.push("⚠️ No TTS voices found. Audio may be silent.");
+          currentWarnings.push("Warning: No TTS voices found. Audio may be silent.");
         }
       }
 

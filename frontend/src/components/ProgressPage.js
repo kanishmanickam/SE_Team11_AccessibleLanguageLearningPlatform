@@ -6,6 +6,7 @@ import { getSummary } from '../services/progressService';
 import './learning/DyslexiaView.css';
 import { getAllLessonProgress, normalizeUserId } from '../services/dyslexiaProgressService';
 import api from '../utils/api';
+import { BookOpen } from 'lucide-react';
 
 const mapLessonTitle = (lessonId, fallbackTitle) => {
   const titleById = {
@@ -220,7 +221,10 @@ const ProgressPage = () => {
     >
       <nav className="navbar">
         <div className="nav-brand">
-          <h1>📚 Language Learning</h1>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <BookOpen size={22} aria-hidden="true" />
+            <span>Language Learning</span>
+          </h1>
         </div>
         <div className="nav-menu">
           <span className="user-name">Hello, {user?.name}!</span>
@@ -295,7 +299,7 @@ const ProgressPage = () => {
                 const statusClass = (l.status || 'Not Started').replace(/\s+/g, '-').toLowerCase();
                 return (
                   <div key={l.id} className="lesson-card">
-                    <div className="lesson-icon">📖</div>
+                    <div className="lesson-icon" aria-hidden="true"><BookOpen size={22} /></div>
                     <h4>{l.title}</h4>
                     <div className="lesson-meta">
                       <span className={`status-pill status-${statusClass}`}>{l.status}</span>
