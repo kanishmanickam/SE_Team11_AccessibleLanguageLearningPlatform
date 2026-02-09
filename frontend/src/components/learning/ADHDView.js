@@ -7,6 +7,25 @@ import './ADHDView.css';
 import ReactConfetti from 'react-confetti';
 import { getSummary } from '../../services/progressService';
 import api from '../../utils/api';
+import {
+  Bot,
+  BookOpen,
+  ChevronLeft,
+  Dumbbell,
+  Hand,
+  Hash,
+  Headphones,
+  Lightbulb,
+  Mic,
+  Pause,
+  Pencil,
+  Play,
+  Rocket,
+  RotateCcw,
+  Settings,
+  Target,
+  Timer,
+} from 'lucide-react';
 
 const ADHDView = ({ initialLessonId = null }) => {
   const { user, logout } = useAuth();
@@ -146,7 +165,7 @@ const ADHDView = ({ initialLessonId = null }) => {
     setActiveLesson(null);
     setLessonPhase('idle');
     if (preferences?.breakReminders) {
-      alert('⏰ Time for a break! Take 5 minutes to rest before continuing.');
+      alert('Time for a break! Take 5 minutes to rest before continuing.');
     }
   };
 
@@ -194,7 +213,7 @@ const ADHDView = ({ initialLessonId = null }) => {
       id: 1,
       title: 'Greetings',
       duration: '10 min',
-      icon: '👋',
+      Icon: Hand,
       steps: [
         {
           type: 'learn',
@@ -232,7 +251,7 @@ const ADHDView = ({ initialLessonId = null }) => {
       id: 2,
       title: 'Basic Words',
       duration: '10 min',
-      icon: '📝',
+      Icon: Pencil,
       steps: [
         {
           type: 'learn',
@@ -270,7 +289,7 @@ const ADHDView = ({ initialLessonId = null }) => {
       id: 3,
       title: 'Numbers',
       duration: '10 min',
-      icon: '🔢',
+      Icon: Hash,
       steps: [
         {
           type: 'learn',
@@ -308,7 +327,7 @@ const ADHDView = ({ initialLessonId = null }) => {
       id: 4,
       title: 'Audio Stories',
       duration: '15 min',
-      icon: '🎧',
+      Icon: Headphones,
       isStory: true,
       steps: [
         {
@@ -462,7 +481,7 @@ const ADHDView = ({ initialLessonId = null }) => {
 
     const step = steps[currentStepIndex];
     if (option === step.correct) {
-      setFeedback({ type: 'success', message: 'Correct! Great job! 🎉' });
+      setFeedback({ type: 'success', message: 'Correct! Great job!' });
       const points = 10;
       setScore(prev => prev + points);
       setCurrentLessonScore(prev => prev + points);
@@ -552,11 +571,14 @@ const ADHDView = ({ initialLessonId = null }) => {
     <div className="adhd-view">
       {/* Minimal Top Bar */}
       <header className="top-bar">
-        <h1>📚 Learn</h1>
+        <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <BookOpen size={22} aria-hidden="true" />
+          <span>Learn</span>
+        </h1>
         <div className="header-actions">
           {isSessionActive && timeRemaining !== null && (
             <div className="timer-display">
-              <span className="timer-icon">⏱️</span>
+              <span className="timer-icon" aria-hidden="true"><Timer size={16} /></span>
               <span className="timer-text">{formatTime(timeRemaining)}</span>
             </div>
           )}
@@ -569,7 +591,7 @@ const ADHDView = ({ initialLessonId = null }) => {
             Progress
           </button>
           <button onClick={() => setShowSettings(true)} className="btn-minimal" title="Settings">
-            ⚙️
+            <Settings size={18} aria-hidden="true" />
           </button>
           <button onClick={logout} className="btn-minimal">
             Exit
@@ -588,7 +610,10 @@ const ADHDView = ({ initialLessonId = null }) => {
             /* Dashboard View */
             <>
               <div className="focus-card">
-                <h2>Hi, {user?.name}! 👋</h2>
+                <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span>Hi, {user?.name}!</span>
+                  <Hand size={18} aria-hidden="true" />
+                </h2>
                 <p>Let's focus on one lesson at a time.</p>
               </div>
 
@@ -619,10 +644,10 @@ const ADHDView = ({ initialLessonId = null }) => {
                       {baseLessons.map((lesson) => (
                         <div key={lesson.id} className="lesson-item">
                           <div className="lesson-content">
-                            <span className="lesson-emoji">{lesson.icon}</span>
+                            <span className="lesson-emoji" aria-hidden="true"><lesson.Icon size={22} /></span>
                             <div className="lesson-info">
                               <h4>{lesson.title}</h4>
-                              <span className="lesson-time">⏱️ {lesson.duration}</span>
+                              <span className="lesson-time"><Timer size={14} aria-hidden="true" /> {lesson.duration}</span>
                             </div>
                           </div>
                           <button onClick={() => handleStartLesson(lesson)} className="btn-lesson">Start</button>
@@ -636,7 +661,12 @@ const ADHDView = ({ initialLessonId = null }) => {
           ) : lessonPhase === 'intro' ? (
             <div className="intro-view" style={{ textAlign: 'center', padding: '3rem', animation: 'fadeIn 0.5s ease' }}>
               <h2 style={{ fontSize: '2.5rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{activeLesson.title}</h2>
-              {isLoading && <p>Generating focused content for you... 🤖</p>}
+              {isLoading && (
+                <p style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <Bot size={16} aria-hidden="true" />
+                  <span>Generating focused content for you...</span>
+                </p>
+              )}
               <div style={{ background: 'var(--accent-color-soft)', padding: '2rem', borderRadius: '15px', display: 'inline-block', marginBottom: '2rem', border: '1px solid var(--border-color)' }}>
                 <p style={{ fontSize: '1.5rem', margin: 0, color: 'var(--accent-color-hover)' }}>Passing Score: <strong>20 Points</strong></p>
               </div>
@@ -658,7 +688,12 @@ const ADHDView = ({ initialLessonId = null }) => {
                   boxShadow: '0 4px 15px rgba(77, 134, 201, 0.28)'
                 }}
               >
-                {isLoading ? 'Loading...' : "I'm Ready! 🚀"}
+                {isLoading ? 'Loading...' : (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                    <Rocket size={18} aria-hidden="true" />
+                    <span>I'm Ready!</span>
+                  </span>
+                )}
               </button>
             </div>
           ) : lessonPhase === 'countdown' ? (
@@ -691,7 +726,7 @@ const ADHDView = ({ initialLessonId = null }) => {
                 </>
               ) : (
                 <>
-                  <div style={{ fontSize: '5rem', marginBottom: '1rem' }}>💪</div>
+                  <div style={{ marginBottom: '1rem' }} aria-hidden="true"><Dumbbell size={64} /></div>
                   <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Don't Give Up!</h2>
                   <p style={{ fontSize: '1.5rem', color: 'var(--error-color)', fontWeight: 'bold' }}>
                     You have one more chance!!!!
@@ -734,7 +769,10 @@ const ADHDView = ({ initialLessonId = null }) => {
                       background: 'var(--warning-color)', color: 'white', cursor: 'pointer', boxShadow: '0 4px 12px rgba(194, 122, 44, 0.22)'
                     }}
                   >
-                    Try Again 🔄
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                      <RotateCcw size={18} aria-hidden="true" />
+                      <span>Try Again</span>
+                    </span>
                   </button>
                 )}
               </div>
@@ -749,7 +787,7 @@ const ADHDView = ({ initialLessonId = null }) => {
               <div className="step-content">
                 {!currentStep ? (
                   <div style={{ textAlign: 'center', padding: '2rem' }}>
-                    <h3>🚧 Content Coming Soon</h3>
+                    <h3>Content coming soon</h3>
                   </div>
                 ) : (
                   <>
@@ -791,7 +829,17 @@ const ADHDView = ({ initialLessonId = null }) => {
                             </div>
                             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                               <button onClick={handlePlayStory} className="btn-audio" style={{ fontSize: '1.2rem', padding: '10px 30px' }}>
-                                {currentAudio && !currentAudio.paused ? '🎵 Restart Story' : '🎵 Play Story'}
+                                {currentAudio && !currentAudio.paused ? (
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                                    <RotateCcw size={18} aria-hidden="true" />
+                                    <span>Restart Story</span>
+                                  </span>
+                                ) : (
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                                    <Play size={18} aria-hidden="true" />
+                                    <span>Play Story</span>
+                                  </span>
+                                )}
                               </button>
                               {currentAudio && (
                                 <button
@@ -808,7 +856,17 @@ const ADHDView = ({ initialLessonId = null }) => {
                                   className="btn-audio"
                                   style={{ fontSize: '1.2rem', padding: '10px 30px', background: '#ff9800' }}
                                 >
-                                  {currentAudio.paused ? '▶️ Resume' : '⏸️ Pause'}
+                                  {currentAudio.paused ? (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                                      <Play size={18} aria-hidden="true" />
+                                      <span>Resume</span>
+                                    </span>
+                                  ) : (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                                      <Pause size={18} aria-hidden="true" />
+                                      <span>Pause</span>
+                                    </span>
+                                  )}
                                 </button>
                               )}
                             </div>
@@ -865,7 +923,8 @@ const ADHDView = ({ initialLessonId = null }) => {
                                 gap: '8px'
                               }}
                             >
-                              <span>🎤</span> {isListening ? 'Listening...' : 'Use Voice Answer'}
+                              <Mic size={16} aria-hidden="true" />
+                              <span>{isListening ? 'Listening...' : 'Use Voice Answer'}</span>
                             </button>
                           </div>
                         </div>
@@ -881,7 +940,8 @@ const ADHDView = ({ initialLessonId = null }) => {
 
                       <div className="controls">
                         <button onClick={handleReplayStep} className="btn-control" title="Replay">
-                          🔄 Replay
+                          <RotateCcw size={16} aria-hidden="true" />
+                          <span>Replay</span>
                         </button>
 
                         <button
@@ -890,18 +950,20 @@ const ADHDView = ({ initialLessonId = null }) => {
                           title="Previous"
                           disabled={currentStepIndex === 0 || isTransitioning}
                         >
-                          ⬅️ Prev
+                          <ChevronLeft size={16} aria-hidden="true" />
+                          <span>Prev</span>
                         </button>
 
                         {currentStep.hint && attempts > 0 && (
                           <button onClick={() => setShowHint(true)} className="btn-control">
-                            💡 Hint
+                            <Lightbulb size={16} aria-hidden="true" />
+                            <span>Hint</span>
                           </button>
                         )}
 
                         {(currentStep.type === 'learn' || currentStep.type === 'story' || feedback?.type === 'success') && (
                           <button onClick={handleNextStep} className="btn-next">
-                            Next ➜
+                            Next →
                           </button>
                         )}
                       </div>
@@ -921,11 +983,11 @@ const ADHDView = ({ initialLessonId = null }) => {
           {!activeLesson && (
             <div className="simple-tips">
               <div className="tip-item">
-                <span className="tip-icon">💡</span>
+                <span className="tip-icon" aria-hidden="true"><Lightbulb size={16} /></span>
                 <span>Take breaks every 20 minutes</span>
               </div>
               <div className="tip-item">
-                <span className="tip-icon">🎯</span>
+                <span className="tip-icon" aria-hidden="true"><Target size={16} /></span>
                 <span>Focus on just one lesson at a time</span>
               </div>
             </div>

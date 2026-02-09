@@ -3,6 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
 import api from '../../utils/api';
+import {
+  BookOpen,
+  Check,
+  Hand,
+  Hash,
+  Info,
+  Lightbulb,
+  RotateCcw,
+  Settings,
+  Star,
+  Timer,
+  Volume2,
+} from 'lucide-react';
 import './AutismView.css';
 
 const AutismView = ({ initialLessonId = null }) => {
@@ -53,7 +66,7 @@ const AutismView = ({ initialLessonId = null }) => {
       id: 1,
       title: 'Greetings',
       language: 'Tamil',
-      icon: '🙏',
+      Icon: Hand,
       description: 'Learn basic Tamil greetings',
       steps: [
         {
@@ -75,7 +88,7 @@ const AutismView = ({ initialLessonId = null }) => {
         {
           id: 2,
           title: 'Thank You in Tamil',
-          content: 'நன்றி (Nandri)',
+          Icon: BookOpen,
           translation: 'A polite word in Tamil',
           highlight: 'நன்றி',
           image: '/images/autism-tamil-thanks.svg',
@@ -222,7 +235,7 @@ const AutismView = ({ initialLessonId = null }) => {
       id: 2,
       title: 'Basic Words',
       language: 'English',
-      icon: '🔤',
+      Icon: BookOpen,
       description: 'Learn English alphabet letters',
       steps: [
         {
@@ -391,7 +404,7 @@ const AutismView = ({ initialLessonId = null }) => {
       id: 3,
       title: 'Numbers',
       language: 'Hindi',
-      icon: '🔢',
+      Icon: Hash,
       description: 'Learn Hindi numbers 1 to 10',
       steps: [
         {
@@ -569,7 +582,7 @@ const AutismView = ({ initialLessonId = null }) => {
     const stepKey = `${selectedLesson}-${currentStepIndex}`;
 
     if (!stepAnsweredCorrectly[stepKey]) {
-      setFeedback('⚠️ Please answer the question correctly before moving to the next step.');
+      setFeedback('Please answer the question correctly before moving to the next step.');
       setTimeout(() => setFeedback(''), 3000);
       return;
     }
@@ -591,7 +604,7 @@ const AutismView = ({ initialLessonId = null }) => {
         // Save to backend
         saveLessonCompletion(selectedLesson);
       }
-      setFeedback('🎉 Great job! You completed this lesson!');
+      setFeedback('Great job! You completed this lesson!');
     }
   };
 
@@ -645,12 +658,12 @@ const AutismView = ({ initialLessonId = null }) => {
         // Fallback to browser's text-to-speech if audio file not found
         speakText(currentStep.content);
       });
-      setFeedback('🔊 Playing audio...');
+      setFeedback('Playing audio...');
       setTimeout(() => setFeedback(''), 2000);
     } else if (currentStep?.content) {
       // If no audio ref, use text-to-speech directly
       speakText(currentStep.content);
-      setFeedback('🔊 Playing audio...');
+      setFeedback('Playing audio...');
       setTimeout(() => setFeedback(''), 2000);
     }
   };
@@ -683,7 +696,7 @@ const AutismView = ({ initialLessonId = null }) => {
       const audio = new Audio(url);
       audio.playbackRate = playbackSpeed;
 
-      audio.onplay = () => setFeedback('🔊 Playing audio...');
+      audio.onplay = () => setFeedback('Playing audio...');
       audio.onended = () => {
         setFeedback('');
         URL.revokeObjectURL(url);
@@ -708,7 +721,7 @@ const AutismView = ({ initialLessonId = null }) => {
           }
         };
 
-        utterance.onstart = () => setFeedback('🔊 Playing audio...');
+        utterance.onstart = () => setFeedback('Playing audio...');
         utterance.onend = () => {
           setActiveWord('');
           setFeedback('');
@@ -741,7 +754,7 @@ const AutismView = ({ initialLessonId = null }) => {
   // Handle timeout
   const handleTimeOut = useCallback(() => {
     if (!questionAnswered) {
-      setFeedback('⏰ Time\'s up! Click retry to try again.');
+      setFeedback('Time\'s up! Click retry to try again.');
       setQuestionAnswered(true);
       setTimerActive(false);
 
@@ -829,7 +842,7 @@ const AutismView = ({ initialLessonId = null }) => {
 
       const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
-        setFeedback('✅ Good job! That\'s correct!');
+        setFeedback('Good job! That\'s correct!');
         // Mark this step as answered correctly
         setStepAnsweredCorrectly(prev => ({
           ...prev,
@@ -852,7 +865,7 @@ const AutismView = ({ initialLessonId = null }) => {
 
         if (newWrongCount >= 2) {
           // Auto-advance to next step after 2 wrong answers
-          setFeedback('💡 Moving to the next step. Try to review this later!');
+          setFeedback('Moving to the next step. Try to review this later!');
           setTimeout(() => {
             setFeedback('');
             setShowHint(false);
@@ -864,11 +877,11 @@ const AutismView = ({ initialLessonId = null }) => {
                 setCompletedLessons([...completedLessons, selectedLesson]);
                 saveLessonCompletion(selectedLesson);
               }
-              setFeedback('🎉 You completed this lesson! Review the steps you found difficult.');
+              setFeedback('You completed this lesson! Review the steps you found difficult.');
             }
           }, 2000);
         } else {
-          setFeedback('💡 Try again! Look at the hint if you need help.');
+          setFeedback('Try again! Look at the hint if you need help.');
         }
       }
       setTimeout(() => {
@@ -877,6 +890,22 @@ const AutismView = ({ initialLessonId = null }) => {
         }
       }, 2000);
     }
+  };
+
+  const renderDifficultyLabel = (difficulty) => {
+    const normalized = difficulty || 'medium';
+    const count = normalized === 'easy' ? 1 : normalized === 'medium' ? 2 : 3;
+    const text = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }} aria-hidden="true">
+          {Array.from({ length: count }).map((_, idx) => (
+            <Star key={idx} size={14} />
+          ))}
+        </span>
+        <span>{text}</span>
+      </span>
+    );
   };
 
   // Start lesson
@@ -1032,7 +1061,8 @@ const AutismView = ({ initialLessonId = null }) => {
                 {/* EPIC 2.1: Audio controls */}
                 <div className="step-audio-section">
                   <button onClick={handlePlayAudio} className="btn-audio">
-                    🔊 Play Audio
+                    <Volume2 size={18} aria-hidden="true" />
+                    <span>Play Audio</span>
                   </button>
                   <audio
                     ref={audioRef}
@@ -1090,27 +1120,24 @@ const AutismView = ({ initialLessonId = null }) => {
                             />
                           </svg>
                           <div className="timer-content">
-                            <span className="timer-emoji">⏱️</span>
+                            <span className="timer-emoji" aria-hidden="true"><Timer size={18} /></span>
                             <span className="timer-number">{timeRemaining}</span>
                           </div>
                         </div>
                         <div className="timer-info">
                           <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
-                            {currentStep.interaction.difficulty === 'easy' && '⭐ Easy'}
-                            {currentStep.interaction.difficulty === 'medium' && '⭐⭐ Medium'}
-                            {currentStep.interaction.difficulty === 'hard' && '⭐⭐⭐ Hard'}
+                            {renderDifficultyLabel(currentStep.interaction.difficulty)}
                           </span>
                         </div>
                       </div>
                     ) : questionAnswered && !timerActive ? (
                       <div className="retry-section">
                         <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
-                          {currentStep.interaction.difficulty === 'easy' && '⭐ Easy'}
-                          {currentStep.interaction.difficulty === 'medium' && '⭐⭐ Medium'}
-                          {currentStep.interaction.difficulty === 'hard' && '⭐⭐⭐ Hard'}
+                          {renderDifficultyLabel(currentStep.interaction.difficulty)}
                         </span>
                         <button onClick={handleRetry} className="btn-retry">
-                          🔄 Retry Question
+                          <RotateCcw size={18} aria-hidden="true" />
+                          <span>Retry Question</span>
                         </button>
                       </div>
                     ) : null}
@@ -1123,7 +1150,8 @@ const AutismView = ({ initialLessonId = null }) => {
                 {/* EPIC 2.4: Hint section */}
                 <div className="hint-section">
                   <button onClick={handleShowHint} className="btn-hint">
-                    💡 {showHint ? 'Hide Hint' : 'Show Hint'}
+                    <Lightbulb size={18} aria-hidden="true" />
+                    <span>{showHint ? 'Hide Hint' : 'Show Hint'}</span>
                   </button>
                   {showHint && <div className="hint-content">{currentStep.hint}</div>}
                 </div>
@@ -1144,7 +1172,12 @@ const AutismView = ({ initialLessonId = null }) => {
                 onClick={handleNext}
                 className="btn-nav btn-next"
               >
-                {currentStepIndex < totalSteps - 1 ? 'Next →' : 'Complete Lesson ✓'}
+                {currentStepIndex < totalSteps - 1 ? 'Next →' : (
+                  <>
+                    <span>Complete Lesson</span>
+                    <Check size={16} aria-hidden="true" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1172,7 +1205,7 @@ const AutismView = ({ initialLessonId = null }) => {
             Progress
           </button>
           <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
-            ⚙️
+            <Settings size={18} aria-hidden="true" />
           </button>
           <button onClick={logout} className="btn-exit">
             Exit
@@ -1188,7 +1221,10 @@ const AutismView = ({ initialLessonId = null }) => {
       <main className="content-area-simple">
         {/* Welcome Card */}
         <div className="welcome-card">
-          <h2>Hello, {user?.name} 👋</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span>Hello, {user?.name}</span>
+            <Hand size={18} aria-hidden="true" />
+          </h2>
           <p>Select a lesson below to begin learning</p>
         </div>
 
@@ -1198,9 +1234,9 @@ const AutismView = ({ initialLessonId = null }) => {
             {lessons.map((lesson) => (
               <div key={lesson.id} className={`lesson-simple-card ${completedLessons.includes(lesson.id) ? 'completed' : ''}`}>
                 <div className="lesson-top">
-                  <span className="lesson-large-icon">{lesson.icon}</span>
+                  <span className="lesson-large-icon" aria-hidden="true"><lesson.Icon size={40} /></span>
                   {completedLessons.includes(lesson.id) && (
-                    <span className="completion-checkmark">✓</span>
+                    <span className="completion-checkmark" aria-hidden="true"><Check size={18} /></span>
                   )}
                 </div>
                 <div className="lesson-body">
@@ -1209,7 +1245,7 @@ const AutismView = ({ initialLessonId = null }) => {
                   <div className="lesson-meta">
                     <span className="lesson-steps-count">{lesson.steps.length} steps</span>
                     {completedLessons.includes(lesson.id) && (
-                      <span className="completion-badge">✓ Completed</span>
+                      <span className="completion-badge"><Check size={14} aria-hidden="true" /> <span>Completed</span></span>
                     )}
                   </div>
                 </div>
@@ -1227,7 +1263,7 @@ const AutismView = ({ initialLessonId = null }) => {
         {/* Simple Help Section */}
         <div className="help-section">
           <div className="help-card">
-            <span className="help-icon">ℹ️</span>
+            <span className="help-icon" aria-hidden="true"><Info size={20} /></span>
             <div className="help-text">
               <h4>How it works</h4>
               <p>Click "Start Lesson" to begin. Follow each step carefully. Use hints if you need help.</p>

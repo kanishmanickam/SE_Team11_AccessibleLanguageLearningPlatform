@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAllLessonProgress, normalizeUserId } from '../../services/dyslexiaProgressService';
 import ProfileSettings from '../ProfileSettings';
+import { BookOpen, Hash, MessageCircle, Settings } from 'lucide-react';
 import './DyslexiaView.css';
 
 const DyslexiaView = () => {
@@ -12,9 +13,9 @@ const DyslexiaView = () => {
   const navigate = useNavigate();
 
   const lessons = [
-    { id: 1, title: 'Greetings', level: 'Beginner', apiId: 'lesson-greetings', icon: '????', color: '#ffd700', description: 'Learn hello, hi, and friendly phrases' },
-    { id: 2, title: 'Basic Words', level: 'Beginner', apiId: 'lesson-vocabulary', icon: '????', color: '#90caf9', description: 'Everyday objects, people, and actions' },
-    { id: 3, title: 'Numbers', level: 'Beginner', apiId: 'lesson-numbers', icon: '????', color: '#a5d6a7', description: 'Count, match, and order numbers' },
+    { id: 1, title: 'Greetings', level: 'Beginner', apiId: 'lesson-greetings', Icon: MessageCircle, color: '#ffd700', description: 'Learn hello, hi, and friendly phrases' },
+    { id: 2, title: 'Basic Words', level: 'Beginner', apiId: 'lesson-vocabulary', Icon: BookOpen, color: '#90caf9', description: 'Everyday objects, people, and actions' },
+    { id: 3, title: 'Numbers', level: 'Beginner', apiId: 'lesson-numbers', Icon: Hash, color: '#a5d6a7', description: 'Count, match, and order numbers' },
   ];
 
   const handleStartLesson = (lesson) => {
@@ -36,7 +37,10 @@ const DyslexiaView = () => {
       {/* Navigation Bar */}
       <nav className="navbar">
         <div className="nav-brand">
-          <h1>???? Language Learning</h1>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <BookOpen size={22} aria-hidden="true" />
+            <span>Language Learning</span>
+          </h1>
         </div>
         <div className="nav-menu">
           <span className="user-name">Hello, {user?.name}!</span>
@@ -48,8 +52,14 @@ const DyslexiaView = () => {
           >
             Progress
           </button>
-          <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
-            ??????
+          <button
+            type="button"
+            onClick={() => setShowSettings(true)}
+            className="btn-settings"
+            title="Settings"
+            aria-label="Settings"
+          >
+            <Settings size={18} aria-hidden="true" />
           </button>
           <button onClick={logout} className="btn-logout">
             Logout
@@ -82,7 +92,7 @@ const DyslexiaView = () => {
               return (
                 <div key={lesson.id} className="lesson-card">
                   <div className="lesson-icon" style={{ background: `linear-gradient(135deg, ${lesson.color}88, ${lesson.color})` }}>
-                    <span className="lesson-icon-emoji" role="img" aria-label={lesson.title}>{lesson.icon}</span>
+                    <lesson.Icon size={28} aria-hidden="true" />
                   </div>
                   <h4>{lesson.title}</h4>
                   <p className="lesson-description">{lesson.description}</p>

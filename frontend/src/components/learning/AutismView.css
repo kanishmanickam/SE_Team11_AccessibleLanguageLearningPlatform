@@ -63,7 +63,7 @@
   gap: 12px;
 }
 
-.btn-exit {
+.autism-view .btn-exit {
   padding: 10px 24px;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
   color: #1565C0;
@@ -79,34 +79,37 @@
   overflow: hidden;
 }
 
-.btn-exit::before, .btn-settings::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(33, 150, 243, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn-exit:hover::before, .btn-settings:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.btn-exit:hover {
+.autism-view .btn-exit:hover {
   border-color: #ff5252;
   color: #ff5252;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(255, 82, 82, 0.3);
 }
 
-.btn-settings:hover {
+.autism-view .btn-settings {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  color: #1565C0;
+  border: 2px solid #2196F3;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Comic Sans MS', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(33, 150, 243, 0.2);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.autism-view .btn-settings:hover {
   border-color: var(--accent-color);
-  color: var(--accent-color);
+  background-color: var(--accent-color);
+  color: #ffffff;
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(77, 134, 201, 0.25);
 }
