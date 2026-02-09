@@ -91,6 +91,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
   const currentInteraction = interactions[activeInteractionIndex];
 
+  const sectionId = section?.id || section?._id;
+
   useEffect(() => {
     setActiveInteractionIndex(0);
     setIsPlaying(false);
@@ -100,10 +102,10 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
     setIsUsingTTS(false);
     setAudioFailed(false);
     window.speechSynthesis.cancel();
-    if (onInteractionChange && section) {
-      onInteractionChange(section.id || section._id, 0);
+    if (onInteractionChange && sectionId) {
+      onInteractionChange(sectionId, 0);
     }
-  }, [sectionKey]);
+  }, [sectionKey, onInteractionChange, sectionId]);
 
   useEffect(() => {
     if (!lessonKey) return;
@@ -297,6 +299,13 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
       correctCount,
       correctIds: Array.from(correctIds),
     });
+
+    // Notify other parts of the app (Progress page) that local progress changed.
+    try {
+      window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId: lessonKey, source: 'local' } }));
+    } catch (e) {
+      // ignore
+    }
   };
 
   if (!section) return null;
@@ -334,10 +343,19 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
               onAnswered={handleAnswered}
               autoAdvanceOnCorrect={!isReplay}
               enableTimer={!isReplay}
-              enableSpeech={true}
+              enableSpeech={false}
               autoPlayNarration={false}
               disableAutoSpeak={true}
             />
+          )}
+
+          {!currentInteraction && interactions.length > 0 && (
+            <div className="fx-card" style={{ padding: 16, marginTop: 14 }}>
+              <h3 style={{ marginTop: 0 }}>Section complete</h3>
+              <p style={{ marginBottom: 0 }}>
+                You finished the questions for this section. Use the <strong>Next</strong> button below to continue.
+              </p>
+            </div>
           )}
         </div>
 

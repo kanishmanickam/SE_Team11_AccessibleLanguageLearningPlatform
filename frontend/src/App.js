@@ -8,6 +8,7 @@ import AccessibilitySetup from './components/AccessibilitySetup';
 import Dashboard from './components/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import LessonPage from './components/learning/LessonPage';
+import ProgressPage from './components/ProgressPage';
 
 // Diagnostic Component
 const SystemCheck = () => {
@@ -110,6 +111,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/progress"
+              element={
+                <ProtectedRoute>
+                  <ProgressPage />
                 </ProtectedRoute>
               }
             />

@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getAllLessonProgress, normalizeUserId } from '../../services/dyslexiaProgressService';
 import ProfileSettings from '../ProfileSettings';
 import './DyslexiaView.css';
-import { getSummary } from '../../services/progressService';
 
 const DyslexiaView = () => {
   const { user, logout } = useAuth();
@@ -22,28 +21,6 @@ const DyslexiaView = () => {
     navigate(`/lessons/${lesson.apiId}`);
   };
 
-  const [summary, setSummary] = useState(null);
-  const [summaryLoading, setSummaryLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      setSummaryLoading(true);
-      try {
-        const s = await getSummary();
-        if (mounted && s && s.success) setSummary(s);
-      } catch (e) {
-        // ignore
-      } finally {
-        mounted && setSummaryLoading(false);
-      }
-    };
-    load();
-    const onProgress = () => load();
-    window.addEventListener('progress:updated', onProgress);
-    return () => { mounted = false; window.removeEventListener('progress:updated', onProgress); };
-  }, []);
-
   useEffect(() => {
     const key = normalizeUserId(user);
     if (!key) {
@@ -54,16 +31,6 @@ const DyslexiaView = () => {
     setLessonProgress(progress || {});
   }, [user]);
 
-  const completedCount = useMemo(() => {
-    return Object.values(lessonProgress || {}).filter((entry) => entry?.status === 'Completed').length;
-  }, [lessonProgress]);
-
-  const wordsLearned = useMemo(() => {
-    return Object.values(lessonProgress || {}).reduce((total, entry) => {
-      return total + (entry?.correctCount || 0);
-    }, 0);
-  }, [lessonProgress]);
-
   return (
     <div className="dyslexia-view">
       {/* Navigation Bar */}
@@ -73,6 +40,14 @@ const DyslexiaView = () => {
         </div>
         <div className="nav-menu">
           <span className="user-name">Hello, {user?.name}!</span>
+          <button
+            type="button"
+            onClick={() => navigate('/progress')}
+            className="btn-settings"
+            title="View progress"
+          >
+            Progress
+          </button>
           <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
             ⚙️
           </button>
@@ -94,31 +69,6 @@ const DyslexiaView = () => {
             This space is designed specifically for learners with dyslexia, with clear fonts,
             proper spacing, and visual cues to make reading easier.
           </p>
-        </div>
-
-        {/* Progress Overview */}
-        <div className="progress-card">
-          <div className="card-header">
-            <h3>Your Progress</h3>
-          </div>
-          <div className="card-body">
-            <div className="progress-stats">
-              <div className="stat-item">
-                <div className="stat-value">
-                  {summaryLoading ? '…' : (summary?.completedCount ?? completedCount ?? 0)}
-                </div>
-                <div className="stat-label">Lessons Completed</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">0</div>
-                <div className="stat-label">Hours Practiced</div>
-              </div>
-              <div className="stat-item">
-                <div className="stat-value">{wordsLearned}</div>
-                <div className="stat-label">Words Learned</div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Lessons Grid */}

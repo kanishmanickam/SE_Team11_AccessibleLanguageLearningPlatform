@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
 import './ADHDView.css';
 import ReactConfetti from 'react-confetti';
 import { getSummary } from '../../services/progressService';
+import api from '../../utils/api';
 
-const ADHDView = () => {
+const ADHDView = ({ initialLessonId = null }) => {
   const { user, logout } = useAuth();
   const { preferences } = usePreferences();
+  const navigate = useNavigate();
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -30,28 +33,43 @@ const ADHDView = () => {
   const [countdownValue, setCountdownValue] = useState(5);
   const [dummyUpdate, setDummyUpdate] = useState(0); // For forcing re-renders on audio state changes
 
-  // Progress summary
-  const [summary, setSummary] = useState(null);
-  const [summaryLoading, setSummaryLoading] = useState(true);
+  const savedCompletionRef = React.useRef(new Set());
 
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      setSummaryLoading(true);
-      try {
-        const s = await getSummary();
-        if (mounted && s && s.success) setSummary(s);
-      } catch (e) {
-        // ignore
-      } finally {
-        mounted && setSummaryLoading(false);
+  const saveLessonCompletion = async (lessonId) => {
+    try {
+      const lessonKey = `adhd-lesson-${lessonId}`;
+      const res = await api.post('/users/complete-lesson', { lessonKey });
+
+      const summaryFromBackend = res?.data?.summary;
+      if (summaryFromBackend) {
+        window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: summaryFromBackend } }));
+      } else {
+        try {
+          const s = await getSummary();
+          if (s) window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: s } }));
+        } catch (e) {
+          // ignore
+        }
       }
-    };
-    load();
-    const onProgress = () => load();
-    window.addEventListener('progress:updated', onProgress);
-    return () => { mounted = false; window.removeEventListener('progress:updated', onProgress); };
-  }, []);
+    } catch (e) {
+      // Non-blocking: completion should not break the lesson flow
+      console.error('Error saving ADHD lesson completion', e);
+    }
+  };
+
+  const exitLesson = () => {
+    window.speechSynthesis.cancel();
+    setActiveLesson(null);
+    setLessonPhase('idle');
+    setSteps([]);
+    setCurrentStepIndex(0);
+    setFeedback(null);
+    setShowHint(false);
+    setAttempts(0);
+    setIsTransitioning(false);
+    setIsLoading(false);
+    setCountdownValue(5);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -371,6 +389,27 @@ const ADHDView = () => {
     setIsLoading(false);
   };
 
+  const autoOpenedLessonRef = React.useRef(null);
+
+  useEffect(() => {
+    if (!initialLessonId) return;
+    if (activeLesson) return;
+
+    const targetId = Number(initialLessonId);
+    if (!Number.isFinite(targetId)) return;
+    if (autoOpenedLessonRef.current === targetId) return;
+
+    const lesson = baseLessons.find((l) => l.id === targetId);
+    if (!lesson) return;
+
+    autoOpenedLessonRef.current = targetId;
+    if (!isSessionActive) {
+      startSession();
+    }
+    handleStartLesson(lesson);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLessonId, activeLesson]);
+
   const handleNextStep = () => {
     window.speechSynthesis.cancel(); // Stop audio on next
     if (currentStepIndex < steps.length - 1) {
@@ -384,6 +423,17 @@ const ADHDView = () => {
       // Removed completion audio
     }
   }
+
+  useEffect(() => {
+    if (lessonPhase !== 'complete') return;
+    if (!activeLesson?.id) return;
+    if (currentLessonScore < 20) return;
+
+    const key = `adhd-lesson-${activeLesson.id}`;
+    if (savedCompletionRef.current.has(key)) return;
+    savedCompletionRef.current.add(key);
+    saveLessonCompletion(activeLesson.id);
+  }, [lessonPhase, activeLesson, currentLessonScore]);
 
   const handlePreviousStep = () => {
     window.speechSynthesis.cancel();
@@ -510,6 +560,14 @@ const ADHDView = () => {
               <span className="timer-text">{formatTime(timeRemaining)}</span>
             </div>
           )}
+          <button
+            type="button"
+            onClick={() => navigate('/progress')}
+            className="btn-minimal"
+            title="View progress"
+          >
+            Progress
+          </button>
           <button onClick={() => setShowSettings(true)} className="btn-minimal" title="Settings">
             ⚙️
           </button>
@@ -532,16 +590,6 @@ const ADHDView = () => {
               <div className="focus-card">
                 <h2>Hi, {user?.name}! 👋</h2>
                 <p>Let's focus on one lesson at a time.</p>
-              </div>
-
-              <div className="progress-card" style={{ marginTop: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3 style={{ margin: 0 }}>Progress</h3>
-                  <div style={{ fontSize: 14 }}>{summaryLoading ? 'Loading…' : `${summary.completedCount} of ${summary.totalLessons} (${summary.totalLessons ? Math.round((summary.completedCount / summary.totalLessons) * 100) : 0}%)`}</div>
-                </div>
-                <div style={{ marginTop: 8 }}>
-                  <p style={{ margin: 0 }}><strong>Completed:</strong> {summaryLoading ? '…' : summary.completedCount} • <strong>Remaining:</strong> {summaryLoading ? '…' : summary.remaining}</p>
-                </div>
               </div>
 
               {!isSessionActive ? (
@@ -668,7 +716,7 @@ const ADHDView = () => {
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                 {currentLessonScore >= 20 ? (
                   <button
-                    onClick={() => { setActiveLesson(null); setLessonPhase('idle'); }}
+                    onClick={exitLesson}
                     className="btn-primary"
                     style={{
                       padding: '1rem 2rem', fontSize: '1.1rem', borderRadius: '12px', border: 'none',
@@ -694,7 +742,7 @@ const ADHDView = () => {
           ) : (
             <div className="lesson-player">
               <div className="lesson-header">
-                <button onClick={() => setActiveLesson(null)} className="btn-back">← Back</button>
+                <button onClick={exitLesson} className="btn-back">← Back</button>
                 <h3>{activeLesson.title} - Step {currentStepIndex + 1}/{steps.length}</h3>
               </div>
 

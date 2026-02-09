@@ -1,0 +1,323 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { usePreferences } from '../context/PreferencesContext';
+import { getSummary } from '../services/progressService';
+import './learning/DyslexiaView.css';
+import { getAllLessonProgress, normalizeUserId } from '../services/dyslexiaProgressService';
+import api from '../utils/api';
+
+const mapLessonTitle = (lessonId, fallbackTitle) => {
+  const titleById = {
+    'lesson-greetings': 'Greetings',
+    'lesson-vocabulary': 'Basic Words',
+    'lesson-numbers': 'Numbers',
+  };
+  return titleById[lessonId] || fallbackTitle || lessonId;
+};
+
+const ProgressPage = () => {
+  const { user } = useAuth();
+  const { preferences } = usePreferences();
+  const navigate = useNavigate();
+  const containerRef = useRef(null);
+
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+  const [summaryError, setSummaryError] = useState('');
+  const [localProgress, setLocalProgress] = useState({});
+  const [completedLessonKeys, setCompletedLessonKeys] = useState([]);
+
+  const refreshLocalProgress = React.useCallback(() => {
+    const key = normalizeUserId(user);
+    if (!key) {
+      setLocalProgress({});
+      return;
+    }
+    setLocalProgress(getAllLessonProgress(key) || {});
+  }, [user]);
+
+  const refreshCompletedLessonKeys = React.useCallback(async () => {
+    try {
+      const res = await api.get('/users/completed-lessons');
+      if (res?.data?.success && Array.isArray(res.data.completedLessons)) {
+        setCompletedLessonKeys(res.data.completedLessons);
+      } else {
+        setCompletedLessonKeys([]);
+      }
+    } catch (e) {
+      setCompletedLessonKeys([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshLocalProgress();
+    refreshCompletedLessonKeys();
+  }, [refreshLocalProgress, refreshCompletedLessonKeys]);
+
+  const localDyslexiaCompleted = React.useMemo(() => {
+    return Object.values(localProgress).filter((entry) => entry?.status === 'Completed').length;
+  }, [localProgress]);
+
+  const condition = user?.learningCondition || '';
+  const remoteLessonPrefix = condition === 'autism'
+    ? 'autism-lesson-'
+    : condition === 'adhd'
+      ? 'adhd-lesson-'
+      : '';
+
+  const showLearningHistory = condition === 'dyslexia';
+
+  const remoteCompletedCount = React.useMemo(() => {
+    if (!remoteLessonPrefix) return 0;
+    return completedLessonKeys.filter((k) => typeof k === 'string' && k.startsWith(remoteLessonPrefix)).length;
+  }, [completedLessonKeys, remoteLessonPrefix]);
+
+  const lessonCards = React.useMemo(() => {
+    // Dyslexia lessons are route-based and tracked locally.
+    if (condition === 'dyslexia' || !remoteLessonPrefix) {
+      const lessonDefs = [
+        { id: 'lesson-greetings', title: 'Greetings', route: '/lessons/lesson-greetings' },
+        { id: 'lesson-vocabulary', title: 'Basic Words', route: '/lessons/lesson-vocabulary' },
+        { id: 'lesson-numbers', title: 'Numbers', route: '/lessons/lesson-numbers' },
+      ];
+
+      return lessonDefs.map((l) => {
+        const entry = localProgress?.[l.id] || { status: 'Not Started', correctCount: 0 };
+        const correctCount = Number(entry.correctCount || 0);
+        const percent = Math.min(100, Math.round((correctCount / 5) * 100));
+        return {
+          id: l.id,
+          title: l.title,
+          status: entry.status || 'Not Started',
+          percent,
+          onOpen: () => navigate(l.route),
+          openLabel: (entry.status === 'Completed') ? 'Review Lesson' : 'Continue',
+        };
+      });
+    }
+
+    // ADHD/Autism lessons are inside their respective learning centers.
+    const ids = [1, 2, 3];
+    const titles = {
+      1: 'Greetings',
+      2: 'Basic Words',
+      3: 'Numbers',
+    };
+
+    return ids.map((lessonId) => {
+      const key = `${remoteLessonPrefix}${lessonId}`;
+      const completed = completedLessonKeys.includes(key);
+      return {
+        id: key,
+        title: titles[lessonId] || `Lesson ${lessonId}`,
+        status: completed ? 'Completed' : 'Not Started',
+        percent: completed ? 100 : 0,
+        onOpen: () => navigate('/dashboard', { state: { openLessonId: lessonId, openCondition: condition } }),
+        openLabel: completed ? 'Review in Learning Center' : 'Start in Learning Center',
+      };
+    });
+  }, [condition, completedLessonKeys, localProgress, navigate, remoteLessonPrefix]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSummary = async () => {
+      setSummaryLoading(true);
+      setSummaryError('');
+      try {
+        const data = await getSummary();
+        if (!mounted) return;
+        if (data && data.success) {
+          setSummary(data);
+        } else {
+          setSummaryError('Unable to load progress summary.');
+        }
+      } catch (e) {
+        if (!mounted) return;
+        setSummaryError('Unable to load progress summary.');
+      } finally {
+        mounted && setSummaryLoading(false);
+      }
+    };
+
+    loadSummary();
+
+    const onProgressUpdated = (e) => {
+      // Local dyslexia progress is stored in localStorage; refresh it immediately.
+      refreshLocalProgress();
+      refreshCompletedLessonKeys();
+      if (e?.detail?.summary && e.detail.summary.success) {
+        setSummary(e.detail.summary);
+      }
+      loadSummary();
+      setTimeout(() => loadSummary(), 600);
+    };
+
+    window.addEventListener('progress:updated', onProgressUpdated);
+    return () => {
+      mounted = false;
+      window.removeEventListener('progress:updated', onProgressUpdated);
+    };
+  }, [refreshLocalProgress, refreshCompletedLessonKeys]);
+
+  useEffect(() => {
+    if (!preferences || !containerRef.current) return;
+
+    const container = containerRef.current;
+
+    container.className = 'dyslexia-view progress-page motion-enabled';
+
+    if (preferences.contrastTheme && preferences.contrastTheme !== 'default') {
+      container.classList.add(`theme-${preferences.contrastTheme}`);
+    }
+
+    if (preferences.fontFamily && preferences.fontFamily !== 'default') {
+      container.classList.add(`font-${preferences.fontFamily}`);
+    }
+
+    if (preferences.fontSize) {
+      container.classList.add(`font-${preferences.fontSize}`);
+    }
+
+    if (preferences.letterSpacing) {
+      container.classList.add(`letter-spacing-${preferences.letterSpacing}`);
+    }
+
+    if (preferences.wordSpacing) {
+      container.classList.add(`word-spacing-${preferences.wordSpacing}`);
+    }
+
+    if (preferences.lineHeight) {
+      container.classList.add(`line-height-${preferences.lineHeight}`);
+    }
+
+    if (preferences.distractionFreeMode && user?.learningCondition === 'autism') {
+      container.classList.add('distraction-free');
+    }
+
+    if (preferences.reduceAnimations && preferences.distractionFreeMode && user?.learningCondition === 'autism') {
+      container.classList.add('reduce-animations');
+    }
+  }, [preferences, user?.learningCondition]);
+
+  const displayCompletedCount = summary?.completedCount ?? 0;
+  const displayTotalLessons = summary?.totalLessons ?? 3;
+  const mergedCompletedCount = Math.max(
+    displayCompletedCount,
+    condition === 'dyslexia' || !remoteLessonPrefix ? localDyslexiaCompleted : remoteCompletedCount
+  );
+  const mergedPercentage = displayTotalLessons
+    ? Math.round((mergedCompletedCount / displayTotalLessons) * 100)
+    : 0;
+
+  return (
+    <div
+      ref={containerRef}
+      className="dyslexia-view"
+      id="learning-container"
+      data-user-condition={user?.learningCondition || ''}
+    >
+      <nav className="navbar">
+        <div className="nav-brand">
+          <h1>📚 Language Learning</h1>
+        </div>
+        <div className="nav-menu">
+          <span className="user-name">Hello, {user?.name}!</span>
+          <button type="button" onClick={() => navigate('/dashboard')} className="btn-settings" title="Back to learning">
+            Back
+          </button>
+        </div>
+      </nav>
+
+      <main className="main-content">
+        <div className="welcome-section">
+          <h2>Your Learning Progress</h2>
+          <p className="subtitle">See completed lessons and continue where you left off.</p>
+        </div>
+
+        <div className="progress-card">
+          <div className="card-header">
+            <h3>Progress</h3>
+          </div>
+
+          <div className="card-body">
+            {summaryLoading ? (
+              <p>Loading progress…</p>
+            ) : summaryError ? (
+              <div>
+                <p className="is-error">{summaryError}</p>
+                <button type="button" onClick={() => window.location.reload()}>Retry</button>
+              </div>
+            ) : (
+              <>
+                <p className="dashboard-progress__headline">
+                  <strong>{mergedCompletedCount}</strong> of <strong>{displayTotalLessons}</strong> lessons completed ({mergedPercentage}%)
+                </p>
+
+                <div className="dashboard-progress__bar" aria-label="Overall lesson progress">
+                  <div className="dashboard-progress__barFill" style={{ width: `${mergedPercentage}%` }} />
+                </div>
+
+                <p className="dashboard-progress__meta">
+                  <strong>Completed:</strong> {mergedCompletedCount} • <strong>Remaining:</strong> {Math.max(0, displayTotalLessons - mergedCompletedCount)}
+                </p>
+
+                {showLearningHistory && summary?.completedLessons && summary.completedLessons.length > 0 ? (
+                  <div className="completed-lessons">
+                    <p className="section-label">Learning history</p>
+                    <ol>
+                      {summary.completedLessons.map((l) => (
+                        <li key={l.lessonId}>
+                          <Link to={`/lessons/${l.lessonId}`}>{mapLessonTitle(l.lessonId, l.title)}</Link>{' '}
+                          <small>
+                            ({l.completedAt ? new Date(l.completedAt).toLocaleDateString() : '—'})
+                          </small>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                ) : showLearningHistory ? (
+                  <p className="dashboard-progress__empty">No lessons completed yet. Keep going!</p>
+                ) : null}
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="progress-card">
+          <div className="card-header">
+            <h3>Lesson status</h3>
+          </div>
+          <div className="card-body">
+            <div className="lessons-grid">
+              {lessonCards.map((l) => {
+                const statusClass = (l.status || 'Not Started').replace(/\s+/g, '-').toLowerCase();
+                return (
+                  <div key={l.id} className="lesson-card">
+                    <div className="lesson-icon">📖</div>
+                    <h4>{l.title}</h4>
+                    <div className="lesson-meta">
+                      <span className={`status-pill status-${statusClass}`}>{l.status}</span>
+                    </div>
+                    <div className="lesson-progress">
+                      <div className="progress-bar-container">
+                        <div className="progress-bar-fill" style={{ width: `${l.percent}%` }} />
+                      </div>
+                      <span className="progress-text">{l.percent}% Complete</span>
+                    </div>
+                    <button type="button" className="btn btn-primary btn-block" onClick={l.onOpen}>
+                      {l.openLabel}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default ProgressPage;
