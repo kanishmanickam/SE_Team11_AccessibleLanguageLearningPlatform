@@ -56,6 +56,11 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   const [duration, setDuration] = useState(0);
   const [activeInteractionIndex, setActiveInteractionIndex] = useState(0);
 
+  // New states for Accessibility Features (3.1, 3.5, 3.6)
+  const [playbackRate, setPlaybackRate] = useState(0.85); // Default slow for easier understanding
+  const [activeWord, setActiveWord] = useState(''); // For visual highlighting
+  const [isUsingTTS, setIsUsingTTS] = useState(false);
+
   const sectionKey = useMemo(() => section?._id ?? section?.id ?? null, [section?._id, section?.id]);
   const lessonKey = useMemo(() => section?.lessonId ?? section?._id ?? section?.id ?? null, [section?.lessonId, section?._id, section?.id]);
   const userKey = useMemo(() => normalizeUserId(user), [user]);
@@ -90,14 +95,20 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+<<<<<<< HEAD
     if (onInteractionChange && section) {
       onInteractionChange(section.id || section._id, 0);
     }
+=======
+    setActiveWord('');
+    setIsUsingTTS(false);
+    window.speechSynthesis.cancel();
+>>>>>>> 65cdcdaffd31e91bc937b09ee377340242558d38
   }, [sectionKey]);
 
   useEffect(() => {
     if (!lessonKey) return;
-    const stored = getLessonProgress(userKey, lessonKey);
+    getLessonProgress(userKey, lessonKey);
   }, [lessonKey, userKey]);
 
   useEffect(() => {
@@ -114,6 +125,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
     const handleEnded = () => {
       setIsPlaying(false);
+      setActiveWord('');
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -127,40 +139,127 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
     };
   }, [section?.audioUrl]);
 
-  const handleToggleAudio = async () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-      return;
+  useEffect(() => {
+    if (audioRef.current && !isUsingTTS) {
+      audioRef.current.playbackRate = playbackRate;
     }
+  }, [playbackRate, isUsingTTS]);
+
+  // Audio Playback Handling (Backend -> Browser Fallback)
+  const speakText = async (text) => {
+    // 1. Stop existing audio
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    window.speechSynthesis.cancel();
+
+    setIsPlaying(false);
+    setIsUsingTTS(false);
+
+    // 2. Try Backend TTS first (Reliable on all OS)
     try {
-      // Ensure audio is loaded before playing
-      if (audioRef.current.readyState < 2) {
-        audioRef.current.load();
-        // Wait for audio to be ready with timeout
-        await Promise.race([
-          new Promise((resolve) => {
-            const onCanPlay = () => {
-              audioRef.current?.removeEventListener('canplay', onCanPlay);
-              audioRef.current?.removeEventListener('loadeddata', onCanPlay);
-              resolve();
-            };
-            audioRef.current.addEventListener('canplay', onCanPlay);
-            audioRef.current.addEventListener('loadeddata', onCanPlay);
-          }),
-          new Promise((resolve) => setTimeout(resolve, 3000)) // 3 second timeout
-        ]);
+      const response = await fetch('/api/tts/speak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, speed: playbackRate })
+      });
+
+      if (!response.ok) throw new Error('Backend TTS failed');
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.playbackRate = playbackRate;
+
+      // Setup Backend Audio Handlers
+      audio.onplay = () => setIsPlaying(true);
+      audio.onended = () => {
+        setIsPlaying(false);
+        URL.revokeObjectURL(url);
+        setActiveWord('');
+      };
+
+      // Note: Backend TTS (mp3) doesn't support word-level timestamps easily.
+      // We will highlight the whole section or simulate? 
+      // For now, we rely on the visual "text is being read" indicator and isPlaying state.
+
+      audioRef.current = audio;
+      audio.play();
+
+    } catch (err) {
+      console.warn("Backend TTS failed, falling back to Browser:", err);
+      // 3. Fallback to Browser TTS
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = playbackRate;
+
+      utterance.onboundary = (event) => {
+        if (event.name === 'word') {
+          const charIndex = event.charIndex;
+          const textBefore = text.slice(charIndex);
+          const firstSpace = textBefore.search(/\s/);
+          const word = firstSpace === -1 ? textBefore : textBefore.slice(0, firstSpace);
+          setActiveWord(word.replace(/[.,!?;:()"]/g, ''));
+        }
+      };
+
+      utterance.onstart = () => {
+        setIsPlaying(true);
+        setIsUsingTTS(true);
+      };
+
+      utterance.onend = () => {
+        setIsPlaying(false);
+        setIsUsingTTS(false);
+        setActiveWord('');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const handleToggleAudio = async () => {
+    if (section?.audioUrl) {
+      // Use Backend/File Audio
+      if (!audioRef.current) return;
+      if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        return;
       }
-      await audioRef.current.play();
-      setIsPlaying(true);
-    } catch (error) {
-      console.warn('Audio playback failed:', error);
-      setIsPlaying(false);
+      try {
+        audioRef.current.play();
+        setIsPlaying(true);
+      } catch (error) {
+        setIsPlaying(false);
+      }
+    } else {
+      // Use TTS Fallback
+      if (isPlaying || window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        setIsPlaying(false);
+        setIsUsingTTS(false);
+      } else {
+        // Read content
+        speakText(section.textContent || section.title || "No text content");
+      }
+    }
+  };
+
+  const handleReplay = () => {
+    if (section?.audioUrl) {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+        setIsPlaying(true);
+      }
+    } else {
+      speakText(section.textContent);
     }
   };
 
   const handleSeek = (event) => {
+    if (isUsingTTS) return; // Cannot seek easily in TTS
     const nextTime = Number(event.target.value);
     if (!audioRef.current || Number.isNaN(nextTime)) return;
     audioRef.current.currentTime = nextTime;
@@ -189,7 +288,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
     }
     const correctCount = Math.min(5, correctIds.size);
     const status = correctCount >= 5 ? 'Completed' : nextStatus;
-    const updated = saveLessonProgress(userKey, lessonKey, {
+    saveLessonProgress(userKey, lessonKey, {
       status,
       correctCount,
       correctIds: Array.from(correctIds),
@@ -215,6 +314,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
               paragraphs={paragraphs}
               highlights={section.highlights || []}
               visualAids={section.visualAids || section.visuals || []}
+              activeWord={activeWord}
             />
           ) : (
             <p>No text content available.</p>
@@ -230,6 +330,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
               onAnswered={handleAnswered}
               autoAdvanceOnCorrect={!isReplay}
               enableTimer={!isReplay}
+              enableSpeech={true}
               autoPlayNarration={false}
               disableAutoSpeak={true}
             />
@@ -237,10 +338,70 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
         </div>
 
         <aside className="lesson-section-side">
-          {/* Hidden audio element for Replay narration button */}
-          {section.audioUrl && (
-            <audio ref={audioRef} src={section.audioUrl} preload="metadata" />
-          )}
+          <div className="lesson-audio fx-card" aria-label="Lesson audio">
+            <div className="lesson-audio-header">
+              <h3>Audio Learning</h3>
+              {!isUsingTTS && <span className="lesson-audio-time">{formatTime(currentTime)} / {formatTime(duration)}</span>}
+            </div>
+
+            {section.audioUrl && <audio ref={audioRef} src={section.audioUrl} preload="metadata" />}
+
+            <div className="lesson-audio-controls" style={{ flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                <button
+                  type="button"
+                  className="audio-toggle fx-pressable fx-focus"
+                  onClick={handleToggleAudio}
+                  aria-pressed={isPlaying}
+                  style={{ flex: 1 }}
+                >
+                  {isPlaying ? '⏸ Pause' : '▶ Play Audio'}
+                </button>
+
+                <button
+                  type="button"
+                  className="audio-toggle fx-pressable fx-focus"
+                  onClick={handleReplay}
+                  title="Replay Audio"
+                >
+                  🔄 Replay
+                </button>
+              </div>
+
+              {!isUsingTTS && section.audioUrl && (
+                <input
+                  className="audio-seek"
+                  type="range"
+                  min="0"
+                  max={duration || 0}
+                  step="0.1"
+                  value={currentTime}
+                  onChange={handleSeek}
+                  disabled={!duration}
+                  aria-label="Seek audio"
+                />
+              )}
+
+              {/* Speed Control (Task 3.1 & 3.5) */}
+              <div className="audio-speed-control" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
+                <span>Speed:</span>
+                <button
+                  onClick={() => setPlaybackRate(0.7)}
+                  style={{ fontWeight: playbackRate === 0.7 ? 'bold' : 'normal', textDecoration: playbackRate === 0.7 ? 'underline' : 'none', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+                >Slow (0.7x)</button>
+                |
+                <button
+                  onClick={() => setPlaybackRate(1.0)}
+                  style={{ fontWeight: playbackRate === 1.0 ? 'bold' : 'normal', textDecoration: playbackRate === 1.0 ? 'underline' : 'none', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)' }}
+                >Normal (1.0x)</button>
+              </div>
+            </div>
+
+            {/* Visual Support Note */}
+            <p className="lesson-muted" style={{ marginTop: '8px', fontSize: '0.8rem' }}>
+              {isPlaying ? "📖 Text is being read aloud..." : "Press play to listen."}
+            </p>
+          </div>
 
           {/* Dynamic illustration based on current question */}
           <div className="lesson-illustration fx-card" aria-label="Question illustration">

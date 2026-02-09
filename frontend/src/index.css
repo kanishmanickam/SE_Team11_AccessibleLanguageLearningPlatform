@@ -376,6 +376,13 @@ body {
   transition: none !important;
 }
 
+/* Ensure top bar text remains readable in distraction-free mode */
+#learning-container.distraction-free .top-bar,
+#learning-container.distraction-free .top-bar h1 {
+  background-color: var(--bg-primary);
+  color: var(--text-primary) !important;
+}
+
 /* Distraction-Free Mode: remove hover motion and depth */
 #learning-container.distraction-free :where(.lesson-card, .tip-card, .progress-card, .focus-card, .routine-card, .stat-box) {
   box-shadow: none !important;

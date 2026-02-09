@@ -44,12 +44,27 @@ export const PreferencesProvider = ({ children }) => {
     if (!prefs) return;
 
     // Only apply to learning container if it exists, not to body
-    const { containerId = 'learning-container', baseClass = 'motion-enabled' } = options;
+    const { containerId = 'learning-container' } = options;
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    // Reset classes
-    container.className = baseClass;
+    // Reset only preference-related classes (preserve other app classes like 'dashboard')
+    Array.from(container.classList).forEach((c) => {
+      if (
+        c.startsWith('theme-') ||
+        c.startsWith('font-') ||
+        c.startsWith('letter-spacing-') ||
+        c.startsWith('word-spacing-') ||
+        c.startsWith('line-height-') ||
+        c === 'distraction-free' ||
+        c === 'reduce-animations' ||
+        c === 'motion-enabled'
+      ) {
+        container.classList.remove(c);
+      }
+    });
+    // Ensure motion-enabled baseline is present
+    container.classList.add('motion-enabled');
 
     // Apply theme
     if (prefs.contrastTheme && prefs.contrastTheme !== 'default') {

@@ -44,6 +44,10 @@ const HighlightSpan = ({ segment }) => {
   const classes = ['highlight'];
   classes.push(`highlight-${highlight.emphasisType}`);
 
+  if (highlight.emphasisType === 'active-reading') {
+    classes.push('highlight-active');
+  }
+
   const style = {};
   if (highlight.color && highlight.emphasisType === 'background') {
     style['--highlight-bg'] = highlight.color;
@@ -62,11 +66,28 @@ const HighlightSpan = ({ segment }) => {
   );
 };
 
-const VisualLesson = ({ paragraphs = [], highlights = [], visualAids = [] }) => {
+const VisualLesson = ({ paragraphs = [], highlights = [], visualAids = [], activeWord = '' }) => {
   return (
     <div className="visual-lesson">
       {paragraphs.map((paragraph) => {
-        const paragraphHighlights = getParagraphHighlights(paragraph, highlights);
+        // Create base highlights
+        let paragraphHighlights = getParagraphHighlights(paragraph, highlights);
+
+        // Add dynamic active word highlight if matches
+        if (activeWord) {
+          const lowerText = paragraph.text.toLowerCase();
+          const lowerWord = activeWord.toLowerCase();
+          // Simple inclusion check or precise matching if positions available
+          if (lowerText.includes(lowerWord)) {
+            // Note: This is a loose match. Ideally we want precise positions from TTS.
+            // For now, we highlight occurrences of the word.
+            paragraphHighlights.push({
+              phrase: activeWord,
+              emphasisType: 'active-reading'
+            });
+          }
+        }
+
         const segments = buildHighlightedSegments(paragraph.text, paragraphHighlights);
         const paragraphVisuals = getParagraphVisuals(paragraph, visualAids).filter(
           (visual) => visual.placement !== 'side'

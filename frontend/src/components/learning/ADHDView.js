@@ -4,8 +4,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import ProfileSettings from '../ProfileSettings';
 import './ADHDView.css';
 import ReactConfetti from 'react-confetti';
-
-const API_BASE_URL = 'http://localhost:5002'; // Adjust port if needed
+import { getSummary } from '../../services/progressService';
 
 const ADHDView = () => {
   const { user, logout } = useAuth();
@@ -31,6 +30,29 @@ const ADHDView = () => {
   const [countdownValue, setCountdownValue] = useState(5);
   const [dummyUpdate, setDummyUpdate] = useState(0); // For forcing re-renders on audio state changes
 
+  // Progress summary
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setSummaryLoading(true);
+      try {
+        const s = await getSummary();
+        if (mounted && s && s.success) setSummary(s);
+      } catch (e) {
+        // ignore
+      } finally {
+        mounted && setSummaryLoading(false);
+      }
+    };
+    load();
+    const onProgress = () => load();
+    window.addEventListener('progress:updated', onProgress);
+    return () => { mounted = false; window.removeEventListener('progress:updated', onProgress); };
+  }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setWindowSize({ width: window.innerWidth, height: window.innerHeight });
@@ -43,18 +65,18 @@ const ADHDView = () => {
   // Audio handling
   const [currentAudio, setCurrentAudio] = useState(null);
 
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const playAudio = async (text, rate = 1) => {
-    // Stop any currently playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
     }
-    // Also cancel browser speech just in case
     window.speechSynthesis.cancel();
+    setIsPlaying(false);
 
     try {
-      // Fetch audio from backend (gTTS)
-      const response = await fetch(`${API_BASE_URL}/api/tts/speak`, {
+      const response = await fetch('/api/tts/speak', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, speed: rate })
@@ -66,25 +88,32 @@ const ADHDView = () => {
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
 
-      // Note: HTML5 Audio playbackRate is supported
       audio.playbackRate = rate;
 
       audio.play().catch(e => console.error("Playback failed:", e));
       setCurrentAudio(audio);
+      setIsPlaying(true);
 
       audio.onended = () => {
-        URL.revokeObjectURL(url); // Cleanup
+        URL.revokeObjectURL(url);
         setCurrentAudio(null);
+        setIsPlaying(false);
       };
+
+      audio.onpause = () => setIsPlaying(false);
+      audio.onplay = () => setIsPlaying(true);
 
     } catch (error) {
       console.error("Server TTS failed, falling back to browser:", error);
-      // Fallback to browser TTS if server fails
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = rate;
+      utterance.onstart = () => setIsPlaying(true);
+      utterance.onend = () => setIsPlaying(false);
       window.speechSynthesis.speak(utterance);
     }
   };
+
+
 
   // Ensure speed updates apply to active audio
   useEffect(() => {
@@ -295,7 +324,7 @@ const ADHDView = () => {
           newSteps.push(step);
           if (step.type === 'story') {
             try {
-              const response = await fetch(`${API_BASE_URL}/api/ai/story-quiz`, {
+              const response = await fetch('/api/ai/story-quiz', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ storyText: step.content })
@@ -314,7 +343,7 @@ const ADHDView = () => {
       } else {
         // Basic lesson - append random questions
         try {
-          const response = await fetch(`${API_BASE_URL}/api/ai/generate-questions`, {
+          const response = await fetch('/api/ai/generate-questions', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ topic: lesson.title })
@@ -409,6 +438,49 @@ const ADHDView = () => {
     }
   };
 
+  // Voice Input for ADHD View
+  const [isListening, setIsListening] = useState(false);
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      setFeedback({ type: 'error', message: 'Voice input not supported in this browser' });
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      // setFeedback({ type: 'info', message: 'Listening...' }); // Optional, might distract
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript.toLowerCase();
+      // Match with options
+      const step = steps[currentStepIndex];
+      if (step.type === 'quiz' && step.options) {
+        const matchedOpt = step.options.find(opt =>
+          transcript.includes(opt.toLowerCase()) || opt.toLowerCase().includes(transcript)
+        );
+        if (matchedOpt) {
+          handleAnswer(matchedOpt);
+        } else {
+          setFeedback({ type: 'error', message: `Heard "${transcript}". Try saying one of the options.` });
+        }
+      }
+    };
+
+    recognition.onerror = () => {
+      setFeedback({ type: 'error', message: 'Could not hear clearly. Try again.' });
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
+
   const handlePlayStory = () => {
     const step = steps[currentStepIndex];
     if (currentAudio) {
@@ -460,6 +532,16 @@ const ADHDView = () => {
               <div className="focus-card">
                 <h2>Hi, {user?.name}! 👋</h2>
                 <p>Let's focus on one lesson at a time.</p>
+              </div>
+
+              <div className="progress-card" style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0 }}>Progress</h3>
+                  <div style={{ fontSize: 14 }}>{summaryLoading ? 'Loading…' : `${summary.completedCount} of ${summary.totalLessons} (${summary.totalLessons ? Math.round((summary.completedCount / summary.totalLessons) * 100) : 0}%)`}</div>
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <p style={{ margin: 0 }}><strong>Completed:</strong> {summaryLoading ? '…' : summary.completedCount} • <strong>Remaining:</strong> {summaryLoading ? '…' : summary.remaining}</p>
+                </div>
               </div>
 
               {!isSessionActive ? (
@@ -683,7 +765,20 @@ const ADHDView = () => {
                               )}
                             </div>
                           </div>
-                          <p style={{ fontSize: '1.3rem', lineHeight: '1.6', color: 'var(--text-primary)', textAlign: 'left', background: 'var(--bg-primary)', padding: '20px', borderRadius: '8px' }}>
+                          <p
+                            className={isPlaying ? 'story-text active-reading-block' : 'story-text'}
+                            style={{
+                              fontSize: '1.3rem',
+                              lineHeight: '1.6',
+                              color: 'var(--text-primary)',
+                              textAlign: 'left',
+                              background: isPlaying ? '#fff9c4' : 'var(--bg-primary)', // Highlight background
+                              padding: '20px',
+                              borderRadius: '8px',
+                              transition: 'background 0.3s ease',
+                              border: isPlaying ? '2px solid #fbc02d' : '1px solid transparent'
+                            }}
+                          >
                             {currentStep.content}
                           </p>
                         </div>
@@ -703,6 +798,27 @@ const ADHDView = () => {
                                 {opt}
                               </button>
                             ))}
+                          </div>
+
+                          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+                            <button
+                              onClick={startListening}
+                              disabled={isListening}
+                              style={{
+                                background: isListening ? '#ffe0b2' : 'transparent',
+                                border: '2px solid #ff9800',
+                                padding: '8px 20px',
+                                borderRadius: '30px',
+                                cursor: 'pointer',
+                                fontWeight: 'bold',
+                                color: '#e65100',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                              }}
+                            >
+                              <span>🎤</span> {isListening ? 'Listening...' : 'Use Voice Answer'}
+                            </button>
                           </div>
                         </div>
                       )}

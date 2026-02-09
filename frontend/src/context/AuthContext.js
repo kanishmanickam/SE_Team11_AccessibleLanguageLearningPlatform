@@ -53,7 +53,16 @@ export const AuthProvider = ({ children }) => {
 
       return { success: true, user };
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed';
+      // Prefer a server-provided message
+      const resp = err.response?.data;
+      let message = 'Registration failed';
+      if (resp) {
+        if (Array.isArray(resp.errors) && resp.errors.length > 0) {
+          message = resp.errors.map((e) => e.msg || e.message).join(' - ');
+        } else if (resp.message) {
+          message = resp.message;
+        }
+      }
       setError(message);
       return { success: false, error: message };
     }

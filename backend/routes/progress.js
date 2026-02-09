@@ -25,6 +25,11 @@ const handleValidation = (req, res, next) => {
   return next();
 };
 
+// @route   GET /api/progress/summary
+// @desc    Get progress summary for user
+// @access  Private
+router.get('/summary', protect, require('../controllers/progressController').getSummary);
+
 // @route   GET /api/progress/:lessonId
 // @desc    Get progress for lesson
 // @access  Private
