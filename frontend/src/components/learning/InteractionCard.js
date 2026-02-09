@@ -33,7 +33,7 @@ const InteractionCard = ({
   enableTimer = true,
   autoAdvanceOnCorrect = true,
   timeLimitSeconds = 30,
-  enableSpeech = true,
+  enableSpeech = false,
   enableTts = true,
   autoPlayNarration = false,
   disableAutoSpeak = false,
@@ -136,6 +136,13 @@ const InteractionCard = ({
 
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
+    audio.onerror = () => {
+      console.warn('Audio source not found, falling back to TTS:', audioUrl);
+      audioRef.current = null;
+      if (interaction?.question) {
+        speak(interaction.question);
+      }
+    };
     audio.play().catch((err) => {
       console.warn('Audio playback failed, trying TTS:', err);
       if (interaction?.question) {
@@ -488,6 +495,18 @@ const InteractionCard = ({
 
       <fieldset disabled={isLocked || readOnly}>
         <legend className="interaction-question">{interaction.question}</legend>
+
+        {/* Visual aid image for the question (Task 2.5.2, 2.5.4) */}
+        {interaction.questionImageUrl && (
+          <div className="interaction-question-image">
+            <img
+              src={interaction.questionImageUrl}
+              alt={interaction.question || 'Question illustration'}
+              loading="lazy"
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          </div>
+        )}
 
         {interaction.type === 'click' ? (
           <div className="interaction-click-group" role="list">

@@ -7,7 +7,7 @@ import { getProgress, updateProgress, getSummary } from '../../services/progress
 import lessonSectionSamples from './lessonSectionSamples';
 import './LessonReplay.css';
 
-const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice, onRetry }) => {
+const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice, onRetry, onExit }) => {
   const [sections, setSections] = useState([]);
   const [progress, setProgress] = useState(null);
   const [activeSectionId, setActiveSectionId] = useState('');
@@ -143,35 +143,38 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
       const nextCompleted = Array.from(new Set([...completedSections, displayedSectionId]));
 
       if (!isSample) {
-        const updated = await updateProgress({
-          lessonId,
-          currentSectionId: displayedSectionId,
-          completedSections: nextCompleted,
-          isReplay: false,
-        });
+        try {
+          const updated = await updateProgress({
+            lessonId,
+            currentSectionId: displayedSectionId,
+            completedSections: nextCompleted,
+            isReplay: false,
+          });
 
-        setProgress(updated);
+          setProgress(updated);
 
-        if (updated?.completed) {
-          const msgs = ['Good job!', 'Lesson completed!', 'Keep going!'];
-          const msg = `${msgs[Math.floor(Math.random() * msgs.length)]} You completed this lesson.`;
-          setSuccessMessage(msg);
-          // Notify other parts of app (Dashboard) to refresh progress summary
-          try {
-            // Post updated summary in event detail to allow immediate UI update
-            let summary = null;
-            try { summary = await getSummary(); } catch (e) { /* ignore */ }
+          if (updated?.completed) {
+            const msgs = ['Good job!', 'Lesson completed!', 'Keep going!'];
+            const msg = `${msgs[Math.floor(Math.random() * msgs.length)]} You completed this lesson.`;
+            setSuccessMessage(msg);
+            // Notify other parts of app (Progress page, Dashboard) to refresh progress summary
+            try {
+              let summary = null;
+              try { summary = await getSummary(); } catch (e) { /* ignore */ }
 
-            window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId, summary } }));
-            // dispatch again after a short delay to guard against race / eventual consistency
-            setTimeout(async () => {
-              try {
-                const summary2 = await getSummary().catch(() => null);
-                window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId, summary: summary2 } }));
-              } catch (e) {}
-            }, 500);
-          } catch (e) {}
-          setTimeout(() => setSuccessMessage(''), 4000);
+              window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId, summary } }));
+              // dispatch again after a short delay to guard against race / eventual consistency
+              setTimeout(async () => {
+                try {
+                  const summary2 = await getSummary().catch(() => null);
+                  window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId, summary: summary2 } }));
+                } catch (e) {}
+              }, 500);
+            } catch (e) {}
+            setTimeout(() => setSuccessMessage(''), 4000);
+          }
+        } catch (e) {
+          setError('Unable to save progress. Please try again.');
         }
       } else {
         setProgress((prev) => ({
@@ -229,20 +232,24 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
     setActiveSectionId(nextSection.id);
 
     if (!isSample) {
-      const updated = await updateProgress({
-        lessonId,
-        currentSectionId: nextSection.id,
-        completedSections: nextCompleted,
-        isReplay: false,
-      });
-      setProgress(updated);
+      try {
+        const updated = await updateProgress({
+          lessonId,
+          currentSectionId: nextSection.id,
+          completedSections: nextCompleted,
+          isReplay: false,
+        });
+        setProgress(updated);
 
-      // If the backend reports completion, show encouraging feedback
-      if (updated?.completed) {
-        const msgs = ['Good job!', 'Lesson completed!', 'Keep going!'];
-        const msg = `${msgs[Math.floor(Math.random() * msgs.length)]} You completed this lesson.`;
-        setSuccessMessage(msg);
-        setTimeout(() => setSuccessMessage(''), 4000);
+        // If the backend reports completion, show encouraging feedback
+        if (updated?.completed) {
+          const msgs = ['Good job!', 'Lesson completed!', 'Keep going!'];
+          const msg = `${msgs[Math.floor(Math.random() * msgs.length)]} You completed this lesson.`;
+          setSuccessMessage(msg);
+          setTimeout(() => setSuccessMessage(''), 4000);
+        }
+      } catch (e) {
+        setError('Unable to save progress. Please try again.');
       }
     } else {
       setProgress((prev) => ({
@@ -256,8 +263,13 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
 
   const prevSection = displayedSectionId ? sectionList[getSectionIndex(displayedSectionId) - 1] : null;
   const nextSection = displayedSectionId ? sectionList[getSectionIndex(displayedSectionId) + 1] : null;
+  const isLastSection = !isReplay && Boolean(displayedSectionId) && getSectionIndex(displayedSectionId) === sectionList.length - 1;
   const canGoBack = Boolean(prevSection && completedSections.includes(prevSection.id));
-  const canGoNext = Boolean(nextSection && (!isReplay || completedSections.includes(nextSection.id)));
+  const canGoNext = Boolean(
+    !isReplay && displayedSectionId && (nextSection || isLastSection)
+  ) || Boolean(
+    isReplay && nextSection && completedSections.includes(nextSection.id)
+  );
   const canReplay = Boolean(lastCompletedSectionId) || isReplay;
 
   const guidanceText = successMessage
@@ -277,6 +289,8 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
     <LessonLayout
       title={resolvedTitle}
       subtitle={resolvedSubtitle}
+      onBack={onExit}
+      backLabel="Go back"
       guidance={(
         <div className="lesson-guidance">
           <p className="lesson-guidance__label">Guidance</p>
@@ -297,6 +311,7 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
           canGoNext={canGoNext}
           canReplay={canReplay}
           isReplay={isReplay}
+          nextLabel={isLastSection ? 'Finish' : 'Next'}
         />
       )}
     >

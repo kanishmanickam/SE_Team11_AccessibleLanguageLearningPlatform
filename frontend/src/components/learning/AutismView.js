@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
 import api from '../../utils/api';
 import './AutismView.css';
 
-const AutismView = () => {
+const AutismView = ({ initialLessonId = null }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
 
   // Lesson navigation state
@@ -887,6 +889,21 @@ const AutismView = () => {
     }
   };
 
+  const autoOpenedLessonRef = React.useRef(null);
+
+  useEffect(() => {
+    if (!initialLessonId) return;
+    if (selectedLesson) return;
+
+    const targetId = Number(initialLessonId);
+    if (!Number.isFinite(targetId)) return;
+    if (autoOpenedLessonRef.current === targetId) return;
+
+    autoOpenedLessonRef.current = targetId;
+    handleStartLesson(targetId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialLessonId, selectedLesson]);
+
   // Return to lesson list
   const handleBackToLessons = () => {
     setSelectedLesson(null);
@@ -922,6 +939,15 @@ const AutismView = () => {
             ← Back to Lessons
           </button>
           <h2 className="lesson-title">{currentLesson.title}</h2>
+          <button
+            type="button"
+            onClick={() => navigate('/progress')}
+            className="btn-settings"
+            title="View progress"
+            style={{ marginLeft: 'auto' }}
+          >
+            Progress
+          </button>
         </header>
 
         {/* EPIC 2.2 & 2.7: Consistent single-step layout */}
@@ -1144,6 +1170,14 @@ const AutismView = () => {
           <p className="header-subtitle">Choose your lesson</p>
         </div>
         <div className="header-actions">
+          <button
+            type="button"
+            onClick={() => navigate('/progress')}
+            className="btn-settings"
+            title="View progress"
+          >
+            Progress
+          </button>
           <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
             ⚙️
           </button>
@@ -1164,13 +1198,6 @@ const AutismView = () => {
           <h2>Hello, {user?.name} 👋</h2>
           <p>Select a lesson below to begin learning</p>
         </div>
-
-        {/* Progress indicator */}
-        {completedLessons.length > 0 && (
-          <div className="progress-badge">
-            🎉 You completed {completedLessons.length} lesson{completedLessons.length > 1 ? 's' : ''}!
-          </div>
-        )}
 
         {/* Lessons - Simple Grid */}
         <div className="lessons-container">

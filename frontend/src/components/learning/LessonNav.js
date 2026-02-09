@@ -9,7 +9,9 @@ const LessonNav = ({
   canGoNext,
   canReplay,
   isReplay,
+  nextLabel,
 }) => {
+  const resolvedNextLabel = nextLabel || 'Next';
   return (
     <div className="lesson-nav" role="navigation" aria-label="Lesson navigation">
       <button
@@ -35,7 +37,7 @@ const LessonNav = ({
         onClick={onNext}
         disabled={!canGoNext}
       >
-        Next
+        {resolvedNextLabel}
       </button>
     </div>
   );

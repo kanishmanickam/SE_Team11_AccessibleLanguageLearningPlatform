@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getLessonById } from '../../services/lessonService';
 import { useAuth } from '../../context/AuthContext';
 import { usePreferences } from '../../context/PreferencesContext';
@@ -15,6 +15,7 @@ const estimateReadingTime = (text) => {
 
 const LessonPage = () => {
   const { lessonId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { preferences, applyPreferences } = usePreferences();
   const [lesson, setLesson] = useState(null);
@@ -75,6 +76,16 @@ const LessonPage = () => {
 
   const retryLoadLesson = () => setRetryKey((k) => k + 1);
 
+  const handleBack = () => {
+    // Prefer returning to wherever the user came from (dashboard/progress).
+    // If the lesson page is opened directly (no history), go to dashboard.
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
 
   useEffect(() => {
     if (!preferences) return;
@@ -104,6 +115,7 @@ const LessonPage = () => {
         lessonSubtitle={resolvedSubtitle}
         notice={error}
         onRetry={retryLoadLesson}
+        onExit={handleBack}
       />
     </div>
   );

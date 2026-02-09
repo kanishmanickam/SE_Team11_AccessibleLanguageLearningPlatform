@@ -28,6 +28,29 @@
   gap: 6px;
 }
 
+.lesson-layout__header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.lesson-layout__header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lesson-layout__back {
+  border: 1px solid var(--theme-border, var(--border-color));
+  background: var(--theme-surface, var(--bg-secondary));
+  color: var(--theme-text, var(--text-primary));
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
 .lesson-layout__eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.12em;
