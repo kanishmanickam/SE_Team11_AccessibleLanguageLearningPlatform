@@ -584,7 +584,7 @@ const lessonSectionSamples = {
         {
           id: 'num-s2-1',
           type: 'multiple_choice',
-          question: 'How many apples are there? 🍎🍎',
+          question: 'How many apples are there? (2 apples)',
           options: ['1', '2', '3'],
           correctAnswer: '2',
           hint: 'Count the apples carefully.',
@@ -600,7 +600,7 @@ const lessonSectionSamples = {
         {
           id: 'num-s2-2',
           type: 'click',
-          question: 'Click the number that matches four stars: ⭐⭐⭐⭐',
+          question: 'Click the number that matches four stars (4).',
           options: ['3', '4', '5'],
           correctAnswer: '4',
           hint: 'Count each star.',
@@ -616,7 +616,7 @@ const lessonSectionSamples = {
         {
           id: 'num-s2-3',
           type: 'short_answer',
-          question: 'How many books are here? 📚📚📚',
+          question: 'How many books are here? (3 books)',
           correctAnswer: '3',
           hint: 'Count each book.',
           explanation: 'There are 3 books.',
