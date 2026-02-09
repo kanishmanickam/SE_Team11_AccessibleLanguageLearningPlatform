@@ -31,6 +31,13 @@ const DyslexiaView = () => {
     return Object.values(lessonProgress || {}).filter((entry) => entry?.status === 'Completed').length;
   }, [lessonProgress]);
 
+  const wordsLearned = useMemo(() => {
+    // Calculate total correct answers across all lessons as words learned
+    return Object.values(lessonProgress || {}).reduce((total, entry) => {
+      return total + (entry?.correctCount || 0);
+    }, 0);
+  }, [lessonProgress]);
+
   return (
     <div className="dyslexia-view">
       {/* Navigation Bar */}
@@ -79,7 +86,7 @@ const DyslexiaView = () => {
                 <div className="stat-label">Hours Practiced</div>
               </div>
               <div className="stat-item">
-                <div className="stat-value">0</div>
+                <div className="stat-value">{wordsLearned}</div>
                 <div className="stat-label">Words Learned</div>
               </div>
             </div>

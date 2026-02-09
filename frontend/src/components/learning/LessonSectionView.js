@@ -48,7 +48,7 @@ const getIllustration = (text) => {
   return defaultIllustration;
 };
 
-const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
+const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractionChange }) => {
   const { user } = useAuth();
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -90,6 +90,9 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
+    if (onInteractionChange && section) {
+      onInteractionChange(section.id || section._id, 0);
+    }
   }, [sectionKey]);
 
   useEffect(() => {
@@ -165,7 +168,13 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission }) => {
   };
 
   const handleContinue = () => {
-    setActiveInteractionIndex((prev) => Math.min(prev + 1, interactions.length));
+    setActiveInteractionIndex((prev) => {
+      const nextIndex = Math.min(prev + 1, interactions.length);
+      if (onInteractionChange && section) {
+        onInteractionChange(section.id || section._id, nextIndex);
+      }
+      return nextIndex;
+    });
   };
 
   const handleAnswered = ({ isCorrect, interactionId }) => {

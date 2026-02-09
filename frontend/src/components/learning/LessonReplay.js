@@ -12,6 +12,7 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
   const [progress, setProgress] = useState(null);
   const [activeSectionId, setActiveSectionId] = useState('');
   const [replaySectionId, setReplaySectionId] = useState('');
+  const [currentInteractionSectionId, setCurrentInteractionSectionId] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -84,6 +85,10 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
   const completedSections = progress?.completedSections || [];
   const isReplay = Boolean(replaySectionId);
   const lastCompletedSectionId = completedSections[completedSections.length - 1] || '';
+
+  const handleInteractionChange = (sectionId, interactionIndex) => {
+    setCurrentInteractionSectionId(sectionId);
+  };
 
   const handleSelectSection = (sectionId) => {
     if (!sectionId) return;
@@ -206,7 +211,7 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
             ) : (
               <nav className="lesson-timeline" aria-label="Lesson sections">
                 {sectionList.map((section, index) => {
-                  const isCurrent = section.id === activeSectionId;
+                  const isCurrent = section.id === (currentInteractionSectionId || activeSectionId);
                   const isCompleted = completedSections.includes(section.id);
                   const isSelected = section.id === displayedSectionId;
                   return (
@@ -235,7 +240,12 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice 
             ) : displayedSection ? (
               <div className="lesson-content-fade" key={displayedSectionId}>
                 {isReplay && <div className="replay-banner">Replaying a completed section</div>}
-                <LessonSectionView section={displayedSection} isReplay={isReplay} useLocalSubmission={isSample} />
+                <LessonSectionView 
+                  section={displayedSection} 
+                  isReplay={isReplay} 
+                  useLocalSubmission={isSample}
+                  onInteractionChange={handleInteractionChange}
+                />
               </div>
             ) : (
               <div className="lesson-replay-empty fx-card">Select a section to begin.</div>
