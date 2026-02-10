@@ -40,6 +40,7 @@ const AutismView = ({ initialLessonId = null }) => {
 
   const audioRef = useRef(null);
   const ttsAudioRef = useRef(null);
+  const timerIntervalRef = useRef(null);
 
   // Load completed lessons from backend on mount
   useEffect(() => {
@@ -846,6 +847,14 @@ const AutismView = ({ initialLessonId = null }) => {
 
   // Handle retry button click
   const handleRetry = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+
+    const difficulty = currentStep?.interaction?.difficulty || 'medium';
+    const timeLimit = getTimeForDifficulty(difficulty);
+    setTimeRemaining(timeLimit);
+    setTimerActive(true);
     setQuestionAnswered(false);
     setFeedback('');
     setShowHint(false);
@@ -861,6 +870,10 @@ const AutismView = ({ initialLessonId = null }) => {
   const handleInteraction = (optionIndex) => {
     if (currentStep?.interaction && !questionAnswered) {
       setQuestionAnswered(true);
+      setTimerActive(false);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
 
       const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
@@ -875,26 +888,6 @@ const AutismView = ({ initialLessonId = null }) => {
           ...prev,
           [stepKey]: 0
         }));
-        
-        // Auto-advance to next question after correct answer
-        setTimeout(() => {
-          setFeedback('');
-          setShowHint(false);
-          setQuestionAnswered(false);
-          
-          if (currentStepIndex < totalSteps - 1) {
-            // Move to next step
-            setCurrentStepIndex(currentStepIndex + 1);
-          } else {
-            // Mark lesson as completed
-            if (!completedLessons.includes(selectedLesson)) {
-              setCompletedLessons([...completedLessons, selectedLesson]);
-              saveLessonCompletion(selectedLesson);
-            }
-            // Show completion screen
-            setShowCompletionScreen(true);
-          }
-        }, 2000);
       } else {
         // Increment wrong answer count
         const currentWrongCount = wrongAnswerCount[stepKey] || 0;
@@ -906,24 +899,10 @@ const AutismView = ({ initialLessonId = null }) => {
         }));
 
         if (newWrongCount >= 2) {
-          // Auto-advance to next step after 2 wrong answers
-          setFeedback('Moving to the next step. Try to review this later!');
-          setTimeout(() => {
-            setFeedback('');
-            setShowHint(false);
-            if (currentStepIndex < totalSteps - 1) {
-              setCurrentStepIndex(currentStepIndex + 1);
-            } else {
-              // Mark lesson as completed even with wrong answers
-              if (!completedLessons.includes(selectedLesson)) {
-                setCompletedLessons([...completedLessons, selectedLesson]);
-                saveLessonCompletion(selectedLesson);
-              }
-              setFeedback('You completed this lesson! Review the steps you found difficult.');
-            }
-          }, 2000);
+          setFeedback('Try again. Use the hint if you need help, then press Retry to attempt again.');
+          setShowHint(true);
         } else {
-          setFeedback('Try again! Look at the hint if you need help.');
+          setFeedback('Try again! Press Retry to attempt again, or view the hint.');
         }
       }
     }

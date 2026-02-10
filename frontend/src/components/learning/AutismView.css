@@ -3,8 +3,8 @@
 /* Base container */
 .autism-view {
   min-height: 100vh;
-  /* Soft, predictable blue background - calming and structured */
-  background: linear-gradient(180deg, #f0f7ff 0%, #e6f1fc 100%);
+  /* Calm, low-saturation background */
+  background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-tertiary) 100%);
   transition: background-color 0.5s ease;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
@@ -70,8 +70,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #dbeafe;
-  /* Light blue border */
+  border-bottom: 2px solid var(--border-color);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
   position: sticky;
   top: 0;
@@ -81,8 +80,7 @@
 .header-left h1,
 .lesson-title {
   font-size: 24px;
-  color: #1e3a8a;
-  /* Dark blue text */
+  color: var(--text-primary);
   margin: 0;
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -210,8 +208,7 @@
 .lesson-simple-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
-  border-color: #bfdbfe;
-  /* Use border color signal on hover */
+  border-color: rgba(82, 110, 123, 0.35);
 }
 
 /* Completed State */
@@ -247,9 +244,9 @@
 }
 
 .lesson-simple-card:hover .lesson-large-icon {
-  background: #dbeafe;
-  color: #2563eb;
-  transform: scale(1.1);
+  background: var(--accent-color-soft);
+  color: var(--accent-color-hover);
+  transform: scale(1.03);
 }
 
 .completion-checkmark {
@@ -280,16 +277,16 @@
   padding: 14px;
   border-radius: 12px;
   border: none;
-  background: #3b82f6;
+  background: var(--accent-color);
   color: white;
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
 }
 
 .btn-lesson-start:hover {
-  background: #2563eb;
+  background: var(--accent-color-hover);
 }
 
 /* Lesson View - Focused & Calm */
@@ -330,13 +327,13 @@
 }
 
 .progress-dots .dot.active {
-  background: #3b82f6;
+  background: var(--accent-color);
   transform: scale(1.3);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 4px var(--accent-color-soft);
 }
 
 .progress-dots .dot.completed {
-  background: #93c5fd;
+  background: rgba(82, 110, 123, 0.45);
 }
 
 /* Step Card - The Main Focus */
@@ -411,16 +408,16 @@
 }
 
 .highlight {
-  color: #2563eb;
-  background: rgba(37, 99, 235, 0.1);
+  color: var(--accent-color-hover);
+  background: var(--accent-color-soft);
   padding: 0 6px;
   border-radius: 6px;
   transition: all 0.2s ease;
 }
 
 .highlight.active-word {
-  background: #2563eb;
-  color: white;
+  background: var(--accent-color);
+  color: #ffffff;
 }
 
 .content-translation {
@@ -466,17 +463,17 @@
 }
 
 .btn-option:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  color: #1d4ed8;
+  border-color: #94a3b8;
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .btn-option:hover .option-letter {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
-/* Retry Section Styles */
+/* Retry Section Styles (Autism: calm, no animations) */
 .retry-section {
   display: flex;
   flex-direction: column;
@@ -485,55 +482,56 @@
   gap: 15px;
   padding: 20px;
   margin: 20px 0;
-  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
-  animation: slideInUp 0.4s ease-out;
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  box-shadow: none;
+  animation: none;
 }
 
 .btn-retry {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%);
-  color: white;
-  border: 3px solid #F57C00;
+  background: #ffffff;
+  color: #0f172a;
+  border: 2px solid #cbd5e1;
   border-radius: 14px;
   font-size: 17px;
   font-weight: bold;
-  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  font-family: inherit;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+  box-shadow: none;
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
 .btn-retry:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 6px 15px rgba(255, 152, 0, 0.4);
-  background: linear-gradient(135deg, #FB8C00 0%, #F57C00 100%);
+  transform: none;
+  box-shadow: none;
+  background: #f1f5f9;
 }
 
 .btn-retry:active {
-  transform: translateY(-1px) scale(1.02);
+  transform: none;
 }
 
-/* Enhanced interaction question styling */
-.interaction-question {
-  font-size: 1.4rem;
+/* Interaction question styling (Autism: force readable text; defeat gradient-text rules from other CSS) */
+.autism-view .interaction-question {
+  font-size: 1.25rem;
   font-weight: 700;
-  color: #1565C0;
+  color: #0f172a;
+  opacity: 1;
+  visibility: visible;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  animation: none;
+  transform: none;
+  text-shadow: none;
+}
+
 /* Audio Player */
 .step-audio-section {
   display: flex;
@@ -562,9 +560,9 @@
 }
 
 .btn-audio:hover {
-  border-color: #3b82f6;
-  color: #2563eb;
-  transform: scale(1.05);
+  border-color: #94a3b8;
+  color: #0f172a;
+  transform: none;
 }
 
 .audio-controls-speed {
@@ -595,7 +593,7 @@
   border-radius: 12px;
   text-align: center;
   font-weight: 600;
-  animation: fadeIn 0.3s ease-out;
+  animation: none;
 }
 
 .feedback-message.success {
@@ -610,8 +608,8 @@
 
 .btn-hint {
   background: transparent;
-  color: #f59e0b;
-  border: 1px solid #fcd34d;
+  color: #334155;
+  border: 1px solid #cbd5e1;
   padding: 8px 16px;
   border-radius: 20px;
   cursor: pointer;
@@ -623,7 +621,7 @@
 }
 
 .btn-hint:hover {
-  background: #fffbeb;
+  background: #f1f5f9;
 }
 
 /* Navigation */
@@ -662,22 +660,27 @@
 }
 
 .btn-next {
-  background: #2563eb;
-  color: white;
-  border: none;
-  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid #0f172a;
+  box-shadow: none;
 }
 
 .btn-next:hover {
-  background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 12px rgba(37, 99, 235, 0.3);
+  background: #1e293b;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Distraction Free Mode Override */
 .autism-view.distraction-free .step-content-card {
   box-shadow: none;
   border: 1px solid #e2e8f0;
+}
+
+.autism-view.distraction-free .btn-nav:hover,
+.autism-view.distraction-free .lesson-simple-card:hover {
+  transform: none;
 }
 
 /* Ensure compact layout that fits on one screen */
@@ -702,12 +705,12 @@
 
 /* Completion Screen Styles */
 .autism-view.completion-screen {
-  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  background: #f6f7f9;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.5s ease-out;
+  animation: none;
 }
 
 .completion-container {
@@ -721,40 +724,24 @@
   border-radius: 24px;
   padding: 50px 40px;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(76, 175, 80, 0.3);
-  animation: scaleIn 0.6s ease-out;
-}
-
-@keyframes scaleIn {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  box-shadow: none;
+  border: 1px solid #e2e8f0;
+  animation: none;
 }
 
 .completion-icon {
-  font-size: 100px;
-  animation: celebrate 1s ease-in-out infinite;
+  font-size: 64px;
+  animation: none;
   margin-bottom: 20px;
-}
-
-@keyframes celebrate {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.2) rotate(-10deg); }
-  75% { transform: scale(1.2) rotate(10deg); }
 }
 
 .completion-title {
   font-size: 48px;
-  color: #2E7D32;
+  color: #0f172a;
   margin: 0 0 15px 0;
-  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  animation: bounceText 0.8s ease-out;
+  font-family: inherit;
+  text-shadow: none;
+  animation: none;
 }
 
 .completion-message {
@@ -783,13 +770,15 @@
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+  box-shadow: none;
+  border: 1px solid #cbd5e1;
 }
 
 .btn-completion:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: none;
+  box-shadow: none;
+  background: #f1f5f9;
 }
 
 .btn-completion:active {
@@ -797,30 +786,30 @@
 }
 
 .btn-next-lesson {
-  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
-  color: white;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .btn-next-lesson:hover {
-  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+  background: #f1f5f9;
 }
 
 .btn-back-lessons {
-  background: linear-gradient(135deg, #2196F3 0%, #42A5F5 100%);
-  color: white;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .btn-back-lessons:hover {
-  background: linear-gradient(135deg, #42A5F5 0%, #2196F3 100%);
+  background: #f1f5f9;
 }
 
 .btn-progress {
-  background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
-  color: white;
+  background: #ffffff;
+  color: #0f172a;
 }
 
 .btn-progress:hover {
-  background: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%);
+  background: #f1f5f9;
 }
 
 .btn-icon {

@@ -122,19 +122,19 @@ body.theme-yellow-black {
   --text-secondary: #556270;
   --border-color: #D7DDD5;
 
-  /* Muted blue-gray accent */
-  --accent-color: #5C7A88;
-  --accent-color-hover: #4C6672;
-  --accent-color-soft: rgba(92, 122, 136, 0.12);
-  --accent-gradient: linear-gradient(90deg, rgba(92, 122, 136, 0.95) 0%, rgba(76, 102, 114, 0.95) 100%);
-  --accent-gradient-strong: linear-gradient(135deg, #5C7A88 0%, #3F5661 100%);
+  /* Muted blue-gray accent (dimmed further) */
+  --accent-color: #526E7B;
+  --accent-color-hover: #465E68;
+  --accent-color-soft: rgba(82, 110, 123, 0.10);
+  --accent-gradient: linear-gradient(90deg, rgba(82, 110, 123, 0.55) 0%, rgba(70, 94, 104, 0.55) 100%);
+  --accent-gradient-strong: linear-gradient(135deg, rgba(82, 110, 123, 0.70) 0%, rgba(63, 86, 97, 0.70) 100%);
 
   /* Page background gradient */
   --app-gradient-start: #F7F7F4;
   --app-gradient-end: #ECEFEA;
 
   /* Focus outline */
-  --theme-focus: #5C7A88;
+  --theme-focus: #526E7B;
 }
 
 body {
