@@ -489,7 +489,7 @@ const InteractionCard = ({
           aria-label="Replay narration"
           disabled={!enableTts}
         >
-          Replay narration
+          Listen to Question
         </button>
       </div>
 
@@ -593,7 +593,7 @@ const InteractionCard = ({
 
       {error && (
         <p className="interaction-feedback error" role="status">
-          ⚠️ {error}
+          {error}
         </p>
       )}
       {isAnswered && (

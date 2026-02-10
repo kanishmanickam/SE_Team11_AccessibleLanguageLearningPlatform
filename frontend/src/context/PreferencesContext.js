@@ -96,15 +96,15 @@ export const PreferencesProvider = ({ children }) => {
       container.classList.add(`line-height-${prefs.lineHeight}`);
     }
 
-    // Apply distraction-free mode
+    // Apply distraction-free mode (Autism + ADHD)
     const userCondition = container.dataset.userCondition;
-    if (prefs.distractionFreeMode && userCondition === 'autism') {
+    const supportsDistractionFree = userCondition === 'autism' || userCondition === 'adhd';
+    if (prefs.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('distraction-free');
     }
 
-    // Apply reduced animations
-    // For Autism, treat reduced animations as part of distraction-free so normal mode stays animated.
-    if (prefs.reduceAnimations && prefs.distractionFreeMode && userCondition === 'autism') {
+    // Apply reduced animations (only meaningful when distraction-free is on)
+    if (prefs.reduceAnimations && prefs.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('reduce-animations');
     }
   };

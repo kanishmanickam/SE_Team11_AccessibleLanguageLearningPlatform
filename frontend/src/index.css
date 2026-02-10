@@ -9,16 +9,31 @@
 }
 
 :root {
-  /* Default Theme Colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f5f5;
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --border-color: #e0e0e0;
-  --accent-color: #4CAF50;
-  --error-color: #f44336;
-  --success-color: #4CAF50;
-  --warning-color: #ff9800;
+  /* Default Theme Colors (Light, calm, neutral — no pure white) */
+  /* Requested bases */
+  --bg-primary: #F0F8FF;   /* AliceBlue */
+  --bg-secondary: #F8F8FF; /* GhostWhite */
+  /* Additional calm surfaces */
+  --bg-tertiary: #EAF2FB;
+  --bg-elevated: rgba(248, 248, 255, 0.85);
+
+  --text-primary: #1f2937;
+  --text-secondary: #475569;
+  --border-color: #D6E4F5;
+
+  /* Accent + semantic colors (soft) */
+  --accent-color: #4D86C9;
+  --accent-color-hover: #3F74B8;
+  --accent-color-soft: rgba(77, 134, 201, 0.12);
+  --accent-gradient: linear-gradient(90deg, rgba(77, 134, 201, 0.95) 0%, rgba(63, 116, 184, 0.95) 100%);
+  --accent-gradient-strong: linear-gradient(135deg, #4D86C9 0%, #2F65A7 100%);
+  --error-color: #d64545;
+  --success-color: #3E9B74;
+  --warning-color: #C27A2C;
+
+  /* Page background gradient */
+  --app-gradient-start: #F0F8FF;
+  --app-gradient-end: #E6F0FA;
   
   /* Font Sizes */
   --font-size-small: 14px;
@@ -43,9 +58,9 @@
   --fx-radius: 16px;
   --fx-transition-fast: 150ms ease-in-out;
   --fx-transition: 200ms ease-in-out;
-  --fx-shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.12);
-  --fx-shadow-hover: 0 16px 28px rgba(0, 0, 0, 0.16);
-  --fx-shadow-press: 0 6px 12px rgba(0, 0, 0, 0.16);
+  --fx-shadow-soft: 0 10px 22px rgba(15, 23, 42, 0.10);
+  --fx-shadow-hover: 0 16px 32px rgba(15, 23, 42, 0.14);
+  --fx-shadow-press: 0 6px 14px rgba(15, 23, 42, 0.14);
 }
 
 /* High Contrast Theme */
@@ -70,12 +85,16 @@ body.theme-dark {
 
 /* Light Theme */
 body.theme-light {
-  --bg-primary: #fafafa;
-  --bg-secondary: #ffffff;
-  --text-primary: #212121;
-  --text-secondary: #757575;
-  --border-color: #e0e0e0;
-  --accent-color: #66bb6a;
+  /* Keep "Light" consistent with the calm default theme */
+  --bg-primary: #F0F8FF;
+  --bg-secondary: #F8F8FF;
+  --bg-tertiary: #EAF2FB;
+  --text-primary: #1f2937;
+  --text-secondary: #475569;
+  --border-color: #D6E4F5;
+  --accent-color: #4D86C9;
+  --accent-color-hover: #3F74B8;
+  --accent-color-soft: rgba(77, 134, 201, 0.12);
 }
 
 /* Yellow-Black High Contrast */
@@ -88,19 +107,49 @@ body.theme-yellow-black {
   --accent-color: #ffff00;
 }
 
+/* Autism subtle theme (scoped to Autism pages only)
+   Applies only when the container is in the default theme.
+*/
+#learning-container[data-user-condition='autism']:not(.theme-high-contrast):not(.theme-dark):not(.theme-yellow-black) {
+  /* Calm neutral surfaces */
+  --bg-primary: #F6F6F3;
+  --bg-secondary: #FBFBF8;
+  --bg-tertiary: #EEF0EC;
+  --bg-elevated: rgba(251, 251, 248, 0.88);
+
+  /* Text + borders */
+  --text-primary: #1f2937;
+  --text-secondary: #556270;
+  --border-color: #D7DDD5;
+
+  /* Muted blue-gray accent */
+  --accent-color: #5C7A88;
+  --accent-color-hover: #4C6672;
+  --accent-color-soft: rgba(92, 122, 136, 0.12);
+  --accent-gradient: linear-gradient(90deg, rgba(92, 122, 136, 0.95) 0%, rgba(76, 102, 114, 0.95) 100%);
+  --accent-gradient-strong: linear-gradient(135deg, #5C7A88 0%, #3F5661 100%);
+
+  /* Page background gradient */
+  --app-gradient-start: #F7F7F4;
+  --app-gradient-end: #ECEFEA;
+
+  /* Focus outline */
+  --theme-focus: #5C7A88;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-primary);
+  background: linear-gradient(135deg, var(--app-gradient-start) 0%, var(--app-gradient-end) 100%);
   color: var(--text-primary);
   font-size: var(--font-size-medium);
   line-height: var(--line-height-normal);
   letter-spacing: var(--letter-spacing-normal);
   word-spacing: var(--word-spacing-normal);
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Reusable visual effect utilities */

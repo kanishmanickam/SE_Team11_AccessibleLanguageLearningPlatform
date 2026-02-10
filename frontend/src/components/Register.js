@@ -91,154 +91,172 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <div className="register-card">
-        <h1 className="register-title">Create Your Account</h1>
-        <p className="register-subtitle">
-          Join our accessible learning community
-        </p>
+      {/* Animated Background Elements */}
+      <div className="shape shape-1"></div>
+      <div className="shape shape-2"></div>
+      <div className="shape shape-3"></div>
 
-        {error && (
-          <div className="alert alert-error" role="alert">
-            {error}
-          </div>
-        )}
+      <div className="register-content">
+        <div className="brand-header">
+          <h1 className="app-name">LinguaEase</h1>
+          <p className="app-tagline">Language and Learning made easy for every mind</p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="register-form">
-          <div className="form-group">
-            <label htmlFor="name">Full Name *</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              aria-required="true"
-              autoComplete="name"
-            />
-          </div>
+        <div className="register-card">
+          <h2 className="register-title">Create Your Account</h2>
+          <p className="register-subtitle">
+            Join our accessible learning community
+          </p>
 
-          <div className="form-group">
-            <label htmlFor="email">Email Address *</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              aria-required="true"
-              autoComplete="email"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">
-              Password * <span className="help-text">(Minimum 6 characters)</span>
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-              aria-required="true"
-              minLength={6}
-              autoComplete="new-password"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password *</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              aria-required="true"
-              minLength={6}
-              autoComplete="new-password"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="learningCondition">
-              Learning Condition * <span className="help-text">(This helps us customize your experience)</span>
-            </label>
-            <select
-              id="learningCondition"
-              name="learningCondition"
-              value={formData.learningCondition}
-              onChange={handleChange}
-              required
-              aria-required="true"
-            >
-              <option value="none">Select your learning condition</option>
-              <option value="dyslexia">Dyslexia</option>
-              <option value="adhd">ADHD</option>
-              <option value="autism">Autism Spectrum</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="age">Age (optional)</label>
-            <input
-              type="number"
-              id="age"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              min="3"
-              max="100"
-            />
-          </div>
-
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="isMinor"
-                checked={formData.isMinor}
-                onChange={handleChange}
-              />
-              <span>I am under 13 years old (requires parental approval)</span>
-            </label>
-          </div>
-
-          {formData.isMinor && (
-            <div className="form-group">
-              <label htmlFor="parentEmail">Parent/Guardian Email *</label>
-              <input
-                type="email"
-                id="parentEmail"
-                name="parentEmail"
-                value={formData.parentEmail}
-                onChange={handleChange}
-                required={formData.isMinor}
-                autoComplete="email"
-              />
+          {error && (
+            <div className="alert alert-error" role="alert">
+              {error}
             </div>
           )}
 
-          <button
-            type="submit"
-            className="btn btn-primary btn-block"
-            disabled={loading}
-          >
-            {loading ? 'Creating Account...' : 'Create Account'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="register-form">
+            <div className="form-group">
+              <label htmlFor="name">Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                aria-required="true"
+                autoComplete="name"
+                placeholder="Enter your full name"
+              />
+            </div>
 
-        <div className="register-footer">
-          <p>
-            Already have an account?{' '}
-            <Link to="/login" className="link-primary">
-              Log in
-            </Link>
-          </p>
+            <div className="form-group">
+              <label htmlFor="email">Email Address *</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                aria-required="true"
+                autoComplete="email"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="password">
+                Password * <span className="help-text">(Minimum 6 characters)</span>
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                aria-required="true"
+                minLength={6}
+                autoComplete="new-password"
+                placeholder="Create a password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="confirmPassword">Confirm Password *</label>
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+                aria-required="true"
+                minLength={6}
+                autoComplete="new-password"
+                placeholder="Confirm your password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="learningCondition">
+                Learning Condition * <span className="help-text">(This helps us customize your experience)</span>
+              </label>
+              <select
+                id="learningCondition"
+                name="learningCondition"
+                value={formData.learningCondition}
+                onChange={handleChange}
+                required
+                aria-required="true"
+              >
+                <option value="none">Select your learning condition</option>
+                <option value="dyslexia">Dyslexia</option>
+                <option value="adhd">ADHD</option>
+                <option value="autism">Autism Spectrum</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="age">Age (optional)</label>
+              <input
+                type="number"
+                id="age"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                min="3"
+                max="100"
+                placeholder="Age"
+              />
+            </div>
+
+            <div className="form-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  name="isMinor"
+                  checked={formData.isMinor}
+                  onChange={handleChange}
+                />
+                <span>I am under 13 years old (requires parental approval)</span>
+              </label>
+            </div>
+
+            {formData.isMinor && (
+              <div className="form-group">
+                <label htmlFor="parentEmail">Parent/Guardian Email *</label>
+                <input
+                  type="email"
+                  id="parentEmail"
+                  name="parentEmail"
+                  value={formData.parentEmail}
+                  onChange={handleChange}
+                  required={formData.isMinor}
+                  autoComplete="email"
+                  placeholder="Parent's email"
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-block btn-animate"
+              disabled={loading}
+            >
+              {loading ? <span className="spinner"></span> : 'Create Account'}
+            </button>
+          </form>
+
+          <div className="register-footer">
+            <p>
+              Already have an account?{' '}
+              <Link to="/login" className="link-primary">
+                Log in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { ImageOff, X } from 'lucide-react';
 import './LessonDisplay.css';
 
 const formatTime = (seconds) => {
@@ -110,7 +111,7 @@ const LessonDisplay = ({ lesson, isLoading, error, onClose }) => {
         </div>
         {onClose && (
           <button type="button" className="lesson-close" onClick={onClose} aria-label="Close lesson">
-            ✕
+            <X size={18} aria-hidden="true" />
           </button>
         )}
       </header>
@@ -177,7 +178,7 @@ const LessonDisplay = ({ lesson, isLoading, error, onClose }) => {
                       {visual.iconUrl ? (
                         <img src={visual.iconUrl} alt={visual.description} loading="lazy" />
                       ) : (
-                        <div className="visual-placeholder" aria-hidden="true">🧩</div>
+                        <div className="visual-placeholder" aria-hidden="true"><ImageOff size={20} aria-hidden="true" /></div>
                       )}
                       <figcaption>{visual.description}</figcaption>
                     </figure>

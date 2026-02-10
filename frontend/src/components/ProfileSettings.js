@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { usePreferences } from '../context/PreferencesContext';
+import { Accessibility, Check, LogOut, User, X } from 'lucide-react';
 import './ProfileSettings.css';
 
 const ProfileSettings = ({ onClose }) => {
@@ -50,7 +51,7 @@ const ProfileSettings = ({ onClose }) => {
   const saveAccessibilitySettings = async () => {
     const result = await updateAccessibilitySettings(accessibilitySettings);
     if (result.success) {
-      alert('✓ Accessibility settings updated!');
+      alert('Accessibility settings updated!');
     } else {
       alert('Error updating settings: ' + result.error);
     }
@@ -68,7 +69,7 @@ const ProfileSettings = ({ onClose }) => {
       <div className="settings-card">
         <div className="settings-header">
           <h2>Settings</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button className="close-btn" onClick={onClose} aria-label="Close settings"><X size={18} aria-hidden="true" /></button>
         </div>
 
         <div className="settings-tabs">
@@ -76,13 +77,15 @@ const ProfileSettings = ({ onClose }) => {
             className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
-            👤 Profile
+            <User size={16} aria-hidden="true" />
+            <span>Profile</span>
           </button>
           <button
             className={`tab-btn ${activeTab === 'accessibility' ? 'active' : ''}`}
             onClick={() => setActiveTab('accessibility')}
           >
-            ⚙️ Accessibility
+            <Accessibility size={16} aria-hidden="true" />
+            <span>Accessibility</span>
           </button>
         </div>
 
@@ -276,7 +279,17 @@ const ProfileSettings = ({ onClose }) => {
                   }
                 >
                   <span className="toggle-icon">
-                    {accessibilitySettings.distractionFreeMode ? '✓ ON' : '✕ OFF'}
+                    {accessibilitySettings.distractionFreeMode ? (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <Check size={16} aria-hidden="true" />
+                        <span>ON</span>
+                      </span>
+                    ) : (
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                        <X size={16} aria-hidden="true" />
+                        <span>OFF</span>
+                      </span>
+                    )}
                   </span>
                   <span className="toggle-label">
                     {accessibilitySettings.distractionFreeMode
@@ -311,7 +324,8 @@ const ProfileSettings = ({ onClose }) => {
             className="btn btn-danger"
             onClick={handleLogout}
           >
-            🚪 Logout
+            <LogOut size={16} aria-hidden="true" />
+            <span>Logout</span>
           </button>
         </div>
       </div>

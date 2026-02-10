@@ -3,6 +3,33 @@ import InteractionCard from './InteractionCard';
 import VisualLesson from './VisualLesson';
 import { useAuth } from '../../context/AuthContext';
 import { getLessonProgress, normalizeUserId, saveLessonProgress } from '../../services/dyslexiaProgressService';
+import { decorateDyslexiaText, useDyslexiaContext } from '../../utils/dyslexiaSyllableMode';
+import {
+  Activity,
+  Apple,
+  Armchair,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Footprints,
+  Hand,
+  Hash,
+  Home,
+  ImageOff,
+  MessageCircle,
+  Mic,
+  MousePointer,
+  Pause,
+  Pencil,
+  Play,
+  RotateCcw,
+  Smile,
+  Sparkles,
+  Star,
+  Sun,
+  Users,
+  Handshake,
+} from 'lucide-react';
 
 const formatTime = (seconds) => {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -11,31 +38,31 @@ const formatTime = (seconds) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-/* Map keywords in questions/section titles to emoji illustrations */
+/* Map keywords in questions/section titles to icon illustrations */
 const illustrationMap = [
-  { keywords: ['hello', 'greet', 'greeting', 'hi'], emoji: '????', label: 'Greeting', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['how are you', 'feeling', 'fine'], emoji: '????', label: 'Feelings', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['goodbye', 'bye', 'see you'], emoji: '????', label: 'Farewell', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['reply', 'respond', 'answer'], emoji: '????', label: 'Conversation', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
-  { keywords: ['chair', 'sit', 'furniture'], emoji: '????', label: 'Furniture', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
-  { keywords: ['apple', 'eat', 'fruit', 'food'], emoji: '????', label: 'Food', bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
-  { keywords: ['book', 'read', 'reading'], emoji: '????', label: 'Reading', bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
-  { keywords: ['home', 'house', 'live', 'place'], emoji: '????', label: 'Home', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['shoe', 'feet', 'wear'], emoji: '????', label: 'Clothing', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
-  { keywords: ['number', 'count', 'counting'], emoji: '????', label: 'Numbers', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['after', 'next', 'order', 'sequence'], emoji: '??????', label: 'Sequence', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' },
-  { keywords: ['three', 'star', 'items', 'set'], emoji: '???', label: 'Counting', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['walk', 'action', 'run'], emoji: '????', label: 'Actions', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
-  { keywords: ['people', 'person', 'friend'], emoji: '????', label: 'People', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
-  { keywords: ['sun', 'day', 'daily'], emoji: '??????', label: 'Daily Life', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['speak', 'say', 'speech', 'talk', 'phrase'], emoji: '???????', label: 'Speaking', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['true', 'false', 'yes', 'no'], emoji: '???', label: 'True or False', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
-  { keywords: ['click', 'choose', 'pick', 'select'], emoji: '????', label: 'Choose', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['type', 'write', 'word'], emoji: '??????', label: 'Writing', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
-  { keywords: ['friendly', 'polite', 'smile'], emoji: '????', label: 'Friendly', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['hello', 'greet', 'greeting', 'hi'], Icon: Hand, label: 'Greeting', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['how are you', 'feeling', 'fine'], Icon: Smile, label: 'Feelings', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['goodbye', 'bye', 'see you'], Icon: Handshake, label: 'Farewell', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['reply', 'respond', 'answer'], Icon: MessageCircle, label: 'Conversation', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+  { keywords: ['chair', 'sit', 'furniture'], Icon: Armchair, label: 'Furniture', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
+  { keywords: ['apple', 'eat', 'fruit', 'food'], Icon: Apple, label: 'Food', bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+  { keywords: ['book', 'read', 'reading'], Icon: BookOpen, label: 'Reading', bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
+  { keywords: ['home', 'house', 'live', 'place'], Icon: Home, label: 'Home', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['shoe', 'feet', 'wear'], Icon: Footprints, label: 'Clothing', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+  { keywords: ['number', 'count', 'counting'], Icon: Hash, label: 'Numbers', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['after', 'next', 'order', 'sequence'], Icon: ArrowRight, label: 'Sequence', bg: 'var(--accent-gradient-strong)' },
+  { keywords: ['three', 'star', 'items', 'set'], Icon: Star, label: 'Counting', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['walk', 'action', 'run'], Icon: Activity, label: 'Actions', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+  { keywords: ['people', 'person', 'friend'], Icon: Users, label: 'People', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
+  { keywords: ['sun', 'day', 'daily'], Icon: Sun, label: 'Daily Life', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['speak', 'say', 'speech', 'talk', 'phrase'], Icon: Mic, label: 'Speaking', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['true', 'false', 'yes', 'no'], Icon: CheckCircle2, label: 'True or False', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+  { keywords: ['click', 'choose', 'pick', 'select'], Icon: MousePointer, label: 'Choose', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['type', 'write', 'word'], Icon: Pencil, label: 'Writing', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
+  { keywords: ['friendly', 'polite', 'smile'], Icon: Sparkles, label: 'Friendly', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
 ];
 
-const defaultIllustration = { emoji: '????', label: 'Learning', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' };
+const defaultIllustration = { Icon: BookOpen, label: 'Learning', bg: 'var(--accent-gradient-strong)' };
 
 const getIllustration = (text) => {
   if (!text) return defaultIllustration;
@@ -48,8 +75,10 @@ const getIllustration = (text) => {
   return defaultIllustration;
 };
 
-const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractionChange }) => {
+const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, onInteractionChange }) => {
   const { user } = useAuth();
+  const condition = user?.learningCondition || '';
+  const dyslexia = useDyslexiaContext({ condition, lessonId, defaultSyllableMode: true });
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -77,10 +106,10 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
       if (!trimmed) continue;
       const leadingWhitespace = raw.search(/\S/);
       const startIndex = match.index + (leadingWhitespace >= 0 ? leadingWhitespace : 0);
-      results.push({ text: trimmed, startIndex });
+      results.push({ text: dyslexia.applySyllables ? decorateDyslexiaText(trimmed) : trimmed, startIndex });
     }
     return results;
-  }, [section?.textContent]);
+  }, [dyslexia.applySyllables, section?.textContent]);
 
   const interactions = useMemo(() => {
     if (!section?.interactions) return [];
@@ -90,6 +119,27 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   }, [section?.interactions]);
 
   const currentInteraction = interactions[activeInteractionIndex];
+
+  const displayedInteraction = useMemo(() => {
+    if (!currentInteraction) return null;
+    if (!dyslexia.applySyllables) return currentInteraction;
+
+    const safeDecorate = (value) => (value ? decorateDyslexiaText(value) : value);
+
+    return {
+      ...currentInteraction,
+      question: safeDecorate(currentInteraction.question),
+      hint: safeDecorate(currentInteraction.hint),
+      explanation: safeDecorate(currentInteraction.explanation),
+      feedback: currentInteraction.feedback
+        ? {
+            ...currentInteraction.feedback,
+            correct: safeDecorate(currentInteraction.feedback.correct),
+            incorrect: safeDecorate(currentInteraction.feedback.incorrect),
+          }
+        : currentInteraction.feedback,
+    };
+  }, [currentInteraction, dyslexia.applySyllables]);
 
   const sectionId = section?.id || section?._id;
 
@@ -310,12 +360,14 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
   if (!section) return null;
 
+  const displaySectionTitle = dyslexia.applySyllables ? decorateDyslexiaText(section.title) : section.title;
+
   return (
     <div className="lesson-section">
       <header className="lesson-section-header">
         <div>
           <p className="lesson-section-label">Section</p>
-          <h2>{section.title}</h2>
+          <h2>{displaySectionTitle}</h2>
         </div>
         {isReplay && <span className="replay-pill">Replaying</span>}
       </header>
@@ -333,10 +385,10 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
             <p>No text content available.</p>
           )}
 
-          {currentInteraction && (
+          {displayedInteraction && (
             <InteractionCard
               lessonId={lessonKey}
-              interaction={currentInteraction}
+              interaction={displayedInteraction}
               readOnly={isReplay}
               useLocalSubmission={useLocalSubmission}
               onContinue={handleContinue}
@@ -377,7 +429,17 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                   aria-pressed={isPlaying}
                   style={{ flex: 1 }}
                 >
-                  {isPlaying ? '??? Pause' : '??? Play Audio'}
+                  {isPlaying ? (
+                    <>
+                      <Pause size={16} aria-hidden="true" />
+                      <span>Pause</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play size={16} aria-hidden="true" />
+                      <span>Play Audio</span>
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -386,7 +448,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                   onClick={handleReplay}
                   title="Replay Audio"
                 >
-                  ???? Replay
+                  <RotateCcw size={16} aria-hidden="true" />
+                  <span>Replay</span>
                 </button>
               </div>
 
@@ -421,7 +484,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
             {/* Visual Support Note */}
             <p className="lesson-muted" style={{ marginTop: '8px', fontSize: '0.8rem' }}>
-              {isPlaying ? "???? Text is being read aloud..." : "Press play to listen."}
+              {isPlaying ? "Text is being read aloud..." : "Press play to listen."}
             </p>
           </div>
 
@@ -434,15 +497,15 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
               return (
                 <div className="illustration-scene" style={{ background: illust.bg }}>
                   <div className="illustration-emoji-wrapper">
-                    <span className="illustration-emoji" role="img" aria-label={illust.label}>
-                      {illust.emoji}
+                    <span className="illustration-emoji" aria-label={illust.label}>
+                      <illust.Icon size={52} aria-hidden="true" />
                     </span>
                   </div>
                   <p className="illustration-label">{illust.label}</p>
                   <div className="illustration-sparkles" aria-hidden="true">
-                    <span className="sparkle sparkle-1">???</span>
-                    <span className="sparkle sparkle-2">???</span>
-                    <span className="sparkle sparkle-3">???</span>
+                    <span className="sparkle sparkle-1"><Sparkles size={14} aria-hidden="true" /></span>
+                    <span className="sparkle sparkle-2"><Sparkles size={14} aria-hidden="true" /></span>
+                    <span className="sparkle sparkle-3"><Sparkles size={14} aria-hidden="true" /></span>
                   </div>
                 </div>
               );
@@ -460,7 +523,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                     ) : visual.iconUrl ? (
                       <img src={visual.iconUrl} alt={visual.description || 'Visual aid'} loading="lazy" />
                     ) : (
-                      <div className="visual-placeholder" aria-hidden="true">????</div>
+                      <div className="visual-placeholder" aria-hidden="true"><ImageOff size={20} aria-hidden="true" /></div>
                     )}
                     <figcaption>{visual.relatedPhrase || visual.description}</figcaption>
                   </figure>

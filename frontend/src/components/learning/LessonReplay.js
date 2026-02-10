@@ -5,9 +5,12 @@ import LessonSectionView from './LessonSectionView';
 import { getLessonSections } from '../../services/lessonSectionService';
 import { getProgress, updateProgress, getSummary } from '../../services/progressService';
 import lessonSectionSamples from './lessonSectionSamples';
+import { useAuth } from '../../context/AuthContext';
+import { decorateDyslexiaText, useDyslexiaContext } from '../../utils/dyslexiaSyllableMode';
 import './LessonReplay.css';
 
 const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice, onRetry, onExit }) => {
+  const { user } = useAuth();
   const [sections, setSections] = useState([]);
   const [progress, setProgress] = useState(null);
   const [activeSectionId, setActiveSectionId] = useState('');
@@ -85,6 +88,13 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
     }));
   }, [sections]);
 
+  const condition = user?.learningCondition || '';
+  const dyslexia = useDyslexiaContext({ condition, lessonId, defaultSyllableMode: true });
+  const displaySectionList = useMemo(() => {
+    if (!dyslexia.applySyllables) return sectionList;
+    return sectionList.map((s) => ({ ...s, title: decorateDyslexiaText(s.title) }));
+  }, [dyslexia.applySyllables, sectionList]);
+
   const sectionMap = useMemo(() => {
     const map = new Map();
     sections.forEach((section) => {
@@ -129,7 +139,7 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
     }
   };
 
-  const getSectionIndex = (sectionId) => sectionList.findIndex((section) => section.id === sectionId);
+  const getSectionIndex = (sectionId) => displaySectionList.findIndex((section) => section.id === sectionId);
 
   const handleNavigate = async (direction) => {
     if (!displayedSectionId) return;
@@ -261,9 +271,9 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
   };
 
 
-  const prevSection = displayedSectionId ? sectionList[getSectionIndex(displayedSectionId) - 1] : null;
-  const nextSection = displayedSectionId ? sectionList[getSectionIndex(displayedSectionId) + 1] : null;
-  const isLastSection = !isReplay && Boolean(displayedSectionId) && getSectionIndex(displayedSectionId) === sectionList.length - 1;
+  const prevSection = displayedSectionId ? displaySectionList[getSectionIndex(displayedSectionId) - 1] : null;
+  const nextSection = displayedSectionId ? displaySectionList[getSectionIndex(displayedSectionId) + 1] : null;
+  const isLastSection = !isReplay && Boolean(displayedSectionId) && getSectionIndex(displayedSectionId) === displaySectionList.length - 1;
   const canGoBack = Boolean(prevSection && completedSections.includes(prevSection.id));
   const canGoNext = Boolean(
     !isReplay && displayedSectionId && (nextSection || isLastSection)
@@ -331,7 +341,7 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
               </div>
             ) : (
               <nav className="lesson-timeline" aria-label="Lesson sections">
-                {sectionList.map((section, index) => {
+                {displaySectionList.map((section, index) => {
                   const isCurrent = section.id === (currentInteractionSectionId || activeSectionId);
                   const isCompleted = completedSections.includes(section.id);
                   const isSelected = section.id === displayedSectionId;
@@ -365,6 +375,7 @@ const LessonReplay = ({ lessonId, isSample, lessonTitle, lessonSubtitle, notice,
                   section={displayedSection} 
                   isReplay={isReplay} 
                   useLocalSubmission={isSample}
+                  lessonId={lessonId}
                   onInteractionChange={handleInteractionChange}
                 />
               </div>
