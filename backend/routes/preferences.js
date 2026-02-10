@@ -51,7 +51,7 @@ router.put('/', protect, async (req, res) => {
       // Update existing preferences
       preferences = await Preferences.findOneAndUpdate(
         { user: req.user.id },
-        req.body,
+        { ...req.body, lastModified: Date.now() },
         {
           new: true,
           runValidators: true,
@@ -78,13 +78,13 @@ router.put('/', protect, async (req, res) => {
 // @access  Private
 router.patch('/accessibility', protect, async (req, res) => {
   // EPIC 1.3.2: Targeted updates for core accessibility controls (font/theme/etc)
-  const { 
-    fontSize, 
-    contrastTheme, 
-    learningPace, 
-    fontFamily, 
+  const {
+    fontSize,
+    contrastTheme,
+    learningPace,
+    fontFamily,
     letterSpacing,
-    distractionFreeMode 
+    distractionFreeMode
   } = req.body;
 
   try {
@@ -247,7 +247,7 @@ router.delete('/reset', protect, async (req, res) => {
   // EPIC 1.3.3 / 1.7: Restore condition-specific defaults from the backend
   try {
     const user = await User.findById(req.user.id);
-    
+
     // Default preferences based on condition
     const defaults = {
       user: user._id,
