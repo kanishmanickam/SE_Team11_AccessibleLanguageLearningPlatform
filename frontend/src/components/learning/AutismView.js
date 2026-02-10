@@ -31,7 +31,7 @@ const AutismView = ({ initialLessonId = null }) => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   const [wrongAnswerCount, setWrongAnswerCount] = useState({});
-  
+
   // Timer state for questions
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [timerActive, setTimerActive] = useState(false);
@@ -596,7 +596,7 @@ const AutismView = ({ initialLessonId = null }) => {
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
     }
-    
+
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     } else {
@@ -618,7 +618,7 @@ const AutismView = ({ initialLessonId = null }) => {
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
     }
-    
+
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
     }
@@ -1216,7 +1216,7 @@ const AutismView = ({ initialLessonId = null }) => {
       {/* Simple Header */}
       <header className="simple-header">
         <div className="header-left">
-          <h1>Learning Center</h1>
+          <h1>LinguaEase Learning Center</h1>
           <p className="header-subtitle">Choose your lesson</p>
         </div>
         <div className="header-actions">

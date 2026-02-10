@@ -36,6 +36,7 @@ const ADHDView = ({ initialLessonId = null }) => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
 
   // Lesson Logic State
   const [activeLesson, setActiveLesson] = useState(null);
@@ -166,10 +167,21 @@ const ADHDView = ({ initialLessonId = null }) => {
     setIsSessionActive(false);
     setActiveLesson(null);
     setLessonPhase('idle');
+    setCooldownRemaining(300); // 5 minutes cooldown
     if (preferences?.breakReminders) {
       alert('Time for a break! Take 5 minutes to rest before continuing.');
     }
   };
+
+  useEffect(() => {
+    let timer;
+    if (cooldownRemaining > 0) {
+      timer = setInterval(() => {
+        setCooldownRemaining((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldownRemaining]);
 
   useEffect(() => {
     let timer;
@@ -647,7 +659,7 @@ const ADHDView = ({ initialLessonId = null }) => {
       <header className="top-bar">
         <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <BookOpen size={22} aria-hidden="true" />
-          <span>Learn</span>
+          <span>LinguaEase</span>
         </h1>
         <div className="header-actions">
           {isSessionActive && timeRemaining !== null && (
@@ -720,11 +732,25 @@ const ADHDView = ({ initialLessonId = null }) => {
 
               {!isSessionActive ? (
                 <div className="session-start">
-                  <h3>Ready to Learn?</h3>
-                  <p>Click below to start a focused {preferences?.sessionDuration || 20}-minute session</p>
-                  <button onClick={startSession} className="btn-start">
-                    Start Session
-                  </button>
+                  <h3>{cooldownRemaining > 0 ? 'Take a Break' : 'Ready to Learn?'}</h3>
+                  {cooldownRemaining > 0 ? (
+                    <>
+                      <p>Great job! Please rest for {Math.ceil(cooldownRemaining / 60)} minutes before starting again.</p>
+                      <div className="stat-number" style={{ fontSize: '48px', margin: '20px 0' }}>
+                        {formatTime(cooldownRemaining)}
+                      </div>
+                      <button disabled className="btn-start" style={{ opacity: 0.6, cursor: 'not-allowed', backgroundColor: 'var(--text-secondary)' }}>
+                        Break Time
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p>Click below to start a focused {preferences?.sessionDuration || 20}-minute session</p>
+                      <button onClick={startSession} className="btn-start">
+                        Start Session
+                      </button>
+                    </>
+                  )}
                 </div>
               ) : (
                 <>

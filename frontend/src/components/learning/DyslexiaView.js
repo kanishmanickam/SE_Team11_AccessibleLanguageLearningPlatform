@@ -119,7 +119,7 @@ const DyslexiaView = () => {
         <div className="nav-brand">
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <BookOpen size={22} aria-hidden="true" />
-            <span>Language Learning</span>
+            <span>LinguaEase Learning</span>
           </h1>
         </div>
         <div className="nav-menu">
