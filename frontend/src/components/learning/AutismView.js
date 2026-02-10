@@ -18,12 +18,8 @@ const AutismView = ({ initialLessonId = null }) => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   const [wrongAnswerCount, setWrongAnswerCount] = useState({});
-  
-  // Timer state for questions
-  const [timeRemaining, setTimeRemaining] = useState(null);
-  const [timerActive, setTimerActive] = useState(false);
+  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const [questionAnswered, setQuestionAnswered] = useState(false);
-  const timerIntervalRef = useRef(null);
 
   const audioRef = useRef(null);
 
@@ -565,22 +561,10 @@ const AutismView = ({ initialLessonId = null }) => {
 
   // EPIC 2.6: Navigation handlers with replay support
   const handleNext = () => {
-    // Check if current step has been answered correctly
-    const stepKey = `${selectedLesson}-${currentStepIndex}`;
-
-    if (!stepAnsweredCorrectly[stepKey]) {
-      setFeedback('⚠️ Please answer the question correctly before moving to the next step.');
-      setTimeout(() => setFeedback(''), 3000);
-      return;
-    }
-
+    // Allow moving to next step even without answering
     setFeedback('');
     setShowHint(false);
     setQuestionAnswered(false); // Reset for next question
-    setTimerActive(false); // Stop current timer
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
     
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
@@ -591,7 +575,8 @@ const AutismView = ({ initialLessonId = null }) => {
         // Save to backend
         saveLessonCompletion(selectedLesson);
       }
-      setFeedback('🎉 Great job! You completed this lesson!');
+      // Show completion screen instead of just feedback
+      setShowCompletionScreen(true);
     }
   };
 
@@ -599,10 +584,6 @@ const AutismView = ({ initialLessonId = null }) => {
     setFeedback('');
     setShowHint(false);
     setQuestionAnswered(false); // Reset for previous question
-    setTimerActive(false); // Stop current timer
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
     
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
@@ -724,103 +705,23 @@ const AutismView = ({ initialLessonId = null }) => {
     setShowHint(!showHint);
   };
 
-  // Timer logic for questions based on difficulty
-  const getTimeForDifficulty = (difficulty) => {
-    switch (difficulty) {
-      case 'easy':
-        return 20; // 20 seconds for easy questions
-      case 'medium':
-        return 35; // 35 seconds for medium questions
-      case 'hard':
-        return 50; // 50 seconds for hard questions
-      default:
-        return 30; // default 30 seconds
-    }
-  };
-
-  // Start timer when step changes or has interaction
-  useEffect(() => {
-    if (currentStep?.interaction && !questionAnswered) {
-      const difficulty = currentStep.interaction.difficulty || 'medium';
-      const timeLimit = getTimeForDifficulty(difficulty);
-      setTimeRemaining(timeLimit);
-      setTimerActive(true);
-      setQuestionAnswered(false);
-    }
-
-    return () => {
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
-    };
-  }, [currentStepIndex, selectedLesson]);
-
-  // Timer countdown effect
-  useEffect(() => {
-    if (timerActive && timeRemaining !== null && timeRemaining > 0 && !questionAnswered) {
-      timerIntervalRef.current = setInterval(() => {
-        setTimeRemaining(prev => {
-          if (prev <= 1) {
-            clearInterval(timerIntervalRef.current);
-            setTimerActive(false);
-            // Handle timeout
-            handleTimeOut();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => {
-        if (timerIntervalRef.current) {
-          clearInterval(timerIntervalRef.current);
-        }
-      };
-    }
-  }, [timerActive, timeRemaining, questionAnswered]);
-
-  // Handle timeout
-  const handleTimeOut = () => {
-    if (!questionAnswered) {
-      setFeedback('⏰ Time\'s up! Click retry to try again.');
-      setQuestionAnswered(true);
-      setTimerActive(false);
-      
-      const stepKey = `${selectedLesson}-${currentStepIndex}`;
-      const currentWrongCount = wrongAnswerCount[stepKey] || 0;
-      const newWrongCount = currentWrongCount + 1;
-
-      setWrongAnswerCount(prev => ({
-        ...prev,
-        [stepKey]: newWrongCount
-      }));
-
-      setTimeout(() => {
-        setShowHint(true); // Show hint after timeout
-      }, 1500);
-    }
-  };
-
   // Handle retry button click
   const handleRetry = () => {
     setQuestionAnswered(false);
     setFeedback('');
     setShowHint(false);
-    const difficulty = currentStep?.interaction?.difficulty || 'medium';
-    const timeLimit = getTimeForDifficulty(difficulty);
-    setTimeRemaining(timeLimit);
-    setTimerActive(true);
+    const stepKey = `${selectedLesson}-${currentStepIndex}`;
+    // Reset wrong answer count for this step
+    setWrongAnswerCount(prev => ({
+      ...prev,
+      [stepKey]: 0
+    }));
   };
 
   // EPIC 2.3: Interactive engagement with feedback
   const handleInteraction = (optionIndex) => {
     if (currentStep?.interaction && !questionAnswered) {
-      // Stop timer when answer is selected
-      setTimerActive(false);
       setQuestionAnswered(true);
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
 
       const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
@@ -835,6 +736,26 @@ const AutismView = ({ initialLessonId = null }) => {
           ...prev,
           [stepKey]: 0
         }));
+        
+        // Auto-advance to next question after correct answer
+        setTimeout(() => {
+          setFeedback('');
+          setShowHint(false);
+          setQuestionAnswered(false);
+          
+          if (currentStepIndex < totalSteps - 1) {
+            // Move to next step
+            setCurrentStepIndex(currentStepIndex + 1);
+          } else {
+            // Mark lesson as completed
+            if (!completedLessons.includes(selectedLesson)) {
+              setCompletedLessons([...completedLessons, selectedLesson]);
+              saveLessonCompletion(selectedLesson);
+            }
+            // Show completion screen
+            setShowCompletionScreen(true);
+          }
+        }, 2000);
       } else {
         // Increment wrong answer count
         const currentWrongCount = wrongAnswerCount[stepKey] || 0;
@@ -845,32 +766,10 @@ const AutismView = ({ initialLessonId = null }) => {
           [stepKey]: newWrongCount
         }));
 
-        if (newWrongCount >= 2) {
-          // Auto-advance to next step after 2 wrong answers
-          setFeedback('💡 Moving to the next step. Try to review this later!');
-          setTimeout(() => {
-            setFeedback('');
-            setShowHint(false);
-            if (currentStepIndex < totalSteps - 1) {
-              setCurrentStepIndex(currentStepIndex + 1);
-            } else {
-              // Mark lesson as completed even with wrong answers
-              if (!completedLessons.includes(selectedLesson)) {
-                setCompletedLessons([...completedLessons, selectedLesson]);
-                saveLessonCompletion(selectedLesson);
-              }
-              setFeedback('🎉 You completed this lesson! Review the steps you found difficult.');
-            }
-          }, 2000);
-        } else {
-          setFeedback('💡 Try again! Look at the hint if you need help.');
-        }
+        // Show retry button after first wrong answer
+        setFeedback('❌ Not quite right. Try again!');
+        setShowHint(true);
       }
-      setTimeout(() => {
-        if (optionIndex === currentStep.interaction.correct) {
-          setFeedback('');
-        }
-      }, 2000);
     }
   };
 
@@ -883,10 +782,7 @@ const AutismView = ({ initialLessonId = null }) => {
     setStepAnsweredCorrectly({});
     setWrongAnswerCount({});
     setQuestionAnswered(false);
-    setTimerActive(false);
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
+    setShowCompletionScreen(false);
   };
 
   const autoOpenedLessonRef = React.useRef(null);
@@ -913,10 +809,23 @@ const AutismView = ({ initialLessonId = null }) => {
     setStepAnsweredCorrectly({});
     setWrongAnswerCount({});
     setQuestionAnswered(false);
-    setTimerActive(false);
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
+    setShowCompletionScreen(false);
+  };
+
+  // Handle next lesson from completion screen
+  const handleNextLesson = () => {
+    const nextLessonId = selectedLesson + 1;
+    if (nextLessonId <= lessons.length) {
+      handleStartLesson(nextLessonId);
+    } else {
+      // No more lessons, go back to lesson list
+      handleBackToLessons();
     }
+  };
+
+  // Handle progress navigation
+  const handleGoToProgress = () => {
+    navigate('/progress');
   };
 
   // Cleanup audio on unmount
@@ -931,6 +840,38 @@ const AutismView = ({ initialLessonId = null }) => {
 
   // EPIC 1.6: Distraction-free mode when in lesson view
   if (selectedLesson && currentStep) {
+    // Show completion screen after finishing all steps
+    if (showCompletionScreen) {
+      return (
+        <div className="autism-view completion-screen">
+          <div className="completion-container">
+            <div className="completion-content">
+              <div className="completion-icon">🎉</div>
+              <h1 className="completion-title">Great Job!</h1>
+              <p className="completion-message">You completed "{currentLesson.title}" lesson!</p>
+              
+              <div className="completion-actions">
+                {selectedLesson < lessons.length && (
+                  <button onClick={handleNextLesson} className="btn-completion btn-next-lesson">
+                    <span className="btn-icon">➡️</span>
+                    Go to Next Lesson
+                  </button>
+                )}
+                <button onClick={handleBackToLessons} className="btn-completion btn-back-lessons">
+                  <span className="btn-icon">📚</span>
+                  Back to Lessons
+                </button>
+                <button onClick={handleGoToProgress} className="btn-completion btn-progress">
+                  <span className="btn-icon">📊</span>
+                  View Progress
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="autism-view distraction-free">
         {/* EPIC 1.6: Minimal header for focus */}
@@ -1061,59 +1002,12 @@ const AutismView = ({ initialLessonId = null }) => {
                   </div>
                 </div>
 
-                {/* Timer Display OR Retry Button in same position */}
-                {currentStep.interaction && (
-                  <div className="timer-retry-container">
-                    {timerActive && timeRemaining !== null && !questionAnswered ? (
-                      <div className={`timer-display ${timeRemaining <= 10 ? 'timer-warning' : ''}`}>
-                        <div className="timer-circle">
-                          <svg width="100" height="100" viewBox="0 0 120 120">
-                            <circle
-                              cx="60"
-                              cy="60"
-                              r="50"
-                              fill="none"
-                              stroke="#e0e0e0"
-                              strokeWidth="8"
-                            />
-                            <circle
-                              cx="60"
-                              cy="60"
-                              r="50"
-                              fill="none"
-                              stroke={timeRemaining <= 10 ? '#ff5252' : '#4CAF50'}
-                              strokeWidth="8"
-                              strokeDasharray={`${2 * Math.PI * 50}`}
-                              strokeDashoffset={`${2 * Math.PI * 50 * (1 - timeRemaining / getTimeForDifficulty(currentStep.interaction.difficulty))}`}
-                              transform="rotate(-90 60 60)"
-                              style={{ transition: 'stroke-dashoffset 1s linear' }}
-                            />
-                          </svg>
-                          <div className="timer-content">
-                            <span className="timer-emoji">⏱️</span>
-                            <span className="timer-number">{timeRemaining}</span>
-                          </div>
-                        </div>
-                        <div className="timer-info">
-                          <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
-                            {currentStep.interaction.difficulty === 'easy' && '⭐ Easy'}
-                            {currentStep.interaction.difficulty === 'medium' && '⭐⭐ Medium'}
-                            {currentStep.interaction.difficulty === 'hard' && '⭐⭐⭐ Hard'}
-                          </span>
-                        </div>
-                      </div>
-                    ) : questionAnswered && !timerActive ? (
-                      <div className="retry-section">
-                        <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
-                          {currentStep.interaction.difficulty === 'easy' && '⭐ Easy'}
-                          {currentStep.interaction.difficulty === 'medium' && '⭐⭐ Medium'}
-                          {currentStep.interaction.difficulty === 'hard' && '⭐⭐⭐ Hard'}
-                        </span>
-                        <button onClick={handleRetry} className="btn-retry">
-                          🔄 Retry Question
-                        </button>
-                      </div>
-                    ) : null}
+                {/* Retry Button Section */}
+                {currentStep.interaction && questionAnswered && wrongAnswerCount[`${selectedLesson}-${currentStepIndex}`] > 0 && (
+                  <div className="retry-section">
+                    <button onClick={handleRetry} className="btn-retry">
+                      🔄 Retry Question
+                    </button>
                   </div>
                 )}
 
