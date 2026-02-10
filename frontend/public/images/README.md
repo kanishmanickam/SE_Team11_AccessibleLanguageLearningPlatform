@@ -32,4 +32,4 @@ Place your images in this folder with the exact names below.
 3. Refresh your browser - images will appear automatically!
 
 ## Note:
-If images are not found, colorful emoji icons are shown as fallback.
+If images are not found, simple fallback icons are shown.

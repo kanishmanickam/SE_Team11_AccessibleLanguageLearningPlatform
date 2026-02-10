@@ -3,6 +3,33 @@ import InteractionCard from './InteractionCard';
 import VisualLesson from './VisualLesson';
 import { useAuth } from '../../context/AuthContext';
 import { getLessonProgress, normalizeUserId, saveLessonProgress } from '../../services/dyslexiaProgressService';
+import { decorateDyslexiaText, useDyslexiaContext } from '../../utils/dyslexiaSyllableMode';
+import {
+  Activity,
+  Apple,
+  Armchair,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Footprints,
+  Hand,
+  Hash,
+  Home,
+  ImageOff,
+  MessageCircle,
+  Mic,
+  MousePointer,
+  Pause,
+  Pencil,
+  Play,
+  RotateCcw,
+  Smile,
+  Sparkles,
+  Star,
+  Sun,
+  Users,
+  Handshake,
+} from 'lucide-react';
 
 const formatTime = (seconds) => {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
@@ -11,31 +38,31 @@ const formatTime = (seconds) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
-/* Map keywords in questions/section titles to emoji illustrations */
+/* Map keywords in questions/section titles to icon illustrations */
 const illustrationMap = [
-  { keywords: ['hello', 'greet', 'greeting', 'hi'], emoji: '????', label: 'Greeting', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['how are you', 'feeling', 'fine'], emoji: '????', label: 'Feelings', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['goodbye', 'bye', 'see you'], emoji: '????', label: 'Farewell', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['reply', 'respond', 'answer'], emoji: '????', label: 'Conversation', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
-  { keywords: ['chair', 'sit', 'furniture'], emoji: '????', label: 'Furniture', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
-  { keywords: ['apple', 'eat', 'fruit', 'food'], emoji: '????', label: 'Food', bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
-  { keywords: ['book', 'read', 'reading'], emoji: '????', label: 'Reading', bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
-  { keywords: ['home', 'house', 'live', 'place'], emoji: '????', label: 'Home', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['shoe', 'feet', 'wear'], emoji: '????', label: 'Clothing', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
-  { keywords: ['number', 'count', 'counting'], emoji: '????', label: 'Numbers', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['after', 'next', 'order', 'sequence'], emoji: '??????', label: 'Sequence', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)' },
-  { keywords: ['three', 'star', 'items', 'set'], emoji: '???', label: 'Counting', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['walk', 'action', 'run'], emoji: '????', label: 'Actions', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
-  { keywords: ['people', 'person', 'friend'], emoji: '????', label: 'People', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
-  { keywords: ['sun', 'day', 'daily'], emoji: '??????', label: 'Daily Life', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
-  { keywords: ['speak', 'say', 'speech', 'talk', 'phrase'], emoji: '???????', label: 'Speaking', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
-  { keywords: ['true', 'false', 'yes', 'no'], emoji: '???', label: 'True or False', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
-  { keywords: ['click', 'choose', 'pick', 'select'], emoji: '????', label: 'Choose', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
-  { keywords: ['type', 'write', 'word'], emoji: '??????', label: 'Writing', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
-  { keywords: ['friendly', 'polite', 'smile'], emoji: '????', label: 'Friendly', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['hello', 'greet', 'greeting', 'hi'], Icon: Hand, label: 'Greeting', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['how are you', 'feeling', 'fine'], Icon: Smile, label: 'Feelings', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['goodbye', 'bye', 'see you'], Icon: Handshake, label: 'Farewell', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['reply', 'respond', 'answer'], Icon: MessageCircle, label: 'Conversation', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+  { keywords: ['chair', 'sit', 'furniture'], Icon: Armchair, label: 'Furniture', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
+  { keywords: ['apple', 'eat', 'fruit', 'food'], Icon: Apple, label: 'Food', bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)' },
+  { keywords: ['book', 'read', 'reading'], Icon: BookOpen, label: 'Reading', bg: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)' },
+  { keywords: ['home', 'house', 'live', 'place'], Icon: Home, label: 'Home', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['shoe', 'feet', 'wear'], Icon: Footprints, label: 'Clothing', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+  { keywords: ['number', 'count', 'counting'], Icon: Hash, label: 'Numbers', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['after', 'next', 'order', 'sequence'], Icon: ArrowRight, label: 'Sequence', bg: 'var(--accent-gradient-strong)' },
+  { keywords: ['three', 'star', 'items', 'set'], Icon: Star, label: 'Counting', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['walk', 'action', 'run'], Icon: Activity, label: 'Actions', bg: 'linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)' },
+  { keywords: ['people', 'person', 'friend'], Icon: Users, label: 'People', bg: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)' },
+  { keywords: ['sun', 'day', 'daily'], Icon: Sun, label: 'Daily Life', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
+  { keywords: ['speak', 'say', 'speech', 'talk', 'phrase'], Icon: Mic, label: 'Speaking', bg: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)' },
+  { keywords: ['true', 'false', 'yes', 'no'], Icon: CheckCircle2, label: 'True or False', bg: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)' },
+  { keywords: ['click', 'choose', 'pick', 'select'], Icon: MousePointer, label: 'Choose', bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)' },
+  { keywords: ['type', 'write', 'word'], Icon: Pencil, label: 'Writing', bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)' },
+  { keywords: ['friendly', 'polite', 'smile'], Icon: Sparkles, label: 'Friendly', bg: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' },
 ];
 
-const defaultIllustration = { emoji: '????', label: 'Learning', bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' };
+const defaultIllustration = { Icon: BookOpen, label: 'Learning', bg: 'var(--accent-gradient-strong)' };
 
 const getIllustration = (text) => {
   if (!text) return defaultIllustration;
@@ -48,16 +75,18 @@ const getIllustration = (text) => {
   return defaultIllustration;
 };
 
-const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractionChange }) => {
+const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, onInteractionChange }) => {
   const { user } = useAuth();
+  const condition = user?.learningCondition || '';
+  const dyslexia = useDyslexiaContext({ condition, lessonId, defaultSyllableMode: true });
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [activeInteractionIndex, setActiveInteractionIndex] = useState(0);
 
-  // New states for Accessibility Features (3.1, 3.5, 3.6)
-  const [playbackRate, setPlaybackRate] = useState(0.85); // Default slow for easier understanding
+  // EPIC 3.1.4: Keep audio speed slow and easy to understand (default playback rate).
+  const [playbackRate, setPlaybackRate] = useState(0.85);
   const [activeWord, setActiveWord] = useState(''); // For visual highlighting
   const [isUsingTTS, setIsUsingTTS] = useState(false);
   const [audioFailed, setAudioFailed] = useState(false);
@@ -67,6 +96,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   const userKey = useMemo(() => normalizeUserId(user), [user]);
 
   const paragraphs = useMemo(() => {
+    // EPIC 2.1.1: Display lesson content clearly in text format.
     if (!section?.textContent) return [];
     const results = [];
     const regex = /[^\n]+/g;
@@ -77,12 +107,13 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
       if (!trimmed) continue;
       const leadingWhitespace = raw.search(/\S/);
       const startIndex = match.index + (leadingWhitespace >= 0 ? leadingWhitespace : 0);
-      results.push({ text: trimmed, startIndex });
+      results.push({ text: dyslexia.applySyllables ? decorateDyslexiaText(trimmed) : trimmed, startIndex });
     }
     return results;
-  }, [section?.textContent]);
+  }, [dyslexia.applySyllables, section?.textContent]);
 
   const interactions = useMemo(() => {
+    // EPIC 2.3.2, 2.3.4: Ask short questions during the flow and keep interactions non-overwhelming (ordered + capped).
     if (!section?.interactions) return [];
     return [...section.interactions]
       .sort((a, b) => (a.position || 0) - (b.position || 0))
@@ -90,6 +121,27 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   }, [section?.interactions]);
 
   const currentInteraction = interactions[activeInteractionIndex];
+
+  const displayedInteraction = useMemo(() => {
+    if (!currentInteraction) return null;
+    if (!dyslexia.applySyllables) return currentInteraction;
+
+    const safeDecorate = (value) => (value ? decorateDyslexiaText(value) : value);
+
+    return {
+      ...currentInteraction,
+      question: safeDecorate(currentInteraction.question),
+      hint: safeDecorate(currentInteraction.hint),
+      explanation: safeDecorate(currentInteraction.explanation),
+      feedback: currentInteraction.feedback
+        ? {
+            ...currentInteraction.feedback,
+            correct: safeDecorate(currentInteraction.feedback.correct),
+            incorrect: safeDecorate(currentInteraction.feedback.incorrect),
+          }
+        : currentInteraction.feedback,
+    };
+  }, [currentInteraction, dyslexia.applySyllables]);
 
   const sectionId = section?.id || section?._id;
 
@@ -148,6 +200,9 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
   // Audio Playback Handling (Backend -> Browser Fallback)
   const speakText = async (text) => {
+    // EPIC 2.1.2, 2.1.4: Play audio narration (backend TTS with browser fallback) while keeping the lesson experience smooth.
+    // EPIC 3.1.2: Read lesson text aloud using clear audio.
+    // EPIC 3.5.3: Keep audio consistent in quality (prefer backend TTS, fall back to browser if needed).
     // 1. Stop existing audio
     if (audioRef.current) {
       audioRef.current.pause();
@@ -200,6 +255,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
           const textBefore = text.slice(charIndex);
           const firstSpace = textBefore.search(/\s/);
           const word = firstSpace === -1 ? textBefore : textBefore.slice(0, firstSpace);
+              // EPIC 2.5.1: Highlight key words/phrases (active word during narration).
           setActiveWord(word.replace(/[.,!?;:()"]/g, ''));
         }
       };
@@ -220,6 +276,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   };
 
   const handleToggleAudio = async () => {
+    // EPIC 3.1.1: “Play Audio” button for lesson text.
+    // EPIC 3.1.3, 3.5.1-3.5.2: Allow replay/repetition without limits (toggle can be used repeatedly).
     if (section?.audioUrl && !audioFailed) {
       // Use Backend/File Audio
       if (!audioRef.current) return;
@@ -250,6 +308,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   };
 
   const handleReplay = () => {
+    // EPIC 3.1.3: Allow learners to replay the audio.
+    // EPIC 3.5.1-3.5.2: Enable repetition for words/sentences without limits.
     if (section?.audioUrl && !audioFailed) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -300,6 +360,8 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
       correctIds: Array.from(correctIds),
     });
 
+    // EPIC 3.5.4: Repeated listening does not reduce marks; scoring is based on answers only.
+
     // Notify other parts of the app (Progress page) that local progress changed.
     try {
       window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId: lessonKey, source: 'local' } }));
@@ -310,12 +372,14 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
   if (!section) return null;
 
+  const displaySectionTitle = dyslexia.applySyllables ? decorateDyslexiaText(section.title) : section.title;
+
   return (
     <div className="lesson-section">
       <header className="lesson-section-header">
         <div>
           <p className="lesson-section-label">Section</p>
-          <h2>{section.title}</h2>
+          <h2>{displaySectionTitle}</h2>
         </div>
         {isReplay && <span className="replay-pill">Replaying</span>}
       </header>
@@ -324,6 +388,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
         <div className="lesson-section-text">
           {paragraphs.length > 0 ? (
             <VisualLesson
+              // EPIC 2.5.1-2.5.4: Highlights + simple, content-matched visuals.
               paragraphs={paragraphs}
               highlights={section.highlights || []}
               visualAids={section.visualAids || section.visuals || []}
@@ -333,10 +398,11 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
             <p>No text content available.</p>
           )}
 
-          {currentInteraction && (
+          {displayedInteraction && (
             <InteractionCard
+              // EPIC 2.3.1-2.3.4, 2.4.1-2.4.4: Simple interactions + immediate feedback + hints/explanations/encouragement.
               lessonId={lessonKey}
-              interaction={currentInteraction}
+              interaction={displayedInteraction}
               readOnly={isReplay}
               useLocalSubmission={useLocalSubmission}
               onContinue={handleContinue}
@@ -377,7 +443,18 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                   aria-pressed={isPlaying}
                   style={{ flex: 1 }}
                 >
-                  {isPlaying ? '??? Pause' : '??? Play Audio'}
+                  {isPlaying ? (
+                    <>
+                      <Pause size={16} aria-hidden="true" />
+                      <span>Pause</span>
+                    </>
+                  ) : (
+                    <>
+                      <Play size={16} aria-hidden="true" />
+                      {/* EPIC 3.1.1: Play Audio button for lesson text. */}
+                      <span>Play Audio</span>
+                    </>
+                  )}
                 </button>
 
                 <button
@@ -386,7 +463,9 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                   onClick={handleReplay}
                   title="Replay Audio"
                 >
-                  ???? Replay
+                  <RotateCcw size={16} aria-hidden="true" />
+                  {/* EPIC 3.1.3, 3.5.1-3.5.2: Replay audio multiple times without limits. */}
+                  <span>Replay</span>
                 </button>
               </div>
 
@@ -404,7 +483,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                 />
               )}
 
-              {/* Speed Control (Task 3.1 & 3.5) */}
+              {/* EPIC 3.1.4: Keep audio speed slow and easy to understand. */}
               <div className="audio-speed-control" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
                 <span>Speed:</span>
                 <button
@@ -421,12 +500,13 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
             {/* Visual Support Note */}
             <p className="lesson-muted" style={{ marginTop: '8px', fontSize: '0.8rem' }}>
-              {isPlaying ? "???? Text is being read aloud..." : "Press play to listen."}
+              {isPlaying ? "Text is being read aloud..." : "Press play to listen."}
             </p>
           </div>
 
           {/* Dynamic illustration based on current question */}
           <div className="lesson-illustration fx-card" aria-label="Question illustration">
+            {/* EPIC 2.5.2-2.5.4: Simple, uncluttered visuals/icons supporting understanding and matched to the current step. */}
             <h3>Illustration</h3>
             {(() => {
               const questionText = currentInteraction?.question || section?.title || '';
@@ -434,15 +514,15 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
               return (
                 <div className="illustration-scene" style={{ background: illust.bg }}>
                   <div className="illustration-emoji-wrapper">
-                    <span className="illustration-emoji" role="img" aria-label={illust.label}>
-                      {illust.emoji}
+                    <span className="illustration-emoji" aria-label={illust.label}>
+                      <illust.Icon size={52} aria-hidden="true" />
                     </span>
                   </div>
                   <p className="illustration-label">{illust.label}</p>
                   <div className="illustration-sparkles" aria-hidden="true">
-                    <span className="sparkle sparkle-1">???</span>
-                    <span className="sparkle sparkle-2">???</span>
-                    <span className="sparkle sparkle-3">???</span>
+                    <span className="sparkle sparkle-1"><Sparkles size={14} aria-hidden="true" /></span>
+                    <span className="sparkle sparkle-2"><Sparkles size={14} aria-hidden="true" /></span>
+                    <span className="sparkle sparkle-3"><Sparkles size={14} aria-hidden="true" /></span>
                   </div>
                 </div>
               );
@@ -450,6 +530,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
           </div>
 
           <div className="lesson-visuals fx-card" aria-label="Lesson visuals">
+            {/* EPIC 2.5.2-2.5.4: Additional simple visuals closely tied to lesson content. */}
             <h3>Visual Aids</h3>
             {(section.visuals || []).length > 0 ? (
               <div className="visuals-grid">
@@ -460,7 +541,7 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
                     ) : visual.iconUrl ? (
                       <img src={visual.iconUrl} alt={visual.description || 'Visual aid'} loading="lazy" />
                     ) : (
-                      <div className="visual-placeholder" aria-hidden="true">????</div>
+                      <div className="visual-placeholder" aria-hidden="true"><ImageOff size={20} aria-hidden="true" /></div>
                     )}
                     <figcaption>{visual.relatedPhrase || visual.description}</figcaption>
                   </figure>

@@ -1,26 +1,26 @@
 # Audio Files for Autism Module
 
-Place your audio recordings in THIS FOLDER with the exact names below.
+Place your audio recordings in this folder with the exact names below.
 
-📁 Location: `frontend/public/audio/`
+Location: `frontend/public/audio/`
 
 ## Required Audio Files (9 total):
 
-### 🙏 Tamil Lesson (Greetings and Introduction) - 3 files
+### Tamil Lesson (Greetings and Introduction) - 3 files
 Place these Tamil audio files directly in this audio folder:
 
 1. `tamil-hello.mp3` - Say: "வணக்கம்" (Vanakkam)
 2. `tamil-thanks.mp3` - Say: "நன்றி" (Nandri)
 3. `tamil-goodbye.mp3` - Say: "பிரியாவிடை" (Piriyavidai)
 
-### 📖 English Lesson (Learning Alphabets) - 3 files
+### English Lesson (Learning Alphabets) - 3 files
 Place these English audio files directly in this audio folder:
 
 1. `letter-a.mp3` - Say: "A" (letter sound "ay")
 2. `letter-b.mp3` - Say: "B" (letter sound "bee")
 3. `letter-c.mp3` - Say: "C" (letter sound "see")
 
-### 🔢 Hindi Lesson (Learning Numbers) - 3 files
+### Hindi Lesson (Learning Numbers) - 3 files
 Place these Hindi audio files directly in this audio folder:
 
 1. `hindi-one.mp3` - Say: "एक" (Ek)

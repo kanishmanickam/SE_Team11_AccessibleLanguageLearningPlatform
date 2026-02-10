@@ -90,6 +90,7 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
+// EPIC 1.1.3: Secure password hashing (bcrypt) before persisting users
 // Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
@@ -101,6 +102,7 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
+// EPIC 1.2.2: Credential verification during login
 // Method to compare password
 UserSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);

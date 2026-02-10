@@ -35,6 +35,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!preferences || !containerRef.current) return;
 
+    // EPIC 1.7.3: Apply stored accessibility preferences as scoped container classes
     const container = containerRef.current;
 
     // Reset classes (default = motion enabled)
@@ -70,20 +71,21 @@ const Dashboard = () => {
       container.classList.add(`line-height-${preferences.lineHeight}`);
     }
 
-    // Apply distraction-free mode (Autism only)
-    if (preferences.distractionFreeMode && user?.learningCondition === 'autism') {
+    // Apply distraction-free mode (Autism + ADHD)
+    const supportsDistractionFree = user?.learningCondition === 'autism' || user?.learningCondition === 'adhd';
+    if (preferences.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('distraction-free');
     }
 
-    // Apply reduced animations
-    // For Autism, treat reduced animations as part of distraction-free so normal mode stays animated.
-    if (preferences.reduceAnimations && preferences.distractionFreeMode && user?.learningCondition === 'autism') {
+    // Apply reduced animations (only meaningful when distraction-free is on)
+    if (preferences.reduceAnimations && preferences.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('reduce-animations');
     }
   }, [preferences, user?.learningCondition]);
 
   // Render the appropriate learning view based on user's condition
   const renderLearningView = () => {
+    // EPIC 1.4 / 1.5 / 1.6: Route learners to condition-specific learning experiences
     switch (user?.learningCondition) {
       case 'dyslexia':
         return <DyslexiaView />;

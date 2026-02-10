@@ -16,6 +16,7 @@ const validateUpdate = [
 const handleValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    // EPIC 6.7.1-6.7.2: Use proper status codes and reject invalid data early to prevent crashes.
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
@@ -28,16 +29,19 @@ const handleValidation = (req, res, next) => {
 // @route   GET /api/progress/summary
 // @desc    Get progress summary for user
 // @access  Private
+// EPIC 6.1.2, 6.6.1-6.6.2: Summary endpoint supports percentage + remaining display.
 router.get('/summary', protect, require('../controllers/progressController').getSummary);
 
 // @route   GET /api/progress/:lessonId
 // @desc    Get progress for lesson
 // @access  Private
+// EPIC 6.4.2: Restore user progress state when a lesson is resumed.
 router.get('/:lessonId', protect, getProgress);
 
 // @route   POST /api/progress/update
 // @desc    Update progress when moving forward
 // @access  Private
+// EPIC 6.4.1: Auto-save progress as the learner advances through sections.
 router.post('/update', protect, validateUpdate, handleValidation, updateProgress);
 
 module.exports = router;

@@ -1,14 +1,29 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
 import api from '../../utils/api';
+import {
+  BookOpen,
+  Check,
+  Hand,
+  Hash,
+  Info,
+  Lightbulb,
+  RotateCcw,
+  Settings,
+  Star,
+  Timer,
+  Volume2,
+} from 'lucide-react';
 import './AutismView.css';
 
 const AutismView = ({ initialLessonId = null }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+
+  // EPIC 1.6: Autism support is primarily delivered via predictable UI + preference-driven reduced motion/distraction-free styling.
 
   // Lesson navigation state
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -19,14 +34,21 @@ const AutismView = ({ initialLessonId = null }) => {
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   const [wrongAnswerCount, setWrongAnswerCount] = useState({});
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+
+  // Timer state for questions
+  const [timeRemaining, setTimeRemaining] = useState(null);
+  const [timerActive, setTimerActive] = useState(false);
   const [questionAnswered, setQuestionAnswered] = useState(false);
 
   const audioRef = useRef(null);
+  const ttsAudioRef = useRef(null);
+  const timerIntervalRef = useRef(null);
 
   // Load completed lessons from backend on mount
   useEffect(() => {
     const fetchCompletedLessons = async () => {
       try {
+        // EPIC 6.3.1-6.3.4: Fetch read-only completion history to support reopen/review affordances.
         const response = await api.get('/users/completed-lessons');
         if (response.data.success) {
           // Convert backend format (e.g., "autism-lesson-1") to lesson IDs
@@ -36,6 +58,7 @@ const AutismView = ({ initialLessonId = null }) => {
           setCompletedLessons(lessonIds);
         }
       } catch (error) {
+        // EPIC 6.7.1-6.7.2: Best-effort history fetch; do not block learning center if it fails.
         console.error('Error fetching completed lessons:', error);
       }
     };
@@ -43,13 +66,13 @@ const AutismView = ({ initialLessonId = null }) => {
     fetchCompletedLessons();
   }, []);
 
-  // EPIC 2.1-2.7: Three complete lessons with multi-format content
-  const lessons = [
+  // EPIC 2.1.1-2.1.4, 2.2.1-2.2.4, 2.3.1-2.3.4, 2.4.1-2.4.4, 2.5.1-2.5.4, 2.6.1-2.6.4, 2.7.1-2.7.4: Three complete lessons with multi-format content
+  const lessons = useMemo(() => ([
     {
       id: 1,
       title: 'Greetings',
       language: 'Tamil',
-      icon: '🙏',
+      Icon: Hand,
       description: 'Learn basic Tamil greetings',
       steps: [
         {
@@ -71,6 +94,7 @@ const AutismView = ({ initialLessonId = null }) => {
         {
           id: 2,
           title: 'Thank You in Tamil',
+          Icon: BookOpen,
           content: 'நன்றி (Nandri)',
           translation: 'A polite word in Tamil',
           highlight: 'நன்றி',
@@ -218,7 +242,7 @@ const AutismView = ({ initialLessonId = null }) => {
       id: 2,
       title: 'Basic Words',
       language: 'English',
-      icon: '🔤',
+      Icon: BookOpen,
       description: 'Learn English alphabet letters',
       steps: [
         {
@@ -387,7 +411,7 @@ const AutismView = ({ initialLessonId = null }) => {
       id: 3,
       title: 'Numbers',
       language: 'Hindi',
-      icon: '🔢',
+      Icon: Hash,
       description: 'Learn Hindi numbers 1 to 10',
       steps: [
         {
@@ -552,20 +576,32 @@ const AutismView = ({ initialLessonId = null }) => {
         }
       ]
     }
-  ];
+  ]), []);
 
   // Get current step data
   const currentLesson = lessons.find(l => l.id === selectedLesson);
   const currentStep = currentLesson?.steps[currentStepIndex];
   const totalSteps = currentLesson?.steps.length || 0;
 
-  // EPIC 2.6: Navigation handlers with replay support
+  // EPIC 2.6.1-2.6.4: Navigation handlers with replay support
   const handleNext = () => {
-    // Allow moving to next step even without answering
+    // Check if current step has been answered correctly
+    const stepKey = `${selectedLesson}-${currentStepIndex}`;
+
+    if (!stepAnsweredCorrectly[stepKey]) {
+      setFeedback('Please answer the question correctly before moving to the next step.');
+      setTimeout(() => setFeedback(''), 3000);
+      return;
+    }
+
     setFeedback('');
     setShowHint(false);
     setQuestionAnswered(false); // Reset for next question
-    
+    setTimerActive(false); // Stop current timer
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     } else {
@@ -584,7 +620,11 @@ const AutismView = ({ initialLessonId = null }) => {
     setFeedback('');
     setShowHint(false);
     setQuestionAnswered(false); // Reset for previous question
-    
+    setTimerActive(false); // Stop current timer
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+
     if (currentStepIndex > 0) {
       setCurrentStepIndex(currentStepIndex - 1);
     }
@@ -594,16 +634,20 @@ const AutismView = ({ initialLessonId = null }) => {
   const saveLessonCompletion = async (lessonId) => {
     try {
       const lessonKey = `autism-lesson-${lessonId}`;
+
+      // EPIC 6.1.1, 6.4.1: Store completion state and auto-save after lesson completion.
       const res = await api.post('/users/complete-lesson', { lessonKey });
 
       // If backend returned a progress summary, broadcast it to update the progress bar/dashboard
       const summary = res?.data?.summary;
       if (summary) {
+        // EPIC 6.4.1: Broadcast progress updates so ProgressPage/dashboard refresh automatically.
         window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary } }));
       } else {
         // Fallback: try to fetch summary and dispatch
         try {
           const { getSummary } = await import('../../services/progressService');
+          // EPIC 6.7.1-6.7.2: Best-effort fallback if backend did not include summary.
           const s = await getSummary();
           if (s) {
             window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: s } }));
@@ -613,31 +657,49 @@ const AutismView = ({ initialLessonId = null }) => {
         }
       }
     } catch (error) {
+      // EPIC 6.7.1-6.7.2: Completion should not break the lesson flow if saving fails.
       console.error('Error saving lesson completion:', error);
     }
   };
 
-  // EPIC 2.1: Audio playback with text-to-speech fallback
+  // EPIC 2.1.2, 2.1.4: Audio playback with text-to-speech fallback
   const handlePlayAudio = () => {
+    // EPIC 3.1.1: Add a “Play Audio” button for lesson text.
+    // EPIC 3.1.2: Read lesson text aloud using clear audio (file audio when available, otherwise TTS).
+    // EPIC 3.1.3, 3.5.1-3.5.2: Allow unlimited replay/repetition.
+    // EPIC 3.1.4: Keep audio speed slow and easy to understand.
+    // EPIC 3.5.4: Repeated listening does not affect marks.
     if (audioRef.current && currentStep?.audio) {
+      // Ensure current speed applies to file-based audio
+      audioRef.current.playbackRate = playbackSpeed;
       // Try to play the audio file
       audioRef.current.play().catch((error) => {
         console.log('Audio file not available, using text-to-speech fallback');
         // Fallback to browser's text-to-speech if audio file not found
         speakText(currentStep.content);
       });
-      setFeedback('🔊 Playing audio...');
+      setFeedback('Playing audio...');
       setTimeout(() => setFeedback(''), 2000);
     } else if (currentStep?.content) {
       // If no audio ref, use text-to-speech directly
       speakText(currentStep.content);
-      setFeedback('🔊 Playing audio...');
+      setFeedback('Playing audio...');
       setTimeout(() => setFeedback(''), 2000);
     }
   };
 
   const [activeWord, setActiveWord] = useState('');
   const [playbackSpeed, setPlaybackSpeed] = useState(0.8);
+
+  // Keep playback speed in sync for both file audio and backend TTS audio.
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed;
+    }
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
 
   // Text-to-speech fallback function
   // Audio Handling with Backend Support
@@ -647,6 +709,10 @@ const AutismView = ({ initialLessonId = null }) => {
     window.speechSynthesis.cancel();
     if (audioRef.current) {
       audioRef.current.pause();
+    }
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.pause();
+      ttsAudioRef.current = null;
     }
 
     try {
@@ -663,10 +729,14 @@ const AutismView = ({ initialLessonId = null }) => {
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audio.playbackRate = playbackSpeed;
+      ttsAudioRef.current = audio;
 
-      audio.onplay = () => setFeedback('🔊 Playing audio...');
+      audio.onplay = () => setFeedback('Playing audio...');
       audio.onended = () => {
         setFeedback('');
+        if (ttsAudioRef.current === audio) {
+          ttsAudioRef.current = null;
+        }
         URL.revokeObjectURL(url);
       };
 
@@ -689,7 +759,7 @@ const AutismView = ({ initialLessonId = null }) => {
           }
         };
 
-        utterance.onstart = () => setFeedback('🔊 Playing audio...');
+        utterance.onstart = () => setFeedback('Playing audio...');
         utterance.onend = () => {
           setActiveWord('');
           setFeedback('');
@@ -700,13 +770,105 @@ const AutismView = ({ initialLessonId = null }) => {
     }
   };
 
-  // EPIC 2.4: Hint toggle
+  // EPIC 2.4.3: Learner can request help manually (hint toggle)
   const handleShowHint = () => {
     setShowHint(!showHint);
   };
 
+  // Timer logic for questions based on difficulty
+  const getTimeForDifficulty = useCallback((difficulty) => {
+    switch (difficulty) {
+      case 'easy':
+        return 20; // 20 seconds for easy questions
+      case 'medium':
+        return 35; // 35 seconds for medium questions
+      case 'hard':
+        return 50; // 50 seconds for hard questions
+      default:
+        return 30; // default 30 seconds
+    }
+  }, []);
+
+  // Handle timeout
+  const handleTimeOut = useCallback(() => {
+    if (!questionAnswered) {
+      setFeedback('Time\'s up! Click retry to try again.');
+      setQuestionAnswered(true);
+      setTimerActive(false);
+
+      const stepKey = `${selectedLesson}-${currentStepIndex}`;
+      const currentWrongCount = wrongAnswerCount[stepKey] || 0;
+      const newWrongCount = currentWrongCount + 1;
+
+      setWrongAnswerCount((prev) => ({
+        ...prev,
+        [stepKey]: newWrongCount,
+      }));
+
+      setTimeout(() => {
+        setShowHint(true); // Show hint after timeout
+      }, 1500);
+    }
+  }, [questionAnswered, selectedLesson, currentStepIndex, wrongAnswerCount]);
+
+  // Start timer when step changes or has interaction
+  useEffect(() => {
+    const hasInteraction = Boolean(currentStep?.interaction);
+
+    if (hasInteraction) {
+      const difficulty = currentStep?.interaction?.difficulty || 'medium';
+      const timeLimit = getTimeForDifficulty(difficulty);
+      setTimeRemaining(timeLimit);
+      setTimerActive(true);
+      setQuestionAnswered(false);
+      setFeedback('');
+      setShowHint(false);
+    } else {
+      setTimerActive(false);
+      setTimeRemaining(null);
+    }
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [currentStepIndex, selectedLesson, currentStep?.interaction, getTimeForDifficulty]);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (timerActive && timeRemaining !== null && timeRemaining > 0 && !questionAnswered) {
+      timerIntervalRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timerIntervalRef.current);
+            setTimerActive(false);
+            // Handle timeout
+            handleTimeOut();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => {
+        if (timerIntervalRef.current) {
+          clearInterval(timerIntervalRef.current);
+        }
+      };
+    }
+  }, [timerActive, timeRemaining, questionAnswered, handleTimeOut]);
+
   // Handle retry button click
   const handleRetry = () => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+
+    const difficulty = currentStep?.interaction?.difficulty || 'medium';
+    const timeLimit = getTimeForDifficulty(difficulty);
+    setTimeRemaining(timeLimit);
+    setTimerActive(true);
     setQuestionAnswered(false);
     setFeedback('');
     setShowHint(false);
@@ -718,14 +880,18 @@ const AutismView = ({ initialLessonId = null }) => {
     }));
   };
 
-  // EPIC 2.3: Interactive engagement with feedback
+  // EPIC 2.3.1-2.3.4: Interactive engagement with immediate feedback
   const handleInteraction = (optionIndex) => {
     if (currentStep?.interaction && !questionAnswered) {
       setQuestionAnswered(true);
+      setTimerActive(false);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
 
       const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
-        setFeedback('✅ Good job! That\'s correct!');
+        setFeedback('Good job! That\'s correct!');
         // Mark this step as answered correctly
         setStepAnsweredCorrectly(prev => ({
           ...prev,
@@ -736,26 +902,6 @@ const AutismView = ({ initialLessonId = null }) => {
           ...prev,
           [stepKey]: 0
         }));
-        
-        // Auto-advance to next question after correct answer
-        setTimeout(() => {
-          setFeedback('');
-          setShowHint(false);
-          setQuestionAnswered(false);
-          
-          if (currentStepIndex < totalSteps - 1) {
-            // Move to next step
-            setCurrentStepIndex(currentStepIndex + 1);
-          } else {
-            // Mark lesson as completed
-            if (!completedLessons.includes(selectedLesson)) {
-              setCompletedLessons([...completedLessons, selectedLesson]);
-              saveLessonCompletion(selectedLesson);
-            }
-            // Show completion screen
-            setShowCompletionScreen(true);
-          }
-        }, 2000);
       } else {
         // Increment wrong answer count
         const currentWrongCount = wrongAnswerCount[stepKey] || 0;
@@ -766,11 +912,30 @@ const AutismView = ({ initialLessonId = null }) => {
           [stepKey]: newWrongCount
         }));
 
-        // Show retry button after first wrong answer
-        setFeedback('❌ Not quite right. Try again!');
-        setShowHint(true);
+        if (newWrongCount >= 2) {
+          setFeedback('Try again. Use the hint if you need help, then press Retry to attempt again.');
+          setShowHint(true);
+        } else {
+          setFeedback('Try again! Press Retry to attempt again, or view the hint.');
+        }
       }
     }
+  };
+
+  const renderDifficultyLabel = (difficulty) => {
+    const normalized = difficulty || 'medium';
+    const count = normalized === 'easy' ? 1 : normalized === 'medium' ? 2 : 3;
+    const text = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px' }} aria-hidden="true">
+          {Array.from({ length: count }).map((_, idx) => (
+            <Star key={idx} size={14} />
+          ))}
+        </span>
+        <span>{text}</span>
+      </span>
+    );
   };
 
   // Start lesson
@@ -891,7 +1056,7 @@ const AutismView = ({ initialLessonId = null }) => {
           </button>
         </header>
 
-        {/* EPIC 2.2 & 2.7: Consistent single-step layout */}
+        {/* EPIC 2.2.2, 2.2.4, 2.7.1-2.7.4: Consistent single-step layout */}
         <main className="lesson-content">
           <div className="lesson-step-container">
             {/* Step progress indicator */}
@@ -907,17 +1072,13 @@ const AutismView = ({ initialLessonId = null }) => {
               </div>
             </div>
 
-            {/* EPIC 2.1: Multi-format lesson display */}
+            {/* EPIC 2.1.1-2.1.4: Multi-format lesson display (text + audio + visuals) */}
             <div className="step-content-card">
               {/* Left Column: Image, Question, and Options */}
               <div className="visual-column">
-                {/* EPIC 2.5: Visual learning aid with icon/image */}
+                {/* EPIC 2.5.2-2.5.4: Visual learning aid with icon/image */}
                 <div className="step-visual">
-                  <img
-                    src={currentStep.image}
-                    alt={currentStep.title}
-                    className="visual-image-hidden"
-                  />
+                  <img src={currentStep.image} alt={currentStep.title} className="visual-image-hidden" />
                 </div>
 
                 {/* Question below image */}
@@ -944,10 +1105,9 @@ const AutismView = ({ initialLessonId = null }) => {
                   </div>
                 )}
               </div>
-
               {/* Right Column: Content, Timer/Retry */}
               <div className="content-column">
-                {/* EPIC 2.5: Highlighted main content */}
+                {/* EPIC 2.5.1: Highlighted main content */}
                 <div className="step-text">
                   <p className="content-main">
                     {/* Dynamic highlighting */}
@@ -960,7 +1120,7 @@ const AutismView = ({ initialLessonId = null }) => {
                         <span
                           key={idx}
                           className={isActive ? 'highlight active-word' : (isStaticHighlight ? 'highlight' : '')}
-                          style={isActive ? { backgroundColor: '#ffd700', transform: 'scale(1.1)', display: 'inline-block', transition: 'all 0.2s' } : {}}
+                          style={isActive ? { backgroundColor: 'var(--accent-color-soft)', transform: 'scale(1.03)', display: 'inline-block', transition: 'all 0.2s' } : {}}
                         >
                           {word}{' '}
                         </span>
@@ -970,10 +1130,11 @@ const AutismView = ({ initialLessonId = null }) => {
                   <p className="content-translation">{currentStep.translation}</p>
                 </div>
 
-                {/* EPIC 2.1: Audio controls */}
+                {/* EPIC 2.1.2: Audio controls */}
                 <div className="step-audio-section">
                   <button onClick={handlePlayAudio} className="btn-audio">
-                    🔊 Play Audio
+                    <Volume2 size={18} aria-hidden="true" />
+                    <span>Play Audio</span>
                   </button>
                   <audio
                     ref={audioRef}
@@ -988,51 +1149,89 @@ const AutismView = ({ initialLessonId = null }) => {
                     <button
                       onClick={() => setPlaybackSpeed(0.6)}
                       className={playbackSpeed === 0.6 ? 'btn-speed active' : 'btn-speed'}
-                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.6 ? '#e3f2fd' : 'white' }}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: playbackSpeed === 0.6 ? 'var(--accent-color-soft)' : 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                     >
                       Slow
                     </button>
                     <button
                       onClick={() => setPlaybackSpeed(0.9)}
                       className={playbackSpeed === 0.9 ? 'btn-speed active' : 'btn-speed'}
-                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ccc', background: playbackSpeed === 0.9 ? '#e3f2fd' : 'white' }}
+                      style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', background: playbackSpeed === 0.9 ? 'var(--accent-color-soft)' : 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                     >
                       Normal
                     </button>
                   </div>
                 </div>
 
-                {/* Retry Button Section */}
-                {currentStep.interaction && questionAnswered && wrongAnswerCount[`${selectedLesson}-${currentStepIndex}`] > 0 && (
-                  <div className="retry-section">
-                    <button onClick={handleRetry} className="btn-retry">
-                      🔄 Retry Question
-                    </button>
+                {/* Timer Display OR Retry Button in same position */}
+                {currentStep.interaction && (
+                  <div className="timer-retry-container">
+                    {timerActive && timeRemaining !== null && !questionAnswered ? (
+                      <div className={`timer-display ${timeRemaining <= 10 ? 'timer-warning' : ''}`}>
+                        <div className="timer-circle">
+                          <svg width="100" height="100" viewBox="0 0 120 120">
+                            <circle
+                              cx="60"
+                              cy="60"
+                              r="50"
+                              fill="none"
+                              stroke="#e0e0e0"
+                              strokeWidth="8"
+                            />
+                            <circle
+                              cx="60"
+                              cy="60"
+                              r="50"
+                              fill="none"
+                              stroke={timeRemaining <= 10 ? '#ff5252' : '#4CAF50'}
+                              strokeWidth="8"
+                              strokeDasharray={`${2 * Math.PI * 50}`}
+                              strokeDashoffset={`${2 * Math.PI * 50 * (1 - timeRemaining / getTimeForDifficulty(currentStep.interaction.difficulty))}`}
+                              transform="rotate(-90 60 60)"
+                              style={{ transition: 'stroke-dashoffset 1s linear' }}
+                            />
+                          </svg>
+                          <div className="timer-content">
+                            <span className="timer-emoji" aria-hidden="true"><Timer size={18} /></span>
+                            <span className="timer-number">{timeRemaining}</span>
+                          </div>
+                        </div>
+                        <div className="timer-info">
+                          <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
+                            {renderDifficultyLabel(currentStep.interaction.difficulty)}
+                          </span>
+                        </div>
+                      </div>
+                    ) : questionAnswered && !timerActive ? (
+                      <div className="retry-section">
+                        <span className={`difficulty-badge difficulty-${currentStep.interaction.difficulty}`}>
+                          {renderDifficultyLabel(currentStep.interaction.difficulty)}
+                        </span>
+                        <button onClick={handleRetry} className="btn-retry">
+                          <RotateCcw size={18} aria-hidden="true" />
+                          <span>Retry Question</span>
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 )}
 
-              {/* EPIC 2.3: Immediate feedback */}
-              {feedback && (
-                <div className="feedback-message">
-                  {feedback}
+                {/* EPIC 2.3.3: Immediate feedback */}
+                {feedback && <div className="feedback-message">{feedback}</div>}
+
+                {/* EPIC 2.4.1-2.4.4: Hint/explanation/encouragement section */}
+                <div className="hint-section">
+                  <button onClick={handleShowHint} className="btn-hint">
+                    <Lightbulb size={18} aria-hidden="true" />
+                    <span>{showHint ? 'Hide Hint' : 'Show Hint'}</span>
+                  </button>
+                  {showHint && <div className="hint-content">{currentStep.hint}</div>}
                 </div>
-              )}
+              </div>
 
-              {/* EPIC 2.4: Hint section */}
-              <div className="hint-section">
-                <button onClick={handleShowHint} className="btn-hint">
-                  💡 {showHint ? 'Hide Hint' : 'Show Hint'}
-                </button>
-                {showHint && (
-                  <div className="hint-content">
-                    {currentStep.hint}
-                  </div>
-                )}
-              </div>
-              </div>
             </div>
 
-            {/* EPIC 2.6 & 2.7: Consistent navigation in fixed position */}
+            {/* EPIC 2.6.1-2.6.4, 2.7.2: Consistent navigation in fixed position */}
             <div className="step-navigation">
               <button
                 onClick={handlePrevious}
@@ -1045,7 +1244,12 @@ const AutismView = ({ initialLessonId = null }) => {
                 onClick={handleNext}
                 className="btn-nav btn-next"
               >
-                {currentStepIndex < totalSteps - 1 ? 'Next →' : 'Complete Lesson ✓'}
+                {currentStepIndex < totalSteps - 1 ? 'Next →' : (
+                  <>
+                    <span>Complete Lesson</span>
+                    <Check size={16} aria-hidden="true" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -1060,7 +1264,7 @@ const AutismView = ({ initialLessonId = null }) => {
       {/* Simple Header */}
       <header className="simple-header">
         <div className="header-left">
-          <h1>Learning Center</h1>
+          <h1>LinguaEase Learning Center</h1>
           <p className="header-subtitle">Choose your lesson</p>
         </div>
         <div className="header-actions">
@@ -1073,10 +1277,10 @@ const AutismView = ({ initialLessonId = null }) => {
             Progress
           </button>
           <button onClick={() => setShowSettings(true)} className="btn-settings" title="Settings">
-            ⚙️
+            <Settings size={18} aria-hidden="true" />
           </button>
           <button onClick={logout} className="btn-exit">
-            Exit
+            Logout
           </button>
         </div>
       </header>
@@ -1089,7 +1293,10 @@ const AutismView = ({ initialLessonId = null }) => {
       <main className="content-area-simple">
         {/* Welcome Card */}
         <div className="welcome-card">
-          <h2>Hello, {user?.name} 👋</h2>
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span>Hello, {user?.name}</span>
+            <Hand size={18} aria-hidden="true" />
+          </h2>
           <p>Select a lesson below to begin learning</p>
         </div>
 
@@ -1099,9 +1306,9 @@ const AutismView = ({ initialLessonId = null }) => {
             {lessons.map((lesson) => (
               <div key={lesson.id} className={`lesson-simple-card ${completedLessons.includes(lesson.id) ? 'completed' : ''}`}>
                 <div className="lesson-top">
-                  <span className="lesson-large-icon">{lesson.icon}</span>
+                  <span className="lesson-large-icon" aria-hidden="true"><lesson.Icon size={40} /></span>
                   {completedLessons.includes(lesson.id) && (
-                    <span className="completion-checkmark">✓</span>
+                    <span className="completion-checkmark" aria-hidden="true"><Check size={18} /></span>
                   )}
                 </div>
                 <div className="lesson-body">
@@ -1110,7 +1317,7 @@ const AutismView = ({ initialLessonId = null }) => {
                   <div className="lesson-meta">
                     <span className="lesson-steps-count">{lesson.steps.length} steps</span>
                     {completedLessons.includes(lesson.id) && (
-                      <span className="completion-badge">✓ Completed</span>
+                      <span className="completion-badge"><Check size={14} aria-hidden="true" /> <span>Completed</span></span>
                     )}
                   </div>
                 </div>
@@ -1128,7 +1335,7 @@ const AutismView = ({ initialLessonId = null }) => {
         {/* Simple Help Section */}
         <div className="help-section">
           <div className="help-card">
-            <span className="help-icon">ℹ️</span>
+            <span className="help-icon" aria-hidden="true"><Info size={20} /></span>
             <div className="help-text">
               <h4>How it works</h4>
               <p>Click "Start Lesson" to begin. Follow each step carefully. Use hints if you need help.</p>

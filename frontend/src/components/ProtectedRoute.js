@@ -18,6 +18,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
+  // EPIC 1.2.3: Frontend route protection (redirect unauthenticated users to login)
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 

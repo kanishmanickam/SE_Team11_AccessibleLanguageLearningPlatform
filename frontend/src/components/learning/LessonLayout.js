@@ -3,22 +3,23 @@ import './LessonLayout.css';
 
 const LessonLayout = ({ title, subtitle, children, guidance, footer, onBack, backLabel = 'Back' }) => {
   return (
+    // EPIC 2.7.1-2.7.4: Consistent lesson shell supports stable layout, fixed regions, and predictable transitions.
     <div className="lesson-layout" role="region" aria-label="Lesson layout">
       <header className="lesson-layout__header" role="banner">
         <div className="lesson-layout__header-inner">
           <div className="lesson-layout__header-top">
             <div className="lesson-layout__header-left">
-              {onBack && (
-                <button
-                  type="button"
-                  className="lesson-layout__back fx-pressable fx-focus"
-                  onClick={onBack}
-                >
-                  ← {backLabel}
-                </button>
-              )}
               <p className="lesson-layout__eyebrow">Lesson</p>
             </div>
+            {onBack && (
+              <button
+                type="button"
+                className="lesson-layout__back fx-pressable fx-focus"
+                onClick={onBack}
+              >
+                ← {backLabel}
+              </button>
+            )}
           </div>
           <h1 className="lesson-layout__title">{title}</h1>
           {subtitle && <p className="lesson-layout__subtitle">{subtitle}</p>}

@@ -17,6 +17,7 @@ export const PreferencesProvider = ({ children }) => {
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // EPIC 1.7.2: Load persisted preferences after authentication
   // Load preferences when user is authenticated
   useEffect(() => {
     const loadPreferences = async () => {
@@ -42,6 +43,8 @@ export const PreferencesProvider = ({ children }) => {
 
   const applyPreferences = (prefs, options = {}) => {
     if (!prefs) return;
+
+    // EPIC 1.3.4 / 1.7.3: Real-time preference application via scoped CSS classes
 
     // Only apply to learning container if it exists, not to body
     const { containerId = 'learning-container' } = options;
@@ -96,21 +99,22 @@ export const PreferencesProvider = ({ children }) => {
       container.classList.add(`line-height-${prefs.lineHeight}`);
     }
 
-    // Apply distraction-free mode
+    // Apply distraction-free mode (Autism + ADHD)
     const userCondition = container.dataset.userCondition;
-    if (prefs.distractionFreeMode && userCondition === 'autism') {
+    const supportsDistractionFree = userCondition === 'autism' || userCondition === 'adhd';
+    if (prefs.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('distraction-free');
     }
 
-    // Apply reduced animations
-    // For Autism, treat reduced animations as part of distraction-free so normal mode stays animated.
-    if (prefs.reduceAnimations && prefs.distractionFreeMode && userCondition === 'autism') {
+    // Apply reduced animations (only meaningful when distraction-free is on)
+    if (prefs.reduceAnimations && prefs.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('reduce-animations');
     }
   };
 
   const updatePreferences = async (updates) => {
     try {
+      // EPIC 1.3.2 / 1.4.2 / 1.5.1 / 1.6.1: Persist preference changes to backend
       const response = await api.put('/preferences', updates);
       setPreferences(response.data.preferences);
       applyPreferences(response.data.preferences);

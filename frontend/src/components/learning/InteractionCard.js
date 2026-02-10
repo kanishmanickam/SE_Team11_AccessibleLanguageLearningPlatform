@@ -86,6 +86,10 @@ const InteractionCard = ({
   const isShortAnswer = interaction.type === 'short_answer';
 
   const speak = useCallback(async (text, overrides = {}) => {
+    // EPIC 2.1.2, 2.1.4: Audio narration for questions/feedback (backend TTS with fallback) integrated into the interaction flow.
+    // EPIC 3.5.1-3.5.2: Allow replay/repetition for words and sentences without limits.
+    // EPIC 3.5.3: Keep audio consistent in quality (prefer backend TTS, fall back to browser).
+    // EPIC 3.5.4: Repeated listening does not affect marks; scoring is based on answers only.
     if (!enableTts || !text) return;
 
     // Stop existing audio
@@ -128,6 +132,8 @@ const InteractionCard = ({
   }, [enableTts]);
 
   const playAudio = useCallback((audioUrl) => {
+    // EPIC 3.5.1-3.5.2: Audio can be replayed any number of times.
+    // EPIC 3.5.4: Listening does not change attempts/score.
     if (!audioUrl) return;
     if (audioRef.current) {
       audioRef.current.pause();
@@ -180,6 +186,7 @@ const InteractionCard = ({
   ]);
 
   useEffect(() => {
+    // EPIC 2.3.4: Keep interactions structured and non-overwhelming (optional timer with a clear limit).
     if (!enableTimer || readOnly || isAnswered) return undefined;
     if (!Number.isFinite(resolvedTimeLimit) || resolvedTimeLimit <= 0) return undefined;
     if (timeLeft === null) return undefined;
@@ -207,6 +214,7 @@ const InteractionCard = ({
   useEffect(() => {
     if (!enableTimer || readOnly) return;
     if (timeLeft === 0 && !isAnswered) {
+      // EPIC 2.3.3: Immediate feedback when time runs out.
       const payload = {
         isCorrect: false,
         feedback: 'Time is up. Let’s try again.',
@@ -223,6 +231,7 @@ const InteractionCard = ({
 
   // Play feedback audio when result changes (only if auto-speak is not disabled)
   useEffect(() => {
+    // EPIC 2.3.3: Immediate feedback (and optional narration) after each attempt.
     if (!result || readOnly || disableAutoSpeak) return;
     
     const isCorrect = Boolean(result.isCorrect);
@@ -328,6 +337,7 @@ const InteractionCard = ({
   };
 
   const handleHelp = async () => {
+    // EPIC 2.4.1-2.4.4: Guided support: hints/explanations + manual request + encouraging messages.
     setIsHelping(true);
     setError('');
     try {
@@ -359,6 +369,7 @@ const InteractionCard = ({
   useEffect(() => {
     if (!result) return;
     if (result.isCorrect) {
+      // EPIC 2.3.1-2.3.4: Keep interactions simple; auto-advance reduces extra steps after success.
       if (!disableAutoSpeak) speak('Great job. Moving on.');
       if (autoAdvanceOnCorrect && onContinue) {
         const timer = setTimeout(() => {
@@ -489,7 +500,8 @@ const InteractionCard = ({
           aria-label="Replay narration"
           disabled={!enableTts}
         >
-          Replay narration
+          {/* EPIC 2.1.2, 2.3.4: Learner-controlled question narration (simple control, not overwhelming). */}
+          Listen to Question
         </button>
       </div>
 
@@ -593,7 +605,7 @@ const InteractionCard = ({
 
       {error && (
         <p className="interaction-feedback error" role="status">
-          ⚠️ {error}
+          {error}
         </p>
       )}
       {isAnswered && (
@@ -623,6 +635,7 @@ const InteractionCard = ({
       )}
 
       <GuidedSupport
+        // EPIC 2.4.1-2.4.4: One-tap access to hints/explanations and encouraging messages.
         message={guidanceMessage}
         tone={guidanceTone}
         onHelp={handleHelp}

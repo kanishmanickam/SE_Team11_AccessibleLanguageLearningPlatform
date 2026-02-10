@@ -1,277 +1,105 @@
-# Accessible Language Learning Platform - EPIC 1
+# Accessible Language Learning Platform
 
-An accessible, inclusive language learning platform designed specifically for learners with dyslexia, ADHD, and autism spectrum conditions.
+An accessible MERN language-learning platform designed to support learners with dyslexia, ADHD, and autism.
 
-# This will be updated time and again.....
+## 1) Project overview
 
-## 🎯 Project Overview
+This system provides condition-aware lesson delivery, interaction practice, and progress tracking.
 
-This MERN stack application provides a personalized learning experience with:
-- **Dyslexia Support**: OpenDyslexic fonts, adjustable spacing, color overlays
-- **ADHD Support**: Distraction-free mode, session timers, break reminders
-- **Autism Support**: Predictable layouts, reduced animations, visual schedules
+Key capabilities in this repository:
+- Condition-specific learning experiences (Dyslexia / ADHD / Autism) in the React UI.
+- JWT-based authentication and protected APIs.
+- User accessibility preferences persisted in MongoDB and applied on the frontend.
+- Lesson content with sections and interactive questions.
+- Progress persistence (resume where you left off) + progress summary.
+- Audio support via:
+    - File audio URLs when available
+    - Backend Text-to-Speech endpoint (`/api/tts/speak`) with browser fallback
+- Optional Gemini-powered quiz generation endpoints with safe fallbacks.
 
-## 🏗️ Architecture
+Developer docs (architecture, API, schema, standards, deployment, troubleshooting):
+- ARCHITECTURE.md
+- API.md
+- DATABASE_SCHEMA.md
+- CODING_STANDARDS.md
+- DEPLOYMENT.md
+- TROUBLESHOOTING.md
 
-### Backend (Node.js + Express + MongoDB)
-- JWT authentication with parental controls
-- Salting and Hashing (using sha-256) for secure passwords
-- User profiles with accessibility preferences
-- RESTful API for preferences management
-- Secure password hashing with bcrypt
-
-### Frontend (React)
-- Responsive, accessible UI components
-- Context-based state management
-- Condition-specific learning interfaces
-- Real-time preference application
-
-## 📁 Project Structure
-
-```
-SE_Team11_AccessibleLanguageLearningPlatform/
-├── backend/
-│   ├── models/
-│   │   ├── User.js              # User schema with learning conditions
-│   │   └── Preferences.js        # Accessibility preferences schema
-│   ├── routes/
-│   │   ├── auth.js              # Registration, login, JWT
-│   │   ├── preferences.js        # Accessibility settings endpoints
-│   │   └── users.js             # User profile management
-│   ├── middleware/
-│   │   └── auth.js              # JWT verification & parental controls
-│   ├── server.js                # Express server setup
-│   ├── package.json
-│   └── .env
-│
-└── frontend/
-    ├── src/
-    │   ├── components/
-    │   │   ├── Login.js         # Login form (1.2)
-    │   │   ├── Register.js      # Registration form (1.1)
-    │   │   ├── AccessibilitySetup.js  # Preference wizard (1.3-1.6)
-    │   │   ├── Dashboard.js     # Main dashboard
-    │   │   ├── ProtectedRoute.js
-    │   │   └── learning/
-    │   │       ├── DyslexiaView.js   # Dyslexia-optimized UI (1.4)
-    │   │       ├── ADHDView.js       # ADHD-optimized UI (1.5)
-    │   │       └── AutismView.js     # Autism-optimized UI (1.6)
-    │   ├── context/
-    │   │   ├── AuthContext.js   # Authentication state
-    │   │   └── PreferencesContext.js  # Preferences state (1.7)
-    │   ├── utils/
-    │   │   └── api.js           # Axios configuration
-    │   ├── App.js               # Routing
-    │   └── index.css            # Accessibility CSS
-    └── package.json
-```
-
-## 🚀 Setup Instructions
+## 2) Setup guide (run locally)
 
 ### Prerequisites
-- Node.js (v14+)
-- MongoDB (local or Atlas)
-- npm or yarn
 
-### Backend Setup
+- Node.js (recommended: 18+)
+- npm
+- MongoDB (local) or MongoDB Atlas connection string
+- (Optional) Python 3 for the TTS endpoint
 
-1. Navigate to backend folder:
+### Backend setup
+
 ```bash
 cd backend
-```
-
-2. Install dependencies:
-```bash
 npm install
 ```
 
-3. Create `.env` file:
-```bash
-touch .env
-```
+Create a `backend/.env` based on `backend/.env.example`.
 
-4. Update `.env` with your values:
-```
-PORT=5000
+Minimal working example:
+
+```dotenv
+# IMPORTANT: the frontend dev proxy is configured for 5002.
+# Either set PORT=5002 (recommended) or change the proxy in frontend/package.json.
+PORT=5002
+
 MONGODB_URI=mongodb://localhost:27017/accessible-learning
-JWT_SECRET=your_secure_secret_key
+JWT_SECRET=replace_me_with_a_long_random_secret
 JWT_EXPIRE=7d
 NODE_ENV=development
 
-# Optional: enable Gemini AI endpoints (/api/ai/*)
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Optional: pin the Gemini model used by backend/routes/ai.js
-# If unset or invalid, the backend auto-selects an available model (prefers Flash).
+# Optional: Gemini AI endpoints (/api/ai/*)
+GEMINI_API_KEY=your_key_here
 GEMINI_MODEL=gemini-2.5-flash
 
 # Optional: use a specific Python interpreter for TTS (/api/tts/speak)
 # PYTHON_EXECUTABLE=../.venv/bin/python
 ```
 
-### Optional: Enable Python TTS (gTTS)
+Start the backend:
 
-The `/api/tts/speak` endpoint runs a Python script in `backend/python_services/tts_gen.py`.
+```bash
+npm run dev
+```
 
-If you see `ModuleNotFoundError: No module named 'gtts'`, install the Python dependency:
+Backend defaults:
+- API base: `http://localhost:5002/api`
+- Health: `http://localhost:5002/health`
+
+### Frontend setup
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Frontend defaults:
+- App: `http://localhost:3000`
+- Dev proxy: `frontend/package.json` proxies `/api` to `http://localhost:5002`
+
+If you deploy the frontend separately (no proxy), set `REACT_APP_API_URL` to your backend base URL (example: `https://your-backend/api`).
+
+### Optional: enable Python TTS (gTTS)
+
+The backend endpoint `POST /api/tts/speak` spawns `backend/python_services/tts_gen.py`.
+
+If you see `ModuleNotFoundError: No module named 'gtts'`:
 
 ```bash
 python3 -m pip install -r backend/python_services/requirements.txt
 ```
 
-5. Start MongoDB (if running locally):
-```bash
-mongod
-```
+### Build
 
-6. Start the backend server:
-```bash
-npm run dev
-```
-
-Backend will run on `http://localhost:5002`
-
-### Frontend Setup
-
-1. Open a new terminal and navigate to frontend:
 ```bash
 cd frontend
+npm run build
 ```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the React app:
-```bash
-npm start
-```
-
-Frontend will run on `http://localhost:3000`
-
-## 📋 EPIC 1 Features Implemented
-
-### ✅ 1.1 User Registration
-- Registration form with validation
-- Secure password hashing
-- Learning condition selection
-- Parental control support for minors
-
-### ✅ 1.2 User Login
-- JWT-based authentication
-- Token verification middleware
-- Session persistence
-- Parental approval system
-
-### ✅ 1.3 Accessibility Preference Setup
-- 3-step setup wizard
-- Font size, contrast, pace settings
-- Condition-specific defaults
-- Skip option available
-
-### ✅ 1.4 Dyslexia-Friendly Reading Support
-- OpenDyslexic font option
-- Adjustable letter/word spacing
-- Line height control
-- Color overlay options
-- High-contrast themes
-
-### ✅ 1.5 Adjustable Learning Pace
-- Slow, normal, fast pace options
-- Session duration slider (5-60 min)
-- Break reminder system
-- Real-time timer display
-
-### ✅ 1.6 Distraction-Free Mode
-- Minimal UI for ADHD learners
-- Reduced animations for autism
-- Simplified layout option
-- Focus mode toggle
-
-### ✅ 1.7 Preference Memory Across Sessions
-- Automatic preference loading
-- LocalStorage + Database sync
-- Real-time CSS application
-- Consistent experience across logins
-
-## 🎨 Design Features
-
-### Dyslexia View
-- Clear, spacious layout
-- Large readable text
-- Visual progress indicators
-- Color-coded elements
-
-### ADHD View
-- Single-focus lesson display
-- Session timer
-- Minimal distractions
-- Quick navigation
-
-### Autism View
-- Predictable sidebar routine
-- Step-by-step visual schedule
-- Consistent layout patterns
-- Clear task indicators
-
-## 🔒 Security Features
-- JWT authentication
-- Password hashing (bcrypt)
-- Protected API routes
-- Input validation
-- XSS protection
-
-## 🧪 Testing
-
-To test the complete flow:
-
-1. **Register**: Create account at `/register` with learning condition
-2. **Setup**: Complete accessibility wizard at `/accessibility-setup`
-3. **Learn**: View condition-specific dashboard at `/dashboard`
-4. **Preferences**: Settings persist across sessions (1.7)
-
-## 📊 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user
-- `POST /api/auth/logout` - Logout user
-
-### Preferences
-- `GET /api/preferences` - Get user preferences
-- `PUT /api/preferences` - Update all preferences
-- `PATCH /api/preferences/accessibility` - Update accessibility settings
-- `PATCH /api/preferences/dyslexia` - Update dyslexia settings
-- `PATCH /api/preferences/adhd` - Update ADHD settings
-- `PATCH /api/preferences/autism` - Update autism settings
-- `DELETE /api/preferences/reset` - Reset to defaults
-
-### Users
-- `GET /api/users/profile` - Get user profile
-- `PUT /api/users/profile` - Update user profile
-
-## 🌐 Browser Support
-- Chrome (recommended)
-- Firefox
-- Safari
-- Edge
-
-## 📝 Future Enhancements (Other Epics)
-- Lesson content management
-- Speech recognition
-- Progress tracking
-- NLP-based assessment
-- Indian language support
-- Collaborative features
-
-## 👥 Team
-SE Team 11 - Amrita Vishwa Vidyapeetham
-
-## 📄 License
-MIT License
-
----
-
-**Note**: This is EPIC 1 implementation. The platform currently includes user management and accessibility features. Actual lesson content and advanced features will be added in subsequent epics.

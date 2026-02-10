@@ -8,7 +8,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/greet-s1-narration.mp3',
       highlights: [
         { phrase: 'Hello', emphasisType: 'background', color: '#ffd700' },
-        { phrase: 'greet', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'greet', emphasisType: 'underline', color: 'var(--accent-color)' },
         { phrase: 'politely', emphasisType: 'bold' },
       ],
       visuals: [
@@ -198,7 +198,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/vocab-s1-narration.mp3',
       highlights: [
         { phrase: 'simple words', emphasisType: 'background', color: '#b39ddb' },
-        { phrase: 'everyday items', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'everyday items', emphasisType: 'underline', color: 'var(--accent-color)' },
       ],
       visuals: [
         { imageUrl: '/visuals/basic-words.svg', altText: 'Everyday objects and words', relatedPhrase: 'everyday items', placement: 'inline' },
@@ -452,7 +452,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/num-s1-narration.mp3',
       highlights: [
         { phrase: 'Count', emphasisType: 'background', color: '#ffd700' },
-        { phrase: 'one to five', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'one to five', emphasisType: 'underline', color: 'var(--accent-color)' },
         { phrase: 'color', emphasisType: 'bold' },
       ],
       visuals: [
@@ -574,7 +574,7 @@ const lessonSectionSamples = {
       audioUrl: '/audio/num-s2-narration.mp3',
       highlights: [
         { phrase: 'Match', emphasisType: 'background', color: '#ffd700' },
-        { phrase: 'numbers', emphasisType: 'underline', color: '#667eea' },
+        { phrase: 'numbers', emphasisType: 'underline', color: 'var(--accent-color)' },
         { phrase: 'objects', emphasisType: 'bold' },
       ],
       visuals: [
@@ -584,7 +584,7 @@ const lessonSectionSamples = {
         {
           id: 'num-s2-1',
           type: 'multiple_choice',
-          question: 'How many apples are there? 🍎🍎',
+          question: 'How many apples are there? (2 apples)',
           options: ['1', '2', '3'],
           correctAnswer: '2',
           hint: 'Count the apples carefully.',
@@ -600,7 +600,7 @@ const lessonSectionSamples = {
         {
           id: 'num-s2-2',
           type: 'click',
-          question: 'Click the number that matches four stars: ⭐⭐⭐⭐',
+          question: 'Click the number that matches four stars (4).',
           options: ['3', '4', '5'],
           correctAnswer: '4',
           hint: 'Count each star.',
@@ -616,7 +616,7 @@ const lessonSectionSamples = {
         {
           id: 'num-s2-3',
           type: 'short_answer',
-          question: 'How many books are here? 📚📚📚',
+          question: 'How many books are here? (3 books)',
           correctAnswer: '3',
           hint: 'Count each book.',
           explanation: 'There are 3 books.',

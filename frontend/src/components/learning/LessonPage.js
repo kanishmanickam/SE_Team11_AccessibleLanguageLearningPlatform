@@ -6,6 +6,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import LessonReplay from './LessonReplay';
 import lessonSamples from './lessonSamples';
 import './LessonPage.css';
+import { getDyslexiaLessonTitle, useDyslexiaContext } from '../../utils/dyslexiaSyllableMode';
 
 const estimateReadingTime = (text) => {
   if (!text) return 1;
@@ -36,6 +37,7 @@ const LessonPage = () => {
     let isMounted = true;
 
     const loadLesson = async () => {
+      // EPIC 6.5.2: Show a loading state while the lesson loads.
       setIsLoading(true);
       setError('');
       try {
@@ -47,6 +49,7 @@ const LessonPage = () => {
           return;
         }
 
+        // EPIC 6.5.1: Load lesson content from backend correctly.
         const data = await getLessonById(lessonId);
         if (isMounted) {
           setLesson(data);
@@ -57,6 +60,7 @@ const LessonPage = () => {
             setLesson(lessonSamples[lessonId]);
             setError('Live lesson data is unavailable. Showing a sample lesson instead.');
           } else {
+            // EPIC 6.5.3: Friendly error message when lesson fails to load.
             setError('Unable to load this lesson. Please try again.');
           }
         }
@@ -74,6 +78,7 @@ const LessonPage = () => {
     };
   }, [lessonId, isLocalLessonId, retryKey]);
 
+  // EPIC 6.5.4: Provide a retry action to re-attempt loading.
   const retryLoadLesson = () => setRetryKey((k) => k + 1);
 
   const handleBack = () => {
@@ -89,6 +94,7 @@ const LessonPage = () => {
 
   useEffect(() => {
     if (!preferences) return;
+    // EPIC 2.7.1-2.7.4: Apply a consistent, preference-driven lesson container layout (stable classes, predictable transitions).
     applyPreferences(preferences, {
       containerId: 'learning-container',
       baseClass: 'lesson-page motion-enabled',
@@ -97,7 +103,10 @@ const LessonPage = () => {
 
   const readingTime = estimateReadingTime(lesson?.textContent);
   const interactionCount = lesson?.interactions?.length || 0;
-  const resolvedTitle = lesson?.title || (isLoading ? 'Loading lesson…' : 'Lesson');
+  const condition = user?.learningCondition || '';
+  const dyslexia = useDyslexiaContext({ condition, lessonId, defaultSyllableMode: true });
+  const baseTitle = lesson?.title || (isLoading ? 'Loading lesson…' : 'Lesson');
+  const resolvedTitle = dyslexia.applySyllables ? getDyslexiaLessonTitle(lessonId, baseTitle) : baseTitle;
   const resolvedSubtitle = isLoading
     ? 'Preparing your lesson steps…'
     : `About ${readingTime} min • ${interactionCount} interactions`;
@@ -108,6 +117,7 @@ const LessonPage = () => {
       id="learning-container"
       data-user-condition={user?.learningCondition || ''}
     >
+      {/* EPIC 2.2.1-2.2.4, 2.6.1-2.6.4, 2.7.1-2.7.4: Step-by-step flow + replay + consistent layout/navigation. */}
       <LessonReplay
         lessonId={lessonId}
         isSample={isSample}
