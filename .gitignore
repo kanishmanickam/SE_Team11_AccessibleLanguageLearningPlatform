@@ -1,7 +1,11 @@
 .DS_Store
+.venv/
 .env
 ./node_modules
 node_modules
+
+# Logs
+*.log
 
 # Local/dev tools & backups
 /tools/
