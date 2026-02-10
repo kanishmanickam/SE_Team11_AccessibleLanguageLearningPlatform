@@ -49,6 +49,7 @@ const ProfileSettings = ({ onClose }) => {
   };
 
   const saveAccessibilitySettings = async () => {
+    // EPIC 1.3.2 / 1.7.3: Persist preference changes from in-app settings panel
     const result = await updateAccessibilitySettings(accessibilitySettings);
     if (result.success) {
       alert('Accessibility settings updated!');

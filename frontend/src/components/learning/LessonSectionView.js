@@ -85,8 +85,8 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
   const [duration, setDuration] = useState(0);
   const [activeInteractionIndex, setActiveInteractionIndex] = useState(0);
 
-  // New states for Accessibility Features (3.1, 3.5, 3.6)
-  const [playbackRate, setPlaybackRate] = useState(0.85); // Default slow for easier understanding
+  // EPIC 3.1.4: Keep audio speed slow and easy to understand (default playback rate).
+  const [playbackRate, setPlaybackRate] = useState(0.85);
   const [activeWord, setActiveWord] = useState(''); // For visual highlighting
   const [isUsingTTS, setIsUsingTTS] = useState(false);
   const [audioFailed, setAudioFailed] = useState(false);
@@ -96,6 +96,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
   const userKey = useMemo(() => normalizeUserId(user), [user]);
 
   const paragraphs = useMemo(() => {
+    // EPIC 2.1.1: Display lesson content clearly in text format.
     if (!section?.textContent) return [];
     const results = [];
     const regex = /[^\n]+/g;
@@ -112,6 +113,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
   }, [dyslexia.applySyllables, section?.textContent]);
 
   const interactions = useMemo(() => {
+    // EPIC 2.3.2, 2.3.4: Ask short questions during the flow and keep interactions non-overwhelming (ordered + capped).
     if (!section?.interactions) return [];
     return [...section.interactions]
       .sort((a, b) => (a.position || 0) - (b.position || 0))
@@ -198,6 +200,9 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
 
   // Audio Playback Handling (Backend -> Browser Fallback)
   const speakText = async (text) => {
+    // EPIC 2.1.2, 2.1.4: Play audio narration (backend TTS with browser fallback) while keeping the lesson experience smooth.
+    // EPIC 3.1.2: Read lesson text aloud using clear audio.
+    // EPIC 3.5.3: Keep audio consistent in quality (prefer backend TTS, fall back to browser if needed).
     // 1. Stop existing audio
     if (audioRef.current) {
       audioRef.current.pause();
@@ -250,6 +255,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
           const textBefore = text.slice(charIndex);
           const firstSpace = textBefore.search(/\s/);
           const word = firstSpace === -1 ? textBefore : textBefore.slice(0, firstSpace);
+              // EPIC 2.5.1: Highlight key words/phrases (active word during narration).
           setActiveWord(word.replace(/[.,!?;:()"]/g, ''));
         }
       };
@@ -270,6 +276,8 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
   };
 
   const handleToggleAudio = async () => {
+    // EPIC 3.1.1: “Play Audio” button for lesson text.
+    // EPIC 3.1.3, 3.5.1-3.5.2: Allow replay/repetition without limits (toggle can be used repeatedly).
     if (section?.audioUrl && !audioFailed) {
       // Use Backend/File Audio
       if (!audioRef.current) return;
@@ -300,6 +308,8 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
   };
 
   const handleReplay = () => {
+    // EPIC 3.1.3: Allow learners to replay the audio.
+    // EPIC 3.5.1-3.5.2: Enable repetition for words/sentences without limits.
     if (section?.audioUrl && !audioFailed) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -350,6 +360,8 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
       correctIds: Array.from(correctIds),
     });
 
+    // EPIC 3.5.4: Repeated listening does not reduce marks; scoring is based on answers only.
+
     // Notify other parts of the app (Progress page) that local progress changed.
     try {
       window.dispatchEvent(new CustomEvent('progress:updated', { detail: { lessonId: lessonKey, source: 'local' } }));
@@ -376,6 +388,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
         <div className="lesson-section-text">
           {paragraphs.length > 0 ? (
             <VisualLesson
+              // EPIC 2.5.1-2.5.4: Highlights + simple, content-matched visuals.
               paragraphs={paragraphs}
               highlights={section.highlights || []}
               visualAids={section.visualAids || section.visuals || []}
@@ -387,6 +400,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
 
           {displayedInteraction && (
             <InteractionCard
+              // EPIC 2.3.1-2.3.4, 2.4.1-2.4.4: Simple interactions + immediate feedback + hints/explanations/encouragement.
               lessonId={lessonKey}
               interaction={displayedInteraction}
               readOnly={isReplay}
@@ -437,6 +451,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
                   ) : (
                     <>
                       <Play size={16} aria-hidden="true" />
+                      {/* EPIC 3.1.1: Play Audio button for lesson text. */}
                       <span>Play Audio</span>
                     </>
                   )}
@@ -449,6 +464,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
                   title="Replay Audio"
                 >
                   <RotateCcw size={16} aria-hidden="true" />
+                  {/* EPIC 3.1.3, 3.5.1-3.5.2: Replay audio multiple times without limits. */}
                   <span>Replay</span>
                 </button>
               </div>
@@ -467,7 +483,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
                 />
               )}
 
-              {/* Speed Control (Task 3.1 & 3.5) */}
+              {/* EPIC 3.1.4: Keep audio speed slow and easy to understand. */}
               <div className="audio-speed-control" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}>
                 <span>Speed:</span>
                 <button
@@ -490,6 +506,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
 
           {/* Dynamic illustration based on current question */}
           <div className="lesson-illustration fx-card" aria-label="Question illustration">
+            {/* EPIC 2.5.2-2.5.4: Simple, uncluttered visuals/icons supporting understanding and matched to the current step. */}
             <h3>Illustration</h3>
             {(() => {
               const questionText = currentInteraction?.question || section?.title || '';
@@ -513,6 +530,7 @@ const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, on
           </div>
 
           <div className="lesson-visuals fx-card" aria-label="Lesson visuals">
+            {/* EPIC 2.5.2-2.5.4: Additional simple visuals closely tied to lesson content. */}
             <h3>Visual Aids</h3>
             {(section.visuals || []).length > 0 ? (
               <div className="visuals-grid">

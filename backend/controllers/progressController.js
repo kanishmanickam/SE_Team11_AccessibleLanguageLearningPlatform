@@ -19,6 +19,7 @@ exports.getProgress = async (req, res) => {
   const { lessonId } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(lessonId)) {
+    // EPIC 6.7.1-6.7.2: Proper status codes + input validation to avoid crashes on invalid data.
     return res.status(400).json({
       success: false,
       message: 'Invalid lesson ID',
@@ -28,6 +29,7 @@ exports.getProgress = async (req, res) => {
   try {
     const lessonExists = await require('../models/Lesson').exists({ _id: lessonId });
     if (!lessonExists) {
+      // EPIC 6.7.1: Friendly 404 when lesson does not exist.
       return res.status(404).json({ success: false, message: 'Lesson not found' });
     }
 
@@ -37,6 +39,7 @@ exports.getProgress = async (req, res) => {
     });
 
     if (!progress) {
+      // EPIC 6.4.2: Restore progress state by creating a default progress document when absent.
       const firstSectionId = await getFirstSectionId(lessonId);
       progress = await UserProgress.create({
         userId: req.user.id,
@@ -54,6 +57,7 @@ exports.getProgress = async (req, res) => {
       progress,
     });
   } catch (error) {
+    // EPIC 6.7.1: Consistent 500 responses on unexpected backend errors.
     return res.status(500).json({
       success: false,
       message: 'Error fetching progress',
@@ -69,6 +73,7 @@ exports.updateProgress = async (req, res) => {
   const { lessonId, currentSectionId, completedSections, interactionStates, isReplay } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(lessonId)) {
+    // EPIC 6.7.1-6.7.2: Input validation prevents crashes and returns correct status codes.
     return res.status(400).json({
       success: false,
       message: 'Invalid lesson ID',
@@ -87,6 +92,7 @@ exports.updateProgress = async (req, res) => {
     });
 
     if (isReplay) {
+      // EPIC 6.3.4, 6.6.4: Replay/history is read-only and must not mutate saved progress.
       return res.json({
         success: true,
         progress: existing,
@@ -116,6 +122,7 @@ exports.updateProgress = async (req, res) => {
     // Determine if lesson is completed
     const totalSections = await countSections(lessonId);
     if (Array.isArray(nextCompleted) && totalSections > 0 && nextCompleted.length >= totalSections) {
+      // EPIC 6.1.1: Store completion state as a simple true/false flag.
       payload.completed = true;
       payload.completedAt = new Date();
       console.log(`User ${req.user.id} completed lesson ${lessonId} at ${payload.completedAt.toISOString()}`);
@@ -132,6 +139,7 @@ exports.updateProgress = async (req, res) => {
 
     // If lesson became completed, ensure the User.completedLessons array is in sync (store lesson id string)
     if (progress && progress.completed) {
+      // EPIC 6.4.1: Save progress automatically after lesson completion.
       try {
         await User.findByIdAndUpdate(req.user.id, { $addToSet: { completedLessons: lessonId } });
       } catch (e) {
@@ -144,6 +152,7 @@ exports.updateProgress = async (req, res) => {
       progress,
     });
   } catch (error) {
+    // EPIC 6.7.1: Reliable error handling with proper status codes.
     return res.status(500).json({
       success: false,
       message: 'Error updating progress',
@@ -156,6 +165,8 @@ exports.updateProgress = async (req, res) => {
 const Lesson = require('../models/Lesson');
 
 const computeSummary = async (userId) => {
+  // EPIC 6.6.1-6.6.4: Keep performance insight simple (completed/remaining) and avoid complex analytics.
+  // EPIC 6.7.3: Prefer simple queries (counts + small lists) to keep responses fast.
   // Total lessons available in the system
   const totalLessons = await Lesson.countDocuments();
 
@@ -224,8 +235,10 @@ const computeSummary = async (userId) => {
   const completedCount = completedLessons.length;
   const remaining = Math.max(0, totalLessonsAdjusted - completedCount);
 
-  // Sort completed lessons newest-first when completedAt is available
-  completedLessons.sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+  // EPIC 6.1.2: Summary supports percentage display (completedCount / totalLessonsAdjusted).
+
+  // EPIC 6.3.3: Show completed lessons in order (completion order) for easier revision.
+  completedLessons.sort((a, b) => (a.completedAt || 0) - (b.completedAt || 0));
 
   return { success: true, totalLessons: totalLessonsAdjusted, completedCount, remaining, completedLessons };
 };
@@ -235,6 +248,7 @@ const computeSummary = async (userId) => {
 // @access  Private
 exports.getSummary = async (req, res) => {
   try {
+    // EPIC 6.1.2, 6.6.1-6.6.2: Provide total/completed/remaining for a simple progress display.
     const summary = await computeSummary(req.user.id);
     return res.json(summary);
   } catch (error) {

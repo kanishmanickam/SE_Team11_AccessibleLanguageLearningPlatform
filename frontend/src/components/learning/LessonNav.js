@@ -13,6 +13,7 @@ const LessonNav = ({
 }) => {
   const resolvedNextLabel = nextLabel || 'Next';
   return (
+    // EPIC 2.6.1-2.6.4, 2.7.2: Consistent navigation with explicit replay control and fixed button positions.
     <div className="lesson-nav" role="navigation" aria-label="Lesson navigation">
       <button
         type="button"

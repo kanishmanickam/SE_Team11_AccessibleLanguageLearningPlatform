@@ -1,3 +1,4 @@
+/* EPIC 1.4.1: Dyslexia-friendly font support (OpenDyslexic) */
 /* OpenDyslexic Font Import */
 @import url('https://fonts.cdnfonts.com/css/opendyslexic');
 
@@ -288,6 +289,7 @@ body {
   }
 }
 
+/* EPIC 1.3.2 / 1.4.2: Preference-driven typography classes */
 /* Font Family Classes */
 .font-opendyslexic {
   font-family: 'OpenDyslexic', sans-serif !important;
@@ -318,6 +320,7 @@ body {
   font-size: var(--font-size-extra-large) !important;
 }
 
+/* EPIC 1.4.2: Dyslexia spacing controls (letter/word/line) */
 /* Letter Spacing Classes */
 .letter-spacing-normal {
   letter-spacing: var(--letter-spacing-normal) !important;
@@ -357,6 +360,7 @@ body {
   line-height: var(--line-height-loose) !important;
 }
 
+/* EPIC 1.7.3: Preferences are applied by adding classes to #learning-container */
 /* Learning Container - Scoped Preferences */
 #learning-container {
   /* Inherit from body but allow overrides */
@@ -495,6 +499,7 @@ body {
   line-height: var(--line-height-loose) !important;
 }
 
+/* EPIC 1.6.1 / 1.6.2: Distraction-free mode + reduced motion */
 #learning-container.distraction-free {
   background-color: var(--bg-secondary);
 }

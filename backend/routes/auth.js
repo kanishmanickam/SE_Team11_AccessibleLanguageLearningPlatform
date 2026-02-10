@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Preferences = require('../models/Preferences');
 const { protect } = require('../middleware/auth');
 
+// EPIC 1.2.2: JWT issuance for authenticated sessions
 // Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -19,6 +20,7 @@ const generateToken = (id) => {
 router.post(
   '/register',
   [
+    // EPIC 1.1.2: Backend validation for registration inputs
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Please provide a valid email'),
     body('password')
@@ -82,6 +84,7 @@ router.post(
         });
       }
 
+      // EPIC 1.1.4: Parental control support for minors (age/isMinor + parentEmail)
       // Determine if parental approval is required
       const requiresParentalApproval = isMinor || (age && age < 13);
 
@@ -101,6 +104,7 @@ router.post(
       }
 
       // Create user
+      // EPIC 1.1.3: Secure password hashing occurs in User model pre-save hook
       user = await User.create({
         name,
         email,
@@ -112,7 +116,7 @@ router.post(
         requiresParentalApproval,
       });
 
-      // Create default preferences based on learning condition
+      // EPIC 1.3.3 / 1.4 / 1.5 / 1.6: Condition-specific default preferences on registration
       const defaultPreferences = await Preferences.create({
         user: user._id,
         // Set defaults based on condition
@@ -173,6 +177,7 @@ router.post(
 router.post(
   '/login',
   [
+    // EPIC 1.2.2: Backend credential validation for login
     body('email').isEmail().withMessage('Please provide a valid email'),
     body('password').notEmpty().withMessage('Password is required'),
   ],
@@ -201,6 +206,7 @@ router.post(
       }
 
       // Check password
+      // EPIC 1.2.2: Compare entered password to stored bcrypt hash
       const isMatch = await user.matchPassword(password);
       if (!isMatch) {
         return res.status(401).json({
@@ -252,6 +258,7 @@ router.post(
 // @desc    Get current logged in user
 // @access  Private
 router.get('/me', protect, async (req, res) => {
+  // EPIC 1.2.4 / 1.7.4: Session validation endpoint used to refresh user state on reload
   try {
     const user = await User.findById(req.user.id).populate('preferences');
 

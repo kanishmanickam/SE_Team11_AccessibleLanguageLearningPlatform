@@ -3,6 +3,7 @@ import './GuidedSupport.css';
 
 const GuidedSupport = ({ message, tone, onHelp, isLoading }) => {
   return (
+    // EPIC 2.4.1-2.4.4: Guided support surface for hints/explanations, manual help, and encouraging messages.
     <div className="guided-support" aria-live="polite">
       <button
         type="button"

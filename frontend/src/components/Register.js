@@ -30,6 +30,7 @@ const Register = () => {
   };
 
   const validateForm = () => {
+    // EPIC 1.1.1: Client-side registration validation for better UX (server still validates)
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return false;
@@ -80,7 +81,7 @@ const Register = () => {
     const result = await register(registrationData);
 
     if (result.success) {
-      // Redirect to accessibility setup
+      // EPIC 1.3.1: After registration, route learner into accessibility setup wizard
       navigate('/accessibility-setup');
     } else {
       setError(result.error || 'Registration failed. Please try again.');

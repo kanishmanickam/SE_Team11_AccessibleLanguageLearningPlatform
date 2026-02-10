@@ -98,6 +98,7 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             {/* Protected Routes */}
+            {/* EPIC 1.3: Preference setup wizard is gated behind authentication */}
             <Route
               path="/accessibility-setup"
               element={
@@ -106,6 +107,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* EPIC 1.4-1.6: Condition-specific learning dashboards */}
             <Route
               path="/dashboard"
               element={
@@ -114,6 +116,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* EPIC 1.7: Progress review requires logged-in user */}
             <Route
               path="/progress"
               element={
@@ -122,6 +125,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* EPIC 1.4: Dyslexia lesson routes (route-based lessons) */}
             <Route
               path="/lessons/:lessonId"
               element={

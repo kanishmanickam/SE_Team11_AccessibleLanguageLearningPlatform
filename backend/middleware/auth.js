@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// EPIC 1.2.3: Token verification middleware to protect private routes
 // Protect routes - verify JWT token
 exports.protect = async (req, res, next) => {
   let token;
@@ -55,6 +56,7 @@ exports.protect = async (req, res, next) => {
 
 // Check parental approval for minors
 exports.requireParentalApproval = async (req, res, next) => {
+  // EPIC 1.1.4 / 1.2: Parental approval gate (placeholder header-based check)
   if (req.user.isMinor && req.user.requiresParentalApproval) {
     // Check if this action requires parental approval
     // This is a placeholder - implement actual parental approval logic

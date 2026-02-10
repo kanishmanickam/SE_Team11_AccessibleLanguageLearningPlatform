@@ -18,6 +18,10 @@ const getPythonExecutable = () => {
 router.post('/speak', (req, res) => {
     const { text, speed } = req.body;
 
+    // EPIC 3.1.2, 3.5.3: Generate clear audio via backend TTS (consistent quality across devices).
+    // EPIC 3.1.4: Support slow/easy-to-understand playback via the `speed` parameter.
+    // EPIC 3.1.3, 3.5.1-3.5.2: Stateless endpoint enables unlimited replay by calling it again.
+
     if (!text) {
         return res.status(400).json({ message: 'Text is required' });
     }

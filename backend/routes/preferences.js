@@ -9,6 +9,7 @@ const { protect } = require('../middleware/auth');
 // @desc    Get user preferences (1.7)
 // @access  Private
 router.get('/', protect, async (req, res) => {
+  // EPIC 1.7.1: Persisted preference retrieval (DB-backed)
   try {
     const preferences = await Preferences.findOne({ user: req.user.id });
 
@@ -36,6 +37,7 @@ router.get('/', protect, async (req, res) => {
 // @desc    Update user preferences (1.3, 1.4, 1.5, 1.6)
 // @access  Private
 router.put('/', protect, async (req, res) => {
+  // EPIC 1.3.2 / 1.4.2 / 1.5.1 / 1.6.1: Save preference updates from the client
   try {
     let preferences = await Preferences.findOne({ user: req.user.id });
 
@@ -75,6 +77,7 @@ router.put('/', protect, async (req, res) => {
 // @desc    Update specific accessibility settings (1.3)
 // @access  Private
 router.patch('/accessibility', protect, async (req, res) => {
+  // EPIC 1.3.2: Targeted updates for core accessibility controls (font/theme/etc)
   const { 
     fontSize, 
     contrastTheme, 
@@ -127,6 +130,7 @@ router.patch('/accessibility', protect, async (req, res) => {
 // @desc    Update dyslexia-specific settings (1.4)
 // @access  Private
 router.patch('/dyslexia', protect, async (req, res) => {
+  // EPIC 1.4.2: Persist dyslexia-friendly reading preferences (spacing/font)
   const { fontFamily, letterSpacing, wordSpacing, lineHeight, colorOverlay } =
     req.body;
 
@@ -164,6 +168,7 @@ router.patch('/dyslexia', protect, async (req, res) => {
 // @desc    Update ADHD-specific settings (1.5)
 // @access  Private
 router.patch('/adhd', protect, async (req, res) => {
+  // EPIC 1.5.1 / 1.5.2: Persist ADHD pacing and break-reminder preferences
   const { learningPace, sessionDuration, breakReminders } = req.body;
 
   try {
@@ -198,6 +203,7 @@ router.patch('/adhd', protect, async (req, res) => {
 // @desc    Update autism-specific settings (1.6)
 // @access  Private
 router.patch('/autism', protect, async (req, res) => {
+  // EPIC 1.6.1: Persist focus environment settings (distraction-free, reduce motion)
   const {
     distractionFreeMode,
     reduceAnimations,
@@ -238,6 +244,7 @@ router.patch('/autism', protect, async (req, res) => {
 // @desc    Reset preferences to defaults based on learning condition
 // @access  Private
 router.delete('/reset', protect, async (req, res) => {
+  // EPIC 1.3.3 / 1.7: Restore condition-specific defaults from the backend
   try {
     const user = await User.findById(req.user.id);
     

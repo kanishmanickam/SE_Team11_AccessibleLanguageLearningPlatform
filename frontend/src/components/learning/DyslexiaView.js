@@ -14,6 +14,8 @@ const DyslexiaView = () => {
   const [syllableMode, setSyllableMode] = useDyslexiaSyllableMode(true);
   const navigate = useNavigate();
 
+  // EPIC 1.4: Dyslexia-friendly reading support lives here (syllable mode + spacing/font via preferences)
+
   const lessons = [
     {
       id: 1,
@@ -51,6 +53,7 @@ const DyslexiaView = () => {
   ];
 
   const toggleSyllableMode = () => {
+    // EPIC 1.4.2: Reading assistance toggle (syllable-friendly text)
     setSyllableMode((prev) => !prev);
   };
 
