@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
@@ -39,6 +39,7 @@ const AutismView = ({ initialLessonId = null }) => {
   const timerIntervalRef = useRef(null);
 
   const audioRef = useRef(null);
+  const ttsAudioRef = useRef(null);
 
   // Load completed lessons from backend on mount
   useEffect(() => {
@@ -61,7 +62,7 @@ const AutismView = ({ initialLessonId = null }) => {
   }, []);
 
   // EPIC 2.1-2.7: Three complete lessons with multi-format content
-  const lessons = [
+  const lessons = useMemo(() => ([
     {
       id: 1,
       title: 'Greetings',
@@ -89,6 +90,7 @@ const AutismView = ({ initialLessonId = null }) => {
           id: 2,
           title: 'Thank You in Tamil',
           Icon: BookOpen,
+          content: 'நன்றி (Nandri)',
           translation: 'A polite word in Tamil',
           highlight: 'நன்றி',
           image: '/images/autism-tamil-thanks.svg',
@@ -569,7 +571,7 @@ const AutismView = ({ initialLessonId = null }) => {
         }
       ]
     }
-  ];
+  ]), []);
 
   // Get current step data
   const currentLesson = lessons.find(l => l.id === selectedLesson);
@@ -652,6 +654,8 @@ const AutismView = ({ initialLessonId = null }) => {
   // EPIC 2.1: Audio playback with text-to-speech fallback
   const handlePlayAudio = () => {
     if (audioRef.current && currentStep?.audio) {
+      // Ensure current speed applies to file-based audio
+      audioRef.current.playbackRate = playbackSpeed;
       // Try to play the audio file
       audioRef.current.play().catch((error) => {
         console.log('Audio file not available, using text-to-speech fallback');
@@ -671,6 +675,16 @@ const AutismView = ({ initialLessonId = null }) => {
   const [activeWord, setActiveWord] = useState('');
   const [playbackSpeed, setPlaybackSpeed] = useState(0.8);
 
+  // Keep playback speed in sync for both file audio and backend TTS audio.
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackSpeed;
+    }
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed]);
+
   // Text-to-speech fallback function
   // Audio Handling with Backend Support
 
@@ -679,6 +693,10 @@ const AutismView = ({ initialLessonId = null }) => {
     window.speechSynthesis.cancel();
     if (audioRef.current) {
       audioRef.current.pause();
+    }
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.pause();
+      ttsAudioRef.current = null;
     }
 
     try {
@@ -695,10 +713,14 @@ const AutismView = ({ initialLessonId = null }) => {
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audio.playbackRate = playbackSpeed;
+      ttsAudioRef.current = audio;
 
       audio.onplay = () => setFeedback('Playing audio...');
       audio.onended = () => {
         setFeedback('');
+        if (ttsAudioRef.current === audio) {
+          ttsAudioRef.current = null;
+        }
         URL.revokeObjectURL(url);
       };
 
@@ -775,8 +797,10 @@ const AutismView = ({ initialLessonId = null }) => {
 
   // Start timer when step changes or has interaction
   useEffect(() => {
-    if (currentStep?.interaction) {
-      const difficulty = currentStep.interaction.difficulty || 'medium';
+    const hasInteraction = Boolean(currentStep?.interaction);
+
+    if (hasInteraction) {
+      const difficulty = currentStep?.interaction?.difficulty || 'medium';
       const timeLimit = getTimeForDifficulty(difficulty);
       setTimeRemaining(timeLimit);
       setTimerActive(true);
@@ -1048,7 +1072,7 @@ const AutismView = ({ initialLessonId = null }) => {
                         <span
                           key={idx}
                           className={isActive ? 'highlight active-word' : (isStaticHighlight ? 'highlight' : '')}
-                          style={isActive ? { backgroundColor: '#ffd700', transform: 'scale(1.1)', display: 'inline-block', transition: 'all 0.2s' } : {}}
+                          style={isActive ? { backgroundColor: 'var(--accent-color-soft)', transform: 'scale(1.03)', display: 'inline-block', transition: 'all 0.2s' } : {}}
                         >
                           {word}{' '}
                         </span>
@@ -1208,7 +1232,7 @@ const AutismView = ({ initialLessonId = null }) => {
             <Settings size={18} aria-hidden="true" />
           </button>
           <button onClick={logout} className="btn-exit">
-            Exit
+            Logout
           </button>
         </div>
       </header>

@@ -7,21 +7,14 @@ import './learning/DyslexiaView.css';
 import { getAllLessonProgress, normalizeUserId } from '../services/dyslexiaProgressService';
 import api from '../utils/api';
 import { BookOpen } from 'lucide-react';
-
-const mapLessonTitle = (lessonId, fallbackTitle) => {
-  const titleById = {
-    'lesson-greetings': 'Greetings',
-    'lesson-vocabulary': 'Basic Words',
-    'lesson-numbers': 'Numbers',
-  };
-  return titleById[lessonId] || fallbackTitle || lessonId;
-};
+import { getDyslexiaLessonTitle, useDyslexiaSyllableMode } from '../utils/dyslexiaSyllableMode';
 
 const ProgressPage = () => {
   const { user } = useAuth();
   const { preferences } = usePreferences();
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const [syllableMode] = useDyslexiaSyllableMode(true);
 
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(true);
@@ -61,6 +54,11 @@ const ProgressPage = () => {
   }, [localProgress]);
 
   const condition = user?.learningCondition || '';
+  const applyDyslexiaSyllables = condition === 'dyslexia' && Boolean(syllableMode);
+  const uiText = React.useCallback(
+    (normalText, syllableText) => (applyDyslexiaSyllables ? syllableText : normalText),
+    [applyDyslexiaSyllables]
+  );
   const remoteLessonPrefix = condition === 'autism'
     ? 'autism-lesson-'
     : condition === 'adhd'
@@ -78,9 +76,9 @@ const ProgressPage = () => {
     // Dyslexia lessons are route-based and tracked locally.
     if (condition === 'dyslexia' || !remoteLessonPrefix) {
       const lessonDefs = [
-        { id: 'lesson-greetings', title: 'Greetings', route: '/lessons/lesson-greetings' },
-        { id: 'lesson-vocabulary', title: 'Basic Words', route: '/lessons/lesson-vocabulary' },
-        { id: 'lesson-numbers', title: 'Numbers', route: '/lessons/lesson-numbers' },
+        { id: 'lesson-greetings', title: applyDyslexiaSyllables ? getDyslexiaLessonTitle('lesson-greetings', 'Greetings') : 'Greetings', route: '/lessons/lesson-greetings' },
+        { id: 'lesson-vocabulary', title: applyDyslexiaSyllables ? getDyslexiaLessonTitle('lesson-vocabulary', 'Basic Words') : 'Basic Words', route: '/lessons/lesson-vocabulary' },
+        { id: 'lesson-numbers', title: applyDyslexiaSyllables ? getDyslexiaLessonTitle('lesson-numbers', 'Numbers') : 'Numbers', route: '/lessons/lesson-numbers' },
       ];
 
       return lessonDefs.map((l) => {
@@ -118,7 +116,7 @@ const ProgressPage = () => {
         openLabel: completed ? 'Review in Learning Center' : 'Start in Learning Center',
       };
     });
-  }, [condition, completedLessonKeys, localProgress, navigate, remoteLessonPrefix]);
+  }, [applyDyslexiaSyllables, condition, completedLessonKeys, localProgress, navigate, remoteLessonPrefix]);
 
   useEffect(() => {
     let mounted = true;
@@ -236,8 +234,13 @@ const ProgressPage = () => {
 
       <main className="main-content">
         <div className="welcome-section">
-          <h2>Your Learning Progress</h2>
-          <p className="subtitle">See completed lessons and continue where you left off.</p>
+          <h2>{uiText('Your Learning Progress', 'Your Learn-ing Pro-gress')}</h2>
+          <p className="subtitle">
+            {uiText(
+              'See completed lessons and continue where you left off.',
+              'See com-plet-ed les-sons and con-tin-ue where you left off.'
+            )}
+          </p>
         </div>
 
         <div className="progress-card">
@@ -247,7 +250,7 @@ const ProgressPage = () => {
 
           <div className="card-body">
             {summaryLoading ? (
-              <p>Loading progress…</p>
+              <p>{uiText('Loading progress…', 'Load-ing pro-gress…')}</p>
             ) : summaryError ? (
               <div>
                 <p className="is-error">{summaryError}</p>
@@ -256,7 +259,8 @@ const ProgressPage = () => {
             ) : (
               <>
                 <p className="dashboard-progress__headline">
-                  <strong>{mergedCompletedCount}</strong> of <strong>{displayTotalLessons}</strong> lessons completed ({mergedPercentage}%)
+                  <strong>{mergedCompletedCount}</strong> of <strong>{displayTotalLessons}</strong>{' '}
+                  {uiText('lessons completed', 'les-sons com-plet-ed')} ({mergedPercentage}%)
                 </p>
 
                 <div className="dashboard-progress__bar" aria-label="Overall lesson progress">
@@ -264,16 +268,17 @@ const ProgressPage = () => {
                 </div>
 
                 <p className="dashboard-progress__meta">
-                  <strong>Completed:</strong> {mergedCompletedCount} • <strong>Remaining:</strong> {Math.max(0, displayTotalLessons - mergedCompletedCount)}
+                  <strong>{uiText('Completed:', 'Com-plet-ed:')}</strong> {mergedCompletedCount} •{' '}
+                  <strong>{uiText('Remaining:', 'Re-main-ing:')}</strong> {Math.max(0, displayTotalLessons - mergedCompletedCount)}
                 </p>
 
                 {showLearningHistory && summary?.completedLessons && summary.completedLessons.length > 0 ? (
                   <div className="completed-lessons">
-                    <p className="section-label">Learning history</p>
+                    <p className="section-label">{uiText('Learning history', 'Learn-ing his-to-ry')}</p>
                     <ol>
                       {summary.completedLessons.map((l) => (
                         <li key={l.lessonId}>
-                          <Link to={`/lessons/${l.lessonId}`}>{mapLessonTitle(l.lessonId, l.title)}</Link>{' '}
+                          <Link to={`/lessons/${l.lessonId}`}>{applyDyslexiaSyllables ? getDyslexiaLessonTitle(l.lessonId, l.title) : (l.title || l.lessonId)}</Link>{' '}
                           <small>
                             ({l.completedAt ? new Date(l.completedAt).toLocaleDateString() : '—'})
                           </small>
@@ -282,7 +287,9 @@ const ProgressPage = () => {
                     </ol>
                   </div>
                 ) : showLearningHistory ? (
-                  <p className="dashboard-progress__empty">No lessons completed yet. Keep going!</p>
+                  <p className="dashboard-progress__empty">
+                    {uiText('No lessons completed yet. Keep going!', 'No les-sons com-plet-ed yet. Keep go-ing!')}
+                  </p>
                 ) : null}
               </>
             )}
@@ -291,7 +298,7 @@ const ProgressPage = () => {
 
         <div className="progress-card">
           <div className="card-header">
-            <h3>Lesson status</h3>
+            <h3>{uiText('Lesson status', 'Les-son sta-tus')}</h3>
           </div>
           <div className="card-body">
             <div className="lessons-grid">
@@ -308,7 +315,9 @@ const ProgressPage = () => {
                       <div className="progress-bar-container">
                         <div className="progress-bar-fill" style={{ width: `${l.percent}%` }} />
                       </div>
-                      <span className="progress-text">{l.percent}% Complete</span>
+                      <span className="progress-text">
+                        {l.percent}% {uiText('Complete', 'Com-plete')}
+                      </span>
                     </div>
                     <button type="button" className="btn btn-primary btn-block" onClick={l.onOpen}>
                       {l.openLabel}

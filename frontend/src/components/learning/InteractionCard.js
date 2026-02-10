@@ -489,7 +489,7 @@ const InteractionCard = ({
           aria-label="Replay narration"
           disabled={!enableTts}
         >
-          Replay narration
+          Listen to Question
         </button>
       </div>
 

@@ -70,14 +70,14 @@ const Dashboard = () => {
       container.classList.add(`line-height-${preferences.lineHeight}`);
     }
 
-    // Apply distraction-free mode (Autism only)
-    if (preferences.distractionFreeMode && user?.learningCondition === 'autism') {
+    // Apply distraction-free mode (Autism + ADHD)
+    const supportsDistractionFree = user?.learningCondition === 'autism' || user?.learningCondition === 'adhd';
+    if (preferences.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('distraction-free');
     }
 
-    // Apply reduced animations
-    // For Autism, treat reduced animations as part of distraction-free so normal mode stays animated.
-    if (preferences.reduceAnimations && preferences.distractionFreeMode && user?.learningCondition === 'autism') {
+    // Apply reduced animations (only meaningful when distraction-free is on)
+    if (preferences.reduceAnimations && preferences.distractionFreeMode && supportsDistractionFree) {
       container.classList.add('reduce-animations');
     }
   }, [preferences, user?.learningCondition]);

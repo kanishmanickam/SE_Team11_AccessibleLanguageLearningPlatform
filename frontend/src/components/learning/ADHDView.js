@@ -16,7 +16,6 @@ import {
   Hash,
   Headphones,
   Lightbulb,
-  Mic,
   Pause,
   Pencil,
   Play,
@@ -25,11 +24,14 @@ import {
   Settings,
   Target,
   Timer,
+  ToggleLeft,
+  ToggleRight,
+  Volume2,
 } from 'lucide-react';
 
 const ADHDView = ({ initialLessonId = null }) => {
   const { user, logout } = useAuth();
-  const { preferences } = usePreferences();
+  const { preferences, updatePreferences } = usePreferences();
   const navigate = useNavigate();
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -202,6 +204,33 @@ const ADHDView = ({ initialLessonId = null }) => {
     setScore(0);
   };
 
+  const distractionFreeMode = Boolean(preferences?.distractionFreeMode);
+  const toggleDistractionFreeMode = async () => {
+    const next = !distractionFreeMode;
+    // Persist for the user; container classing is handled by Dashboard/PreferencesContext.
+    await updatePreferences({
+      distractionFreeMode: next,
+      // Ensure *all* animations are suppressed when distraction-free is on.
+      reduceAnimations: next,
+    });
+  };
+
+  const backToSessionStart = () => {
+    window.speechSynthesis.cancel();
+    setActiveLesson(null);
+    setLessonPhase('idle');
+    setSteps([]);
+    setCurrentStepIndex(0);
+    setFeedback(null);
+    setShowHint(false);
+    setAttempts(0);
+    setIsTransitioning(false);
+    setIsLoading(false);
+    setCountdownValue(5);
+    setIsSessionActive(false);
+    setTimeRemaining(null);
+  };
+
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -224,6 +253,14 @@ const ADHDView = ({ initialLessonId = null }) => {
           hint: 'Say this when you see a friend!'
         },
         {
+          type: 'learn',
+          content: 'Hi',
+          explanation: 'A short, friendly greeting.',
+          visual: null,
+          highlight: 'Hi',
+          hint: 'Use this with friends or classmates.'
+        },
+        {
           type: 'quiz',
           question: 'Which word means "Hello"?',
           options: ['Goodbye', 'Hello', 'Thanks'],
@@ -237,6 +274,28 @@ const ADHDView = ({ initialLessonId = null }) => {
           visual: null,
           highlight: 'Morning',
           hint: 'Use this before lunch.'
+        },
+        {
+          type: 'quiz',
+          question: 'What do you say in the early part of the day?',
+          options: ['Good Morning', 'Good Night', 'Goodbye'],
+          correct: 'Good Morning',
+          hint: 'Think about when you wake up.'
+        },
+        {
+          type: 'learn',
+          content: 'How are you?',
+          explanation: 'A friendly question to ask someone after you greet them.',
+          visual: null,
+          highlight: 'How',
+          hint: 'You can say this after "Hello" or "Hi".'
+        },
+        {
+          type: 'quiz',
+          question: 'Which one is a question you can ask after greeting someone?',
+          options: ['How are you?', 'Goodbye', 'Thank you'],
+          correct: 'How are you?',
+          hint: 'It starts with "How".'
         },
         {
           type: 'quiz',
@@ -270,6 +329,21 @@ const ADHDView = ({ initialLessonId = null }) => {
         },
         {
           type: 'learn',
+          content: 'Book',
+          explanation: 'A set of pages you read.',
+          visual: null,
+          highlight: 'Book',
+          hint: 'You can read this at school or home.'
+        },
+        {
+          type: 'quiz',
+          question: 'Which one is something you read?',
+          options: ['Book', 'Shoe', 'Plate'],
+          correct: 'Book',
+          hint: 'It has pages.'
+        },
+        {
+          type: 'learn',
           content: 'Cat',
           explanation: 'A small animal that says "Meow".',
           visual: null,
@@ -282,6 +356,21 @@ const ADHDView = ({ initialLessonId = null }) => {
           options: ['Dog', 'Cat', 'Bird'],
           correct: 'Cat',
           hint: 'It likes to chase mice.'
+        },
+        {
+          type: 'learn',
+          content: 'Chair',
+          explanation: 'You sit on it.',
+          visual: null,
+          highlight: 'Chair',
+          hint: 'You can sit on this at a desk.'
+        },
+        {
+          type: 'quiz',
+          question: 'What do you sit on?',
+          options: ['Chair', 'Apple', 'Cat'],
+          correct: 'Chair',
+          hint: 'It is furniture.'
         }
       ]
     },
@@ -320,6 +409,28 @@ const ADHDView = ({ initialLessonId = null }) => {
           options: ['One', 'Two', 'Ten'],
           correct: 'Two',
           hint: 'One on the left, one on the right.'
+        },
+        {
+          type: 'learn',
+          content: 'Three (3)',
+          explanation: 'The number 3. It means one more than two.',
+          visual: null,
+          highlight: 'Three',
+          hint: 'Try holding up three fingers.'
+        },
+        {
+          type: 'quiz',
+          question: 'Which number comes after 2?',
+          options: ['1', '3', '5'],
+          correct: '3',
+          hint: 'Count: 1, 2, __.'
+        },
+        {
+          type: 'quiz',
+          question: 'Select the word for 3.',
+          options: ['One', 'Two', 'Three'],
+          correct: 'Three',
+          hint: 'It starts with T.'
         }
       ]
     },
@@ -337,10 +448,38 @@ const ADHDView = ({ initialLessonId = null }) => {
           visual: null
         },
         {
+          type: 'quiz',
+          question: 'What was the rabbit\'s name?',
+          options: ['Hop', 'Sam', 'Max'],
+          correct: 'Hop',
+          hint: 'Read the first sentence.'
+        },
+        {
+          type: 'quiz',
+          question: 'Who did Hop meet?',
+          options: ['A turtle', 'A cat', 'A bird'],
+          correct: 'A turtle',
+          hint: 'It was very slow.'
+        },
+        {
           type: 'story',
           title: 'The Lost Key',
           content: 'Sam had a shiny silver key. He dropped it in the grass. A crow flew down and picked it up. Sam chased the crow to a tall tree. The crow dropped the key, and Sam caught it!',
           visual: null
+        },
+        {
+          type: 'quiz',
+          question: 'What did Sam drop?',
+          options: ['A key', 'A book', 'An apple'],
+          correct: 'A key',
+          hint: 'It was shiny and silver.'
+        },
+        {
+          type: 'quiz',
+          question: 'Which animal picked up the key?',
+          options: ['A crow', 'A rabbit', 'A turtle'],
+          correct: 'A crow',
+          hint: 'It flew down.'
         }
       ]
     }
@@ -351,53 +490,8 @@ const ADHDView = ({ initialLessonId = null }) => {
     setIsLoading(true);
     setLessonPhase('intro');
 
-    let initialSteps = [...lesson.steps];
-
-    try {
-      if (lesson.isStory) {
-        // Generate quizzes for each story step
-        let newSteps = [];
-        for (const step of initialSteps) {
-          newSteps.push(step);
-          if (step.type === 'story') {
-            try {
-              const response = await fetch('/api/ai/story-quiz', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ storyText: step.content })
-              });
-              const data = await response.json();
-              if (data.questions) {
-                newSteps.push(...data.questions);
-              }
-            } catch (e) {
-              console.error('Error fetching story quiz', e);
-              // Fallback or skip if errors
-            }
-          }
-        }
-        initialSteps = newSteps;
-      } else {
-        // Basic lesson - append random questions
-        try {
-          const response = await fetch('/api/ai/generate-questions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic: lesson.title })
-          });
-          const data = await response.json();
-          if (data.questions) {
-            initialSteps.push(...data.questions);
-          }
-        } catch (e) {
-          console.error('Error fetching generic questions', e);
-        }
-      }
-    } catch (err) {
-      console.error("AI generation failed", err);
-    }
-
-    setSteps(initialSteps);
+    // Use deterministic, topic-aligned slides + quizzes (avoids random/off-topic questions).
+    setSteps([...(lesson.steps || [])]);
     setCurrentStepIndex(0);
     setCurrentLessonScore(0);
     setFeedback(null);
@@ -468,12 +562,35 @@ const ADHDView = ({ initialLessonId = null }) => {
   const handleReplayStep = () => {
     const step = steps[currentStepIndex];
     if (step.type === 'learn') {
-      // Replay text? visual only usually, but user removed Listen button.
-      // Maybe this button should just reset feedback.
+      // Replay is handled by the dedicated Listen button.
     } else if (step.type === 'story') {
       playAudio(step.content, playbackRate);
     }
     setFeedback(null);
+  };
+
+  const getStepReadout = (step) => {
+    if (!step) return '';
+    if (step.type === 'learn') {
+      const parts = [step.content, step.explanation].filter(Boolean);
+      return parts.join('. ');
+    }
+    if (step.type === 'quiz') {
+      const question = step.question ? String(step.question) : '';
+      const options = Array.isArray(step.options) ? step.options.filter(Boolean).join(', ') : '';
+      return options ? `${question}. Options are: ${options}.` : question;
+    }
+    if (step.type === 'story') {
+      const parts = [step.title, step.content].filter(Boolean);
+      return parts.join('. ');
+    }
+    return '';
+  };
+
+  const handleListenCurrentStep = () => {
+    const text = getStepReadout(currentStep);
+    if (!text) return;
+    playAudio(text, playbackRate);
   };
 
   const handleAnswer = (option) => {
@@ -505,49 +622,6 @@ const ADHDView = ({ initialLessonId = null }) => {
         // Removed audio feedback
       }
     }
-  };
-
-  // Voice Input for ADHD View
-  const [isListening, setIsListening] = useState(false);
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      setFeedback({ type: 'error', message: 'Voice input not supported in this browser' });
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
-    recognition.interimResults = false;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      // setFeedback({ type: 'info', message: 'Listening...' }); // Optional, might distract
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript.toLowerCase();
-      // Match with options
-      const step = steps[currentStepIndex];
-      if (step.type === 'quiz' && step.options) {
-        const matchedOpt = step.options.find(opt =>
-          transcript.includes(opt.toLowerCase()) || opt.toLowerCase().includes(transcript)
-        );
-        if (matchedOpt) {
-          handleAnswer(matchedOpt);
-        } else {
-          setFeedback({ type: 'error', message: `Heard "${transcript}". Try saying one of the options.` });
-        }
-      }
-    };
-
-    recognition.onerror = () => {
-      setFeedback({ type: 'error', message: 'Could not hear clearly. Try again.' });
-      setIsListening(false);
-    };
-
-    recognition.onend = () => setIsListening(false);
-    recognition.start();
   };
 
   const handlePlayStory = () => {
@@ -582,6 +656,33 @@ const ADHDView = ({ initialLessonId = null }) => {
               <span className="timer-text">{formatTime(timeRemaining)}</span>
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={toggleDistractionFreeMode}
+            className="btn-minimal btn-distraction-toggle"
+            title="Toggle distraction-free mode"
+            aria-pressed={distractionFreeMode}
+          >
+            {distractionFreeMode ? (
+              <ToggleRight size={18} aria-hidden="true" />
+            ) : (
+              <ToggleLeft size={18} aria-hidden="true" />
+            )}
+            <span className="btn-distraction-toggle__label">Distraction-Free</span>
+            <span className="btn-distraction-toggle__state">{distractionFreeMode ? 'On' : 'Off'}</span>
+          </button>
+
+          {isSessionActive && !activeLesson && (
+            <button
+              type="button"
+              onClick={backToSessionStart}
+              className="btn-minimal"
+              title="Back to session start"
+            >
+              Back
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate('/progress')}
@@ -593,8 +694,8 @@ const ADHDView = ({ initialLessonId = null }) => {
           <button onClick={() => setShowSettings(true)} className="btn-minimal" title="Settings">
             <Settings size={18} aria-hidden="true" />
           </button>
-          <button onClick={logout} className="btn-minimal">
-            Exit
+          <button type="button" onClick={logout} className="btn-logout" title="Logout">
+            Logout
           </button>
         </div>
       </header>
@@ -647,7 +748,6 @@ const ADHDView = ({ initialLessonId = null }) => {
                             <span className="lesson-emoji" aria-hidden="true"><lesson.Icon size={22} /></span>
                             <div className="lesson-info">
                               <h4>{lesson.title}</h4>
-                              <span className="lesson-time"><Timer size={14} aria-hidden="true" /> {lesson.duration}</span>
                             </div>
                           </div>
                           <button onClick={() => handleStartLesson(lesson)} className="btn-lesson">Start</button>
@@ -712,13 +812,15 @@ const ADHDView = ({ initialLessonId = null }) => {
             <div className="lesson-complete-view" style={{ textAlign: 'center', padding: '3rem', animation: 'fadeIn 0.5s ease', position: 'relative', overflow: 'hidden' }}>
               {currentLessonScore >= 20 ? (
                 <>
-                  <ReactConfetti
-                    width={windowSize.width}
-                    height={windowSize.height}
-                    recycle={true}
-                    numberOfPieces={200}
-                    gravity={0.2}
-                  />
+                  {!distractionFreeMode && (
+                    <ReactConfetti
+                      width={windowSize.width}
+                      height={windowSize.height}
+                      recycle={true}
+                      numberOfPieces={200}
+                      gravity={0.2}
+                    />
+                  )}
                   <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--text-primary)', zIndex: 10, position: 'relative' }}>Congratulations!</h2>
                   <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', zIndex: 10, position: 'relative' }}>
                     You have completed <strong>{activeLesson.title}</strong>!
@@ -804,6 +906,12 @@ const ADHDView = ({ initialLessonId = null }) => {
                             {currentStep.content}
                           </h2>
                           <p style={{ fontSize: '1.5rem', color: 'var(--text-primary)', fontWeight: '500', marginTop: '1rem' }}>{currentStep.explanation}</p>
+                          <button type="button" onClick={handleListenCurrentStep} className="btn-audio" title="Listen">
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                              <Volume2 size={18} aria-hidden="true" />
+                              <span>Listen</span>
+                            </span>
+                          </button>
                         </div>
                       )}
 
@@ -893,6 +1001,12 @@ const ADHDView = ({ initialLessonId = null }) => {
                       {currentStep.type === 'quiz' && (
                         <div className="quiz-mode">
                           <h2>{currentStep.question}</h2>
+                          <button type="button" onClick={handleListenCurrentStep} className="btn-audio" title="Listen to question">
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
+                              <Volume2 size={18} aria-hidden="true" />
+                              <span>Listen</span>
+                            </span>
+                          </button>
                           <div className="options-grid">
                             {currentStep.options.map(opt => (
                               <button
@@ -904,28 +1018,6 @@ const ADHDView = ({ initialLessonId = null }) => {
                                 {opt}
                               </button>
                             ))}
-                          </div>
-
-                          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                            <button
-                              onClick={startListening}
-                              disabled={isListening}
-                              style={{
-                                background: isListening ? '#ffe0b2' : 'transparent',
-                                border: '2px solid #ff9800',
-                                padding: '8px 20px',
-                                borderRadius: '30px',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                color: '#e65100',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                              }}
-                            >
-                              <Mic size={16} aria-hidden="true" />
-                              <span>{isListening ? 'Listening...' : 'Use Voice Answer'}</span>
-                            </button>
                           </div>
                         </div>
                       )}

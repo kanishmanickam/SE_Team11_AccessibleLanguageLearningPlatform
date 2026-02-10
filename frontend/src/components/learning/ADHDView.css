@@ -30,10 +30,15 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background-color: var(--accent-color);
-  color: white;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--accent-color);
   border-radius: 20px;
   font-weight: 600;
+}
+
+.timer-display svg {
+  color: currentColor;
 }
 
 .timer-icon {
@@ -57,7 +62,54 @@
 }
 
 .btn-minimal:hover {
-  background-color: var(--bg-secondary);
+  border-color: var(--accent-color);
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.btn-minimal svg {
+  color: currentColor;
+}
+
+.btn-distraction-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.btn-distraction-toggle__label {
+  font-weight: 700;
+}
+
+.btn-distraction-toggle__state {
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: inherit;
+}
+
+.btn-minimal:hover .btn-distraction-toggle__state {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Match Dyslexia logout styling */
+.btn-logout {
+  padding: 8px 20px;
+  border: 2px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: inherit;
+  transition: all 0.3s;
+}
+
+.btn-logout:hover {
+  border-color: var(--error-color);
+  color: var(--error-color);
 }
 
 /* Focused Content Area */
@@ -181,8 +233,11 @@
 
 .lesson-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 12px;
   padding: 20px;
   background-color: var(--bg-primary);
   border: 2px solid var(--border-color);
@@ -192,13 +247,14 @@
 
 .lesson-item:hover {
   border-color: var(--accent-color);
-  transform: translateX(4px);
+  transform: translateY(-2px);
 }
 
 .lesson-content {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
 .lesson-emoji {
@@ -212,6 +268,10 @@
 }
 
 .lesson-time {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   font-size: 14px;
   color: var(--text-secondary);
 }
@@ -272,6 +332,47 @@ body.theme-yellow-black .tip-item {
 #learning-container.distraction-free .lesson-focus,
 #learning-container.distraction-free .stat-box {
   box-shadow: none;
+}
+
+/* ADHD-specific calm styling in distraction-free mode */
+#learning-container.distraction-free .adhd-view :where(.focus-card, .session-start, .lesson-focus, .stat-box, .lesson-player, .score-summary) {
+  box-shadow: none !important;
+  border-width: 1px !important;
+  border-color: var(--border-color) !important;
+}
+
+#learning-container.distraction-free .adhd-view .tip-item {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+#learning-container.distraction-free .adhd-view .highlight-text {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+#learning-container.distraction-free .adhd-view .btn-next {
+  box-shadow: none !important;
+}
+
+#learning-container.distraction-free .adhd-view .btn-audio {
+  background-color: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Hide icons to reduce visual noise (keep text labels) */
+#learning-container.distraction-free .adhd-view svg,
+#learning-container.distraction-free .adhd-view .lesson-emoji,
+#learning-container.distraction-free .adhd-view .timer-icon {
+  display: none !important;
+}
+
+/* Keep header and main text calm */
+#learning-container.distraction-free .adhd-view .lesson-header,
+#learning-container.distraction-free .adhd-view .lesson-player {
+  background-color: var(--bg-primary) !important;
 }
 
 /* Responsive */

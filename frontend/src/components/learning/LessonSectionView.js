@@ -3,6 +3,7 @@ import InteractionCard from './InteractionCard';
 import VisualLesson from './VisualLesson';
 import { useAuth } from '../../context/AuthContext';
 import { getLessonProgress, normalizeUserId, saveLessonProgress } from '../../services/dyslexiaProgressService';
+import { decorateDyslexiaText, useDyslexiaContext } from '../../utils/dyslexiaSyllableMode';
 import {
   Activity,
   Apple,
@@ -74,8 +75,10 @@ const getIllustration = (text) => {
   return defaultIllustration;
 };
 
-const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractionChange }) => {
+const LessonSectionView = ({ section, lessonId, isReplay, useLocalSubmission, onInteractionChange }) => {
   const { user } = useAuth();
+  const condition = user?.learningCondition || '';
+  const dyslexia = useDyslexiaContext({ condition, lessonId, defaultSyllableMode: true });
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -103,10 +106,10 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
       if (!trimmed) continue;
       const leadingWhitespace = raw.search(/\S/);
       const startIndex = match.index + (leadingWhitespace >= 0 ? leadingWhitespace : 0);
-      results.push({ text: trimmed, startIndex });
+      results.push({ text: dyslexia.applySyllables ? decorateDyslexiaText(trimmed) : trimmed, startIndex });
     }
     return results;
-  }, [section?.textContent]);
+  }, [dyslexia.applySyllables, section?.textContent]);
 
   const interactions = useMemo(() => {
     if (!section?.interactions) return [];
@@ -116,6 +119,27 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
   }, [section?.interactions]);
 
   const currentInteraction = interactions[activeInteractionIndex];
+
+  const displayedInteraction = useMemo(() => {
+    if (!currentInteraction) return null;
+    if (!dyslexia.applySyllables) return currentInteraction;
+
+    const safeDecorate = (value) => (value ? decorateDyslexiaText(value) : value);
+
+    return {
+      ...currentInteraction,
+      question: safeDecorate(currentInteraction.question),
+      hint: safeDecorate(currentInteraction.hint),
+      explanation: safeDecorate(currentInteraction.explanation),
+      feedback: currentInteraction.feedback
+        ? {
+            ...currentInteraction.feedback,
+            correct: safeDecorate(currentInteraction.feedback.correct),
+            incorrect: safeDecorate(currentInteraction.feedback.incorrect),
+          }
+        : currentInteraction.feedback,
+    };
+  }, [currentInteraction, dyslexia.applySyllables]);
 
   const sectionId = section?.id || section?._id;
 
@@ -336,12 +360,14 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
 
   if (!section) return null;
 
+  const displaySectionTitle = dyslexia.applySyllables ? decorateDyslexiaText(section.title) : section.title;
+
   return (
     <div className="lesson-section">
       <header className="lesson-section-header">
         <div>
           <p className="lesson-section-label">Section</p>
-          <h2>{section.title}</h2>
+          <h2>{displaySectionTitle}</h2>
         </div>
         {isReplay && <span className="replay-pill">Replaying</span>}
       </header>
@@ -359,10 +385,10 @@ const LessonSectionView = ({ section, isReplay, useLocalSubmission, onInteractio
             <p>No text content available.</p>
           )}
 
-          {currentInteraction && (
+          {displayedInteraction && (
             <InteractionCard
               lessonId={lessonKey}
-              interaction={currentInteraction}
+              interaction={displayedInteraction}
               readOnly={isReplay}
               useLocalSubmission={useLocalSubmission}
               onContinue={handleContinue}

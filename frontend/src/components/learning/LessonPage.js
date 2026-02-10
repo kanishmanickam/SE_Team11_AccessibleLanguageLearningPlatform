@@ -6,6 +6,7 @@ import { usePreferences } from '../../context/PreferencesContext';
 import LessonReplay from './LessonReplay';
 import lessonSamples from './lessonSamples';
 import './LessonPage.css';
+import { getDyslexiaLessonTitle, useDyslexiaContext } from '../../utils/dyslexiaSyllableMode';
 
 const estimateReadingTime = (text) => {
   if (!text) return 1;
@@ -97,7 +98,10 @@ const LessonPage = () => {
 
   const readingTime = estimateReadingTime(lesson?.textContent);
   const interactionCount = lesson?.interactions?.length || 0;
-  const resolvedTitle = lesson?.title || (isLoading ? 'Loading lesson…' : 'Lesson');
+  const condition = user?.learningCondition || '';
+  const dyslexia = useDyslexiaContext({ condition, lessonId, defaultSyllableMode: true });
+  const baseTitle = lesson?.title || (isLoading ? 'Loading lesson…' : 'Lesson');
+  const resolvedTitle = dyslexia.applySyllables ? getDyslexiaLessonTitle(lessonId, baseTitle) : baseTitle;
   const resolvedSubtitle = isLoading
     ? 'Preparing your lesson steps…'
     : `About ${readingTime} min • ${interactionCount} interactions`;
