@@ -94,6 +94,14 @@
   margin-top: 4px;
 }
 
+.autism-view .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 /* Buttons - Large click targets, clear states */
 .btn-settings,
 .btn-exit,

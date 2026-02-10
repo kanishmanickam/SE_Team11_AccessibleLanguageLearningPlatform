@@ -253,8 +253,7 @@
 .lesson-card {
   background: white;
   border-radius: 24px;
-  padding: 0;
-  /* Removing padding to use layout properly */
+  padding: 24px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   box-shadow: 0 10px 25px -5px rgba(50, 50, 93, 0.1), 0 8px 16px -8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
@@ -263,6 +262,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  gap: 14px;
   animation: fadeInUp 0.6s ease-out backwards;
 }
 
@@ -295,8 +295,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-  background: white;
+  margin: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-size: 28px;
   position: relative;
@@ -305,7 +304,7 @@
 
 .lesson-card h4 {
   font-size: 22px;
-  margin: 0 0 8px;
+  margin: 0;
   color: var(--text-primary);
   font-weight: 700;
 }
@@ -314,14 +313,15 @@
   color: var(--text-secondary);
   font-size: 16px;
   line-height: 1.6;
-  margin-bottom: 20px;
+  margin: 0;
   flex: 1;
 }
 
 .lesson-meta {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin: 0;
+  flex-wrap: wrap;
 }
 
 .badge {
@@ -335,7 +335,7 @@
 
 /* Progress Bar */
 .lesson-progress {
-  margin-bottom: 20px;
+  margin: 0;
 }
 
 .progress-bar-container {
