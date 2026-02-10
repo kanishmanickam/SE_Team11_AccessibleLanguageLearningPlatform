@@ -68,6 +68,7 @@ const HighlightSpan = ({ segment }) => {
 
 const VisualLesson = ({ paragraphs = [], highlights = [], visualAids = [], activeWord = '' }) => {
   return (
+    // EPIC 2.5.1-2.5.4: Visual learning aids via highlights + simple, content-matched images.
     <div className="visual-lesson">
       {paragraphs.map((paragraph) => {
         // Create base highlights
@@ -102,6 +103,7 @@ const VisualLesson = ({ paragraphs = [], highlights = [], visualAids = [], activ
             </p>
 
             {paragraphVisuals.length > 0 && (
+              // EPIC 2.5.2-2.5.4: Inline visuals are kept simple and matched to the paragraph content.
               <div className="visual-aids">
                 {paragraphVisuals.map((visual) => (
                   <figure

@@ -9,6 +9,7 @@ const PreferencesSchema = new mongoose.Schema(
       unique: true,
     },
     
+    // EPIC 1.3: General accessibility settings persisted per-user
     // General Accessibility Settings (1.3)
     fontSize: {
       type: String,
@@ -26,6 +27,7 @@ const PreferencesSchema = new mongoose.Schema(
       default: 'default',
     },
     
+    // EPIC 1.4: Dyslexia-friendly reading support preferences
     // Dyslexia Support (1.4)
     letterSpacing: {
       type: String,
@@ -48,6 +50,7 @@ const PreferencesSchema = new mongoose.Schema(
       default: 'none',
     },
     
+    // EPIC 1.5: ADHD learning pace + session structure preferences
     // ADHD Support (1.5)
     learningPace: {
       type: String,
@@ -65,6 +68,7 @@ const PreferencesSchema = new mongoose.Schema(
       default: true,
     },
     
+    // EPIC 1.6: Autism focus environment preferences (distraction-free / reduced motion)
     // Autism Support (1.6)
     distractionFreeMode: {
       type: Boolean,
@@ -83,7 +87,7 @@ const PreferencesSchema = new mongoose.Schema(
       default: true,
     },
     
-    // Text-to-Speech & Speech-to-Text
+    // EPIC (future): Text-to-Speech & Speech-to-Text controls (not part of Epic 1 scope)
     enableTextToSpeech: {
       type: Boolean,
       default: false,

@@ -12,6 +12,7 @@ const AccessibilitySetup = () => {
   const activeCondition = user?.learningCondition;
 
   const steps = useMemo(() => {
+    // EPIC 1.3.1: Wizard steps are condition-aware (base visual + condition add-ons)
     const baseSteps = [{ key: 'visual', title: 'Visual Settings' }];
 
     if (activeCondition === 'adhd') {
@@ -27,6 +28,7 @@ const AccessibilitySetup = () => {
 
   const [step, setStep] = useState(1);
   const [settings, setSettings] = useState({
+    // EPIC 1.3.3: Condition-specific default preferences for a good first-run experience
     fontSize: 'medium',
     contrastTheme: 'default',
     fontFamily: user?.learningCondition === 'dyslexia' ? 'opendyslexic' : 'default',
@@ -58,6 +60,7 @@ const AccessibilitySetup = () => {
   };
 
   const handleSubmit = async () => {
+    // EPIC 1.3.2: Persist wizard selections to backend preferences
     const payload = {
       fontSize: settings.fontSize,
       contrastTheme: settings.contrastTheme,
@@ -84,11 +87,13 @@ const AccessibilitySetup = () => {
 
     const result = await updatePreferences(payload);
     if (result.success) {
+      // EPIC 1.3.4: Continue into the learning dashboard after setup
       navigate('/dashboard');
     }
   };
 
   const skipSetup = () => {
+    // EPIC 1.3.4: Setup wizard can be skipped
     navigate('/dashboard');
   };
 

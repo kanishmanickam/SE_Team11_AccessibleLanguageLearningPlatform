@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // EPIC 1.2.4 / 1.7.4: Session persistence via localStorage + server verification
   // Load user from localStorage on mount
   useEffect(() => {
     const loadUser = async () => {
@@ -44,6 +45,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
+      // EPIC 1.1.1: Registration UI delegates to backend registration endpoint
       const response = await api.post('/auth/register', userData);
       const { token, user } = response.data;
 
@@ -71,6 +73,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setError(null);
+      // EPIC 1.2.1: Login UI delegates to backend login endpoint
       const response = await api.post('/auth/login', credentials);
       const { token, user } = response.data;
 
@@ -88,6 +91,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      // EPIC 1.2: JWT logout is client-side (token removal); endpoint exists for auditing/consistency
       await api.post('/auth/logout');
     } catch (err) {
       console.error('Logout error:', err);

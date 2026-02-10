@@ -27,6 +27,7 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    // EPIC 1.2.1: Authenticate user via backend and start session
     const result = await login(formData);
 
     if (result.success) {

@@ -51,6 +51,9 @@ const ADHDView = ({ initialLessonId = null }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
+
+  // EPIC 1.5.4 (partial): Audio speed is adjustable per-session via playbackRate.
+  // TODO (if required by your backlog): bind preferences.learningPace -> default playbackRate.
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const [countdownValue, setCountdownValue] = useState(5);
   const [dummyUpdate, setDummyUpdate] = useState(0); // For forcing re-renders on audio state changes
@@ -60,13 +63,17 @@ const ADHDView = ({ initialLessonId = null }) => {
   const saveLessonCompletion = async (lessonId) => {
     try {
       const lessonKey = `adhd-lesson-${lessonId}`;
+
+      // EPIC 6.1.1, 6.4.1: Store completion state and auto-save after lesson completion.
       const res = await api.post('/users/complete-lesson', { lessonKey });
 
       const summaryFromBackend = res?.data?.summary;
       if (summaryFromBackend) {
+        // EPIC 6.4.1: Broadcast progress updates so ProgressPage/dashboard refresh automatically.
         window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: summaryFromBackend } }));
       } else {
         try {
+          // EPIC 6.7.1-6.7.2: Best-effort fallback if backend did not include summary.
           const s = await getSummary();
           if (s) window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: s } }));
         } catch (e) {
@@ -74,6 +81,7 @@ const ADHDView = ({ initialLessonId = null }) => {
         }
       }
     } catch (e) {
+      // EPIC 6.7.1-6.7.2: Completion should not break the lesson flow if saving fails.
       // Non-blocking: completion should not break the lesson flow
       console.error('Error saving ADHD lesson completion', e);
     }
@@ -108,6 +116,9 @@ const ADHDView = ({ initialLessonId = null }) => {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const playAudio = async (text, rate = 1) => {
+    // EPIC 3.1.2: Read lesson text aloud using clear audio (backend TTS with browser fallback).
+    // EPIC 3.5.3: Keep audio consistent in quality by using the same TTS path.
+    // EPIC 3.5.4: Listening/replay does not affect score.
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -164,6 +175,7 @@ const ADHDView = ({ initialLessonId = null }) => {
 
 
   const handleSessionEnd = () => {
+    // EPIC 1.5.2 / 1.5.3: Session timer ends + optional break reminders
     setIsSessionActive(false);
     setActiveLesson(null);
     setLessonPhase('idle');
@@ -210,6 +222,7 @@ const ADHDView = ({ initialLessonId = null }) => {
   }, [lessonPhase, countdownValue]);
 
   const startSession = () => {
+    // EPIC 1.5.2 / 1.5.3: Start a focused session with a preference-driven duration
     const duration = (preferences?.sessionDuration || 20) * 60; // Convert to seconds
     setTimeRemaining(duration);
     setIsSessionActive(true);
@@ -218,6 +231,7 @@ const ADHDView = ({ initialLessonId = null }) => {
 
   const distractionFreeMode = Boolean(preferences?.distractionFreeMode);
   const toggleDistractionFreeMode = async () => {
+    // EPIC 1.6.1: ADHD distraction-free toggle persisted to preferences
     const next = !distractionFreeMode;
     // Persist for the user; container classing is handled by Dashboard/PreferencesContext.
     await updatePreferences({
@@ -576,6 +590,7 @@ const ADHDView = ({ initialLessonId = null }) => {
     if (step.type === 'learn') {
       // Replay is handled by the dedicated Listen button.
     } else if (step.type === 'story') {
+      // EPIC 3.1.3, 3.5.1-3.5.2: Allow replay/repetition without limits.
       playAudio(step.content, playbackRate);
     }
     setFeedback(null);
@@ -602,6 +617,9 @@ const ADHDView = ({ initialLessonId = null }) => {
   const handleListenCurrentStep = () => {
     const text = getStepReadout(currentStep);
     if (!text) return;
+
+    // EPIC 3.1.1: Provide a “Play Audio”/Listen control for lesson text.
+    // EPIC 3.1.4: Keep audio speed slow and easy to understand (playbackRate).
     playAudio(text, playbackRate);
   };
 

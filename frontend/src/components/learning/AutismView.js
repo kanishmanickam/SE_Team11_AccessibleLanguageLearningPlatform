@@ -23,6 +23,8 @@ const AutismView = ({ initialLessonId = null }) => {
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
 
+  // EPIC 1.6: Autism support is primarily delivered via predictable UI + preference-driven reduced motion/distraction-free styling.
+
   // Lesson navigation state
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -46,6 +48,7 @@ const AutismView = ({ initialLessonId = null }) => {
   useEffect(() => {
     const fetchCompletedLessons = async () => {
       try {
+        // EPIC 6.3.1-6.3.4: Fetch read-only completion history to support reopen/review affordances.
         const response = await api.get('/users/completed-lessons');
         if (response.data.success) {
           // Convert backend format (e.g., "autism-lesson-1") to lesson IDs
@@ -55,6 +58,7 @@ const AutismView = ({ initialLessonId = null }) => {
           setCompletedLessons(lessonIds);
         }
       } catch (error) {
+        // EPIC 6.7.1-6.7.2: Best-effort history fetch; do not block learning center if it fails.
         console.error('Error fetching completed lessons:', error);
       }
     };
@@ -62,7 +66,7 @@ const AutismView = ({ initialLessonId = null }) => {
     fetchCompletedLessons();
   }, []);
 
-  // EPIC 2.1-2.7: Three complete lessons with multi-format content
+  // EPIC 2.1.1-2.1.4, 2.2.1-2.2.4, 2.3.1-2.3.4, 2.4.1-2.4.4, 2.5.1-2.5.4, 2.6.1-2.6.4, 2.7.1-2.7.4: Three complete lessons with multi-format content
   const lessons = useMemo(() => ([
     {
       id: 1,
@@ -579,7 +583,7 @@ const AutismView = ({ initialLessonId = null }) => {
   const currentStep = currentLesson?.steps[currentStepIndex];
   const totalSteps = currentLesson?.steps.length || 0;
 
-  // EPIC 2.6: Navigation handlers with replay support
+  // EPIC 2.6.1-2.6.4: Navigation handlers with replay support
   const handleNext = () => {
     // Check if current step has been answered correctly
     const stepKey = `${selectedLesson}-${currentStepIndex}`;
@@ -630,16 +634,20 @@ const AutismView = ({ initialLessonId = null }) => {
   const saveLessonCompletion = async (lessonId) => {
     try {
       const lessonKey = `autism-lesson-${lessonId}`;
+
+      // EPIC 6.1.1, 6.4.1: Store completion state and auto-save after lesson completion.
       const res = await api.post('/users/complete-lesson', { lessonKey });
 
       // If backend returned a progress summary, broadcast it to update the progress bar/dashboard
       const summary = res?.data?.summary;
       if (summary) {
+        // EPIC 6.4.1: Broadcast progress updates so ProgressPage/dashboard refresh automatically.
         window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary } }));
       } else {
         // Fallback: try to fetch summary and dispatch
         try {
           const { getSummary } = await import('../../services/progressService');
+          // EPIC 6.7.1-6.7.2: Best-effort fallback if backend did not include summary.
           const s = await getSummary();
           if (s) {
             window.dispatchEvent(new CustomEvent('progress:updated', { detail: { summary: s } }));
@@ -649,12 +657,18 @@ const AutismView = ({ initialLessonId = null }) => {
         }
       }
     } catch (error) {
+      // EPIC 6.7.1-6.7.2: Completion should not break the lesson flow if saving fails.
       console.error('Error saving lesson completion:', error);
     }
   };
 
-  // EPIC 2.1: Audio playback with text-to-speech fallback
+  // EPIC 2.1.2, 2.1.4: Audio playback with text-to-speech fallback
   const handlePlayAudio = () => {
+    // EPIC 3.1.1: Add a “Play Audio” button for lesson text.
+    // EPIC 3.1.2: Read lesson text aloud using clear audio (file audio when available, otherwise TTS).
+    // EPIC 3.1.3, 3.5.1-3.5.2: Allow unlimited replay/repetition.
+    // EPIC 3.1.4: Keep audio speed slow and easy to understand.
+    // EPIC 3.5.4: Repeated listening does not affect marks.
     if (audioRef.current && currentStep?.audio) {
       // Ensure current speed applies to file-based audio
       audioRef.current.playbackRate = playbackSpeed;
@@ -756,7 +770,7 @@ const AutismView = ({ initialLessonId = null }) => {
     }
   };
 
-  // EPIC 2.4: Hint toggle
+  // EPIC 2.4.3: Learner can request help manually (hint toggle)
   const handleShowHint = () => {
     setShowHint(!showHint);
   };
@@ -866,7 +880,7 @@ const AutismView = ({ initialLessonId = null }) => {
     }));
   };
 
-  // EPIC 2.3: Interactive engagement with feedback
+  // EPIC 2.3.1-2.3.4: Interactive engagement with immediate feedback
   const handleInteraction = (optionIndex) => {
     if (currentStep?.interaction && !questionAnswered) {
       setQuestionAnswered(true);
@@ -1042,7 +1056,7 @@ const AutismView = ({ initialLessonId = null }) => {
           </button>
         </header>
 
-        {/* EPIC 2.2 & 2.7: Consistent single-step layout */}
+        {/* EPIC 2.2.2, 2.2.4, 2.7.1-2.7.4: Consistent single-step layout */}
         <main className="lesson-content">
           <div className="lesson-step-container">
             {/* Step progress indicator */}
@@ -1058,11 +1072,11 @@ const AutismView = ({ initialLessonId = null }) => {
               </div>
             </div>
 
-            {/* EPIC 2.1: Multi-format lesson display */}
+            {/* EPIC 2.1.1-2.1.4: Multi-format lesson display (text + audio + visuals) */}
             <div className="step-content-card">
               {/* Left Column: Image, Question, and Options */}
               <div className="visual-column">
-                {/* EPIC 2.5: Visual learning aid with icon/image */}
+                {/* EPIC 2.5.2-2.5.4: Visual learning aid with icon/image */}
                 <div className="step-visual">
                   <img src={currentStep.image} alt={currentStep.title} className="visual-image-hidden" />
                 </div>
@@ -1093,7 +1107,7 @@ const AutismView = ({ initialLessonId = null }) => {
               </div>
               {/* Right Column: Content, Timer/Retry */}
               <div className="content-column">
-                {/* EPIC 2.5: Highlighted main content */}
+                {/* EPIC 2.5.1: Highlighted main content */}
                 <div className="step-text">
                   <p className="content-main">
                     {/* Dynamic highlighting */}
@@ -1116,7 +1130,7 @@ const AutismView = ({ initialLessonId = null }) => {
                   <p className="content-translation">{currentStep.translation}</p>
                 </div>
 
-                {/* EPIC 2.1: Audio controls */}
+                {/* EPIC 2.1.2: Audio controls */}
                 <div className="step-audio-section">
                   <button onClick={handlePlayAudio} className="btn-audio">
                     <Volume2 size={18} aria-hidden="true" />
@@ -1202,10 +1216,10 @@ const AutismView = ({ initialLessonId = null }) => {
                   </div>
                 )}
 
-                {/* EPIC 2.3: Immediate feedback */}
+                {/* EPIC 2.3.3: Immediate feedback */}
                 {feedback && <div className="feedback-message">{feedback}</div>}
 
-                {/* EPIC 2.4: Hint section */}
+                {/* EPIC 2.4.1-2.4.4: Hint/explanation/encouragement section */}
                 <div className="hint-section">
                   <button onClick={handleShowHint} className="btn-hint">
                     <Lightbulb size={18} aria-hidden="true" />
@@ -1217,7 +1231,7 @@ const AutismView = ({ initialLessonId = null }) => {
 
             </div>
 
-            {/* EPIC 2.6 & 2.7: Consistent navigation in fixed position */}
+            {/* EPIC 2.6.1-2.6.4, 2.7.2: Consistent navigation in fixed position */}
             <div className="step-navigation">
               <button
                 onClick={handlePrevious}

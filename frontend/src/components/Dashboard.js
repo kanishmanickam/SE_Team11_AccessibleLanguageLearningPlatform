@@ -35,6 +35,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!preferences || !containerRef.current) return;
 
+    // EPIC 1.7.3: Apply stored accessibility preferences as scoped container classes
     const container = containerRef.current;
 
     // Reset classes (default = motion enabled)
@@ -84,6 +85,7 @@ const Dashboard = () => {
 
   // Render the appropriate learning view based on user's condition
   const renderLearningView = () => {
+    // EPIC 1.4 / 1.5 / 1.6: Route learners to condition-specific learning experiences
     switch (user?.learningCondition) {
       case 'dyslexia':
         return <DyslexiaView />;
