@@ -31,12 +31,12 @@ const AutismView = ({ initialLessonId = null }) => {
   const [completedLessons, setCompletedLessons] = useState([]);
   const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
   const [wrongAnswerCount, setWrongAnswerCount] = useState({});
+  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
 
   // Timer state for questions
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [timerActive, setTimerActive] = useState(false);
   const [questionAnswered, setQuestionAnswered] = useState(false);
-  const timerIntervalRef = useRef(null);
 
   const audioRef = useRef(null);
   const ttsAudioRef = useRef(null);
@@ -606,7 +606,8 @@ const AutismView = ({ initialLessonId = null }) => {
         // Save to backend
         saveLessonCompletion(selectedLesson);
       }
-      setFeedback('Great job! You completed this lesson!');
+      // Show completion screen instead of just feedback
+      setShowCompletionScreen(true);
     }
   };
 
@@ -848,21 +849,18 @@ const AutismView = ({ initialLessonId = null }) => {
     setQuestionAnswered(false);
     setFeedback('');
     setShowHint(false);
-    const difficulty = currentStep?.interaction?.difficulty || 'medium';
-    const timeLimit = getTimeForDifficulty(difficulty);
-    setTimeRemaining(timeLimit);
-    setTimerActive(true);
+    const stepKey = `${selectedLesson}-${currentStepIndex}`;
+    // Reset wrong answer count for this step
+    setWrongAnswerCount(prev => ({
+      ...prev,
+      [stepKey]: 0
+    }));
   };
 
   // EPIC 2.3: Interactive engagement with feedback
   const handleInteraction = (optionIndex) => {
     if (currentStep?.interaction && !questionAnswered) {
-      // Stop timer when answer is selected
-      setTimerActive(false);
       setQuestionAnswered(true);
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
 
       const stepKey = `${selectedLesson}-${currentStepIndex}`;
       if (optionIndex === currentStep.interaction.correct) {
@@ -877,6 +875,26 @@ const AutismView = ({ initialLessonId = null }) => {
           ...prev,
           [stepKey]: 0
         }));
+        
+        // Auto-advance to next question after correct answer
+        setTimeout(() => {
+          setFeedback('');
+          setShowHint(false);
+          setQuestionAnswered(false);
+          
+          if (currentStepIndex < totalSteps - 1) {
+            // Move to next step
+            setCurrentStepIndex(currentStepIndex + 1);
+          } else {
+            // Mark lesson as completed
+            if (!completedLessons.includes(selectedLesson)) {
+              setCompletedLessons([...completedLessons, selectedLesson]);
+              saveLessonCompletion(selectedLesson);
+            }
+            // Show completion screen
+            setShowCompletionScreen(true);
+          }
+        }, 2000);
       } else {
         // Increment wrong answer count
         const currentWrongCount = wrongAnswerCount[stepKey] || 0;
@@ -908,11 +926,6 @@ const AutismView = ({ initialLessonId = null }) => {
           setFeedback('Try again! Look at the hint if you need help.');
         }
       }
-      setTimeout(() => {
-        if (optionIndex === currentStep.interaction.correct) {
-          setFeedback('');
-        }
-      }, 2000);
     }
   };
 
@@ -941,10 +954,7 @@ const AutismView = ({ initialLessonId = null }) => {
     setStepAnsweredCorrectly({});
     setWrongAnswerCount({});
     setQuestionAnswered(false);
-    setTimerActive(false);
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
+    setShowCompletionScreen(false);
   };
 
   const autoOpenedLessonRef = React.useRef(null);
@@ -971,10 +981,23 @@ const AutismView = ({ initialLessonId = null }) => {
     setStepAnsweredCorrectly({});
     setWrongAnswerCount({});
     setQuestionAnswered(false);
-    setTimerActive(false);
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
+    setShowCompletionScreen(false);
+  };
+
+  // Handle next lesson from completion screen
+  const handleNextLesson = () => {
+    const nextLessonId = selectedLesson + 1;
+    if (nextLessonId <= lessons.length) {
+      handleStartLesson(nextLessonId);
+    } else {
+      // No more lessons, go back to lesson list
+      handleBackToLessons();
     }
+  };
+
+  // Handle progress navigation
+  const handleGoToProgress = () => {
+    navigate('/progress');
   };
 
   // Cleanup audio on unmount
@@ -989,6 +1012,38 @@ const AutismView = ({ initialLessonId = null }) => {
 
   // EPIC 1.6: Distraction-free mode when in lesson view
   if (selectedLesson && currentStep) {
+    // Show completion screen after finishing all steps
+    if (showCompletionScreen) {
+      return (
+        <div className="autism-view completion-screen">
+          <div className="completion-container">
+            <div className="completion-content">
+              <div className="completion-icon">🎉</div>
+              <h1 className="completion-title">Great Job!</h1>
+              <p className="completion-message">You completed "{currentLesson.title}" lesson!</p>
+              
+              <div className="completion-actions">
+                {selectedLesson < lessons.length && (
+                  <button onClick={handleNextLesson} className="btn-completion btn-next-lesson">
+                    <span className="btn-icon">➡️</span>
+                    Go to Next Lesson
+                  </button>
+                )}
+                <button onClick={handleBackToLessons} className="btn-completion btn-back-lessons">
+                  <span className="btn-icon">📚</span>
+                  Back to Lessons
+                </button>
+                <button onClick={handleGoToProgress} className="btn-completion btn-progress">
+                  <span className="btn-icon">📊</span>
+                  View Progress
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="autism-view distraction-free">
         {/* EPIC 1.6: Minimal header for focus */}

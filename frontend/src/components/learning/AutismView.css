@@ -476,6 +476,64 @@
   color: #1d4ed8;
 }
 
+/* Retry Section Styles */
+.retry-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 20px;
+  margin: 20px 0;
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+  animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.btn-retry {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #FF9800 0%, #FB8C00 100%);
+  color: white;
+  border: 3px solid #F57C00;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: bold;
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-retry:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 15px rgba(255, 152, 0, 0.4);
+  background: linear-gradient(135deg, #FB8C00 0%, #F57C00 100%);
+}
+
+.btn-retry:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* Enhanced interaction question styling */
+.interaction-question {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1565C0;
 /* Audio Player */
 .step-audio-section {
   display: flex;
@@ -622,7 +680,169 @@
   border: 1px solid #e2e8f0;
 }
 
-.autism-view.distraction-free .btn-nav:hover,
-.autism-view.distraction-free .lesson-simple-card:hover {
-  transform: none;
+/* Ensure compact layout that fits on one screen */
+@media (max-height: 900px) {
+  .step-content-card {
+    padding: 15px 20px;
+  }
+  
+  .content-main {
+    font-size: 20px;
+  }
+  
+  .step-visual img:not(.visual-image-hidden) {
+    max-width: 200px;
+  }
+  
+  .btn-option {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
 }
+
+/* Completion Screen Styles */
+.autism-view.completion-screen {
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.completion-container {
+  width: 100%;
+  max-width: 600px;
+  padding: 20px;
+}
+
+.completion-content {
+  background: white;
+  border-radius: 24px;
+  padding: 50px 40px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(76, 175, 80, 0.3);
+  animation: scaleIn 0.6s ease-out;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.completion-icon {
+  font-size: 100px;
+  animation: celebrate 1s ease-in-out infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes celebrate {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.2) rotate(-10deg); }
+  75% { transform: scale(1.2) rotate(10deg); }
+}
+
+.completion-title {
+  font-size: 48px;
+  color: #2E7D32;
+  margin: 0 0 15px 0;
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  animation: bounceText 0.8s ease-out;
+}
+
+.completion-message {
+  font-size: 24px;
+  color: #555;
+  margin: 0 0 40px 0;
+  font-weight: 500;
+}
+
+.completion-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-completion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 30px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-completion:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-completion:active {
+  transform: translateY(0);
+}
+
+.btn-next-lesson {
+  background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+  color: white;
+}
+
+.btn-next-lesson:hover {
+  background: linear-gradient(135deg, #66BB6A 0%, #4CAF50 100%);
+}
+
+.btn-back-lessons {
+  background: linear-gradient(135deg, #2196F3 0%, #42A5F5 100%);
+  color: white;
+}
+
+.btn-back-lessons:hover {
+  background: linear-gradient(135deg, #42A5F5 0%, #2196F3 100%);
+}
+
+.btn-progress {
+  background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+  color: white;
+}
+
+.btn-progress:hover {
+  background: linear-gradient(135deg, #FFB74D 0%, #FF9800 100%);
+}
+
+.btn-icon {
+  font-size: 24px;
+}
+
+@media (max-width: 768px) {
+  .completion-content {
+    padding: 40px 30px;
+  }
+  
+  .completion-title {
+    font-size: 36px;
+  }
+  
+  .completion-message {
+    font-size: 20px;
+  }
+  
+  .btn-completion {
+    font-size: 16px;
+    padding: 15px 25px;
+  }
+}
+
