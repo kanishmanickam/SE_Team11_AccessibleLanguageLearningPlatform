@@ -76,13 +76,6 @@ UML diagrams are available here (UseCase, Sequence, Architecture, ER, Activity, 
 - MongoDB (local) or MongoDB Atlas connection string
 - (Optional) Python 3 for the TTS endpoint
 
-### Backend setup
-
-```bash
-cd backend
-npm install
-```
-
 Create a `backend/.env` based on `backend/.env.example`.
 
 Minimal working example:
@@ -103,9 +96,11 @@ GEMINI_MODEL=gemini-2.5-flash
 # PYTHON_EXECUTABLE=../.venv/bin/python
 ```
 
-Start the backend:
+### Backend setup
 
 ```bash
+cd backend
+npm install
 npm run dev
 ```
 
