@@ -1,8 +1,13 @@
+
+// AutismView: Main learning interface for users with autism support needs.
+// Provides lesson navigation, predictable UI, reduced motion, and progress tracking.
+// Integrates with backend for completed lessons and user session state.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ProfileSettings from '../ProfileSettings';
 import api from '../../utils/api';
+// Icon imports for UI elements
 import {
   BookOpen,
   Check,
@@ -19,27 +24,30 @@ import {
 import './AutismView.css';
 
 const AutismView = ({ initialLessonId = null }) => {
+  // Auth context
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  // UI state for settings panel
   const [showSettings, setShowSettings] = useState(false);
 
-  // EPIC 1.6: Autism support is primarily delivered via predictable UI + preference-driven reduced motion/distraction-free styling.
+  // EPIC 1.6: Autism support is delivered via predictable UI and reduced motion/distraction-free styling.
 
-  // Lesson navigation state
-  const [selectedLesson, setSelectedLesson] = useState(null);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [showHint, setShowHint] = useState(false);
-  const [feedback, setFeedback] = useState('');
-  const [completedLessons, setCompletedLessons] = useState([]);
-  const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({});
-  const [wrongAnswerCount, setWrongAnswerCount] = useState({});
-  const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+  // Lesson navigation and progress state
+  const [selectedLesson, setSelectedLesson] = useState(null); // Currently selected lesson
+  const [currentStepIndex, setCurrentStepIndex] = useState(0); // Current step in lesson
+  const [showHint, setShowHint] = useState(false); // Show/hide hint for current step
+  const [feedback, setFeedback] = useState(''); // Feedback message for user
+  const [completedLessons, setCompletedLessons] = useState([]); // List of completed lesson IDs
+  const [stepAnsweredCorrectly, setStepAnsweredCorrectly] = useState({}); // Track correct answers per step
+  const [wrongAnswerCount, setWrongAnswerCount] = useState({}); // Track wrong answers per step
+  const [showCompletionScreen, setShowCompletionScreen] = useState(false); // Show completion UI
 
   // Timer state for questions
-  const [timeRemaining, setTimeRemaining] = useState(null);
-  const [timerActive, setTimerActive] = useState(false);
-  const [questionAnswered, setQuestionAnswered] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(null); // Time left for current question
+  const [timerActive, setTimerActive] = useState(false); // Is timer running?
+  const [questionAnswered, setQuestionAnswered] = useState(false); // Has current question been answered?
 
+  // Audio and timer refs
   const audioRef = useRef(null);
   const ttsAudioRef = useRef(null);
   const timerIntervalRef = useRef(null);
@@ -66,7 +74,8 @@ const AutismView = ({ initialLessonId = null }) => {
     fetchCompletedLessons();
   }, []);
 
-  // EPIC 2.1.1-2.1.4, 2.2.1-2.2.4, 2.3.1-2.3.4, 2.4.1-2.4.4, 2.5.1-2.5.4, 2.6.1-2.6.4, 2.7.1-2.7.4: Three complete lessons with multi-format content
+  // Define lessons with multi-format content (text, audio, visuals, etc.)
+  // Each lesson contains steps/questions for the user
   const lessons = useMemo(() => ([
     {
       id: 1,
