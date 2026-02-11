@@ -90,17 +90,15 @@ Minimal working example:
 ```dotenv
 # IMPORTANT: the frontend dev proxy is configured for 5002.
 # Either set PORT=5002 (recommended) or change the proxy in frontend/package.json.
+#make the .env.example as your .env file.
 PORT=5002
-
-MONGODB_URI=mongodb://localhost:27017/accessible-learning
+MONGODB_URI=MONGO_URL
 JWT_SECRET=replace_me_with_a_long_random_secret
 JWT_EXPIRE=7d
-NODE_ENV=development
-
+NODE_ENV=****
 # Optional: Gemini AI endpoints (/api/ai/*)
 GEMINI_API_KEY=your_key_here
 GEMINI_MODEL=gemini-2.5-flash
-
 # Optional: use a specific Python interpreter for TTS (/api/tts/speak)
 # PYTHON_EXECUTABLE=../.venv/bin/python
 ```
