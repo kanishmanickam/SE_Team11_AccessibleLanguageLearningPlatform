@@ -1076,10 +1076,19 @@ const AutismView = ({ initialLessonId = null }) => {
             <div className="step-content-card">
               {/* Left Column: Image, Question, and Options */}
               <div className="visual-column">
-                {/* EPIC 2.5.2-2.5.4: Visual learning aid with icon/image */}
+                {/* EPIC 2.5.2-2.5.4: Visual learning aid with image + keyword label */}
                 <div className="step-visual">
-                  <img src={currentStep.image} alt={currentStep.title} className="visual-image-hidden" />
+                  <img src={currentStep.image} alt={currentStep.title} className="visual-image" />
+                  {/* EPIC 2.5.4: Keyword badge on image linking visual to content */}
+                  {currentStep.highlight && (
+                    <span className="visual-keyword-badge">{currentStep.highlight}</span>
+                  )}
                 </div>
+                {/* EPIC 2.5.2: Caption linking image to lesson content */}
+                <p className="visual-caption">
+                  <span className="caption-icon" aria-hidden="true">🔤</span>
+                  {currentStep.title}
+                </p>
 
                 {/* Question below image */}
                 {currentStep.interaction && (
@@ -1107,25 +1116,63 @@ const AutismView = ({ initialLessonId = null }) => {
               </div>
               {/* Right Column: Content, Timer/Retry */}
               <div className="content-column">
-                {/* EPIC 2.5.1: Highlighted main content */}
+                {/* EPIC 2.5.1: Highlighted main content with multi-word phrase support */}
                 <div className="step-text">
                   <p className="content-main">
-                    {/* Dynamic highlighting */}
-                    {currentStep.content.split(' ').map((word, idx) => {
-                      const cleanWord = word.replace(/[.,!?;:()"]/g, '');
-                      const isActive = activeWord && cleanWord.toLowerCase() === activeWord.toLowerCase();
-                      const isStaticHighlight = currentStep.highlight && word.includes(currentStep.highlight);
+                    {/* Dynamic highlighting with multi-word phrase support */}
+                    {(() => {
+                      const text = currentStep.content;
+                      const highlightPhrase = currentStep.highlight || '';
+
+                      // Find the highlight phrase position in the content
+                      const highlightIndex = highlightPhrase ? text.indexOf(highlightPhrase) : -1;
+
+                      if (highlightIndex === -1) {
+                        // No phrase match — render word-by-word with TTS active-word only
+                        return text.split(' ').map((word, idx) => {
+                          const cleanWord = word.replace(/[.,!?;:()"]/g, '');
+                          const isActive = activeWord && cleanWord.toLowerCase() === activeWord.toLowerCase();
+                          return (
+                            <span
+                              key={idx}
+                              className={isActive ? 'highlight active-word' : ''}
+                            >
+                              {word}{' '}
+                            </span>
+                          );
+                        });
+                      }
+
+                      // Split content into: before highlight, highlight phrase, after highlight
+                      const before = text.slice(0, highlightIndex);
+                      const match = text.slice(highlightIndex, highlightIndex + highlightPhrase.length);
+                      const after = text.slice(highlightIndex + highlightPhrase.length);
+
+                      const renderWords = (segment, keyPrefix, isHighlighted) =>
+                        segment.split(' ').filter(w => w.length > 0).map((word, idx) => {
+                          const cleanWord = word.replace(/[.,!?;:()"]/g, '');
+                          const isActive = activeWord && cleanWord.toLowerCase() === activeWord.toLowerCase();
+                          return (
+                            <span
+                              key={`${keyPrefix}-${idx}`}
+                              className={
+                                isActive ? 'highlight active-word' :
+                                isHighlighted ? 'highlight keyword-highlight' : ''
+                              }
+                            >
+                              {word}{' '}
+                            </span>
+                          );
+                        });
 
                       return (
-                        <span
-                          key={idx}
-                          className={isActive ? 'highlight active-word' : (isStaticHighlight ? 'highlight' : '')}
-                          style={isActive ? { backgroundColor: 'var(--accent-color-soft)', transform: 'scale(1.03)', display: 'inline-block', transition: 'all 0.2s' } : {}}
-                        >
-                          {word}{' '}
-                        </span>
+                        <>
+                          {renderWords(before, 'before', false)}
+                          {renderWords(match, 'match', true)}
+                          {renderWords(after, 'after', false)}
+                        </>
                       );
-                    })}
+                    })()}
                   </p>
                   <p className="content-translation">{currentStep.translation}</p>
                 </div>
