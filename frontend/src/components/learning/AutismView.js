@@ -11,6 +11,7 @@ import api from '../../utils/api';
 import {
   BookOpen,
   Check,
+  ChevronLeft,
   Hand,
   Hash,
   Info,
@@ -1023,7 +1024,7 @@ const AutismView = ({ initialLessonId = null }) => {
               <div className="completion-icon">🎉</div>
               <h1 className="completion-title">Great Job!</h1>
               <p className="completion-message">You completed "{currentLesson.title}" lesson!</p>
-              
+
               <div className="completion-actions">
                 {selectedLesson < lessons.length && (
                   <button onClick={handleNextLesson} className="btn-completion btn-next-lesson">
@@ -1294,7 +1295,8 @@ const AutismView = ({ initialLessonId = null }) => {
                 disabled={currentStepIndex === 0}
                 className="btn-nav btn-previous"
               >
-                ← Previous
+                <ChevronLeft size={18} />
+                <span>Prev</span>
               </button>
               <button
                 onClick={handleNext}

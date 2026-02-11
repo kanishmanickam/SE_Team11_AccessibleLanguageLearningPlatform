@@ -478,8 +478,15 @@
 }
 
 @keyframes keywordPulse {
-  0%, 100% { box-shadow: 0 0 0 0 transparent; }
-  50% { box-shadow: 0 0 0 4px var(--accent-color-soft); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  50% {
+    box-shadow: 0 0 0 4px var(--accent-color-soft);
+  }
 }
 
 .highlight.active-word {
@@ -718,19 +725,27 @@
 }
 
 .btn-previous {
-  background: transparent;
+  background: white;
   color: #64748b;
-  border: 2px solid transparent;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-previous:hover:not(:disabled) {
-  background: #f1f5f9;
+  background: #f8fafc;
   color: #334155;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .btn-previous:disabled {
-  opacity: 0.3;
+  opacity: 0.5;
   cursor: not-allowed;
+  background: #f1f5f9;
+  border-color: #f1f5f9;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-next {
@@ -762,15 +777,15 @@
   .step-content-card {
     padding: 15px 20px;
   }
-  
+
   .content-main {
     font-size: 20px;
   }
-  
-  .step-visual {
-    max-width: 280px;
+
+  .step-visual img:not(.visual-image-hidden) {
+    max-width: 200px;
   }
-  
+
   .btn-option {
     padding: 10px 16px;
     font-size: 14px;
@@ -907,18 +922,17 @@
   .completion-content {
     padding: 40px 30px;
   }
-  
+
   .completion-title {
     font-size: 36px;
   }
-  
+
   .completion-message {
     font-size: 20px;
   }
-  
+
   .btn-completion {
     font-size: 16px;
     padding: 15px 25px;
   }
 }
-
