@@ -95,7 +95,7 @@ GEMINI_MODEL=gemini-2.5-flash
 # Optional: use a specific Python interpreter for TTS (/api/tts/speak)
 # PYTHON_EXECUTABLE=../.venv/bin/python
 ```
-###JWT SECRET KEY
+### JWT SECRET KEY
 ```bash
 To get a randome JWT SECRET KEY in the env
 use command in the terminal:- openssl rand -hex 64
