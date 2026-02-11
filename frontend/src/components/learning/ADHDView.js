@@ -1076,7 +1076,7 @@ const ADHDView = ({ initialLessonId = null }) => {
 
                       <div className="controls">
                         <button onClick={handleReplayStep} className="btn-control" title="Replay">
-                          <RotateCcw size={16} aria-hidden="true" />
+                          <RotateCcw size={18} aria-hidden="true" />
                           <span>Replay</span>
                         </button>
 
@@ -1086,13 +1086,13 @@ const ADHDView = ({ initialLessonId = null }) => {
                           title="Previous"
                           disabled={currentStepIndex === 0 || isTransitioning}
                         >
-                          <ChevronLeft size={16} aria-hidden="true" />
+                          <ChevronLeft size={18} aria-hidden="true" />
                           <span>Prev</span>
                         </button>
 
                         {currentStep.hint && attempts > 0 && (
                           <button onClick={() => setShowHint(true)} className="btn-control">
-                            <Lightbulb size={16} aria-hidden="true" />
+                            <Lightbulb size={18} aria-hidden="true" />
                             <span>Hint</span>
                           </button>
                         )}
