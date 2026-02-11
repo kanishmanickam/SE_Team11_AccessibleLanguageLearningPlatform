@@ -1,12 +1,28 @@
 # Accessible Language Learning Platform
 
-An accessible MERN language-learning platform designed to support learners with dyslexia, ADHD, and autism.
+## Project Title & Tagline
 
-## 1) Project overview
+**Accessible Language Learning Platform** — an accessible MERN language-learning platform designed to support learners with **dyslexia, ADHD, and autism**.
 
-This system provides condition-aware lesson delivery, interaction practice, and progress tracking.
+## Project Description
+
+This system provides **condition-aware lesson delivery**, **interaction practice**, and **progress tracking**, with built-in accessibility preferences and audio support.
+
+## Problem Statement
+
+Many language-learning tools are not designed for neurodiverse learners and can be hard to follow due to dense layouts, fast pacing, limited personalization, and a lack of consistent audio support. This project addresses that gap by offering a learning experience that adapts to learners’ needs and preferences (reading support, structured interactions, and repeatable audio narration).
+
+## Target Users
+
+- Learners with **dyslexia** who benefit from readable typography, spacing, and audio narration.
+- Learners with **ADHD** who benefit from reduced distractions, clear pacing, and focused flows.
+- Learners with **autism** who benefit from simplified layouts, predictable structure, and repeatable audio.
+- Educators/parents supporting the above learners.
+
+## Features Overview
 
 Key capabilities in this repository:
+
 - Condition-specific learning experiences (Dyslexia / ADHD / Autism) in the React UI.
 - JWT-based authentication and protected APIs.
 - User accessibility preferences persisted in MongoDB and applied on the frontend.
@@ -17,7 +33,29 @@ Key capabilities in this repository:
     - Backend Text-to-Speech endpoint (`/api/tts/speak`) with browser fallback
 - Optional Gemini-powered quiz generation endpoints with safe fallbacks.
 
+## Tech Stack
+
+- **Frontend:** React (CRA), React Router, Axios
+- **Backend:** Node.js, Express
+- **Database:** MongoDB (Mongoose)
+- **Testing:** Jest, React Testing Library, Supertest
+- **Audio/TTS:** HTML5 Audio + backend Python TTS helper (optional)
+
+## Project Structure
+
+High-level repository layout:
+
+```text
+.
+├─ backend/        # Express API (auth, lessons, interactions, progress, TTS)
+├─ frontend/       # React app (condition-specific lesson views, accessibility UI)
+├─ testing/        # Course/testing write-ups (if applicable)
+├─ tests/          # Additional test documentation/artifacts
+└─ *.md            # Project documentation (architecture, API, schema, etc.)
+```
+
 Developer docs (architecture, API, schema, standards, deployment, troubleshooting):
+
 - ARCHITECTURE.md
 - API.md
 - DATABASE_SCHEMA.md
@@ -25,7 +63,11 @@ Developer docs (architecture, API, schema, standards, deployment, troubleshootin
 - DEPLOYMENT.md
 - TROUBLESHOOTING.md
 
-## 2) Setup guide (run locally)
+UML diagrams are available here (UseCase, Sequence, Architecture, ER, Activity, Class):
+
+- https://drive.google.com/file/d/16MWa5Hmh47SqRw3UTENSl-YG6ca0v_T-/view?usp=drive_link
+
+## Setup guide (run locally)
 
 ### Prerequisites
 
@@ -102,4 +144,4 @@ python3 -m pip install -r backend/python_services/requirements.txt
 ```bash
 cd frontend
 npm run build
-```https://github.com/sadhanatp14/SE_Team11_AccessibleLanguageLearningPlatform.git
+```
